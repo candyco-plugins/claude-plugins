@@ -1,6 +1,6 @@
 # Paste-ready install note (Teams / email)
 
-Copy the block below to the team once the repo is pushed to `github.com/candyco/claude-plugins`.
+Copy the block below to the team once the repo is pushed to `github.com/candyco-plugins/claude-plugins`.
 
 ---
 
@@ -9,7 +9,7 @@ Copy the block below to the team once the repo is pushed to `github.com/candyco/
 Team — we've packaged our design system so Claude builds everything (reports, decks, dashboards, docs) in CandyCo's look automatically. Two commands, one time, in Claude Code:
 
 ```
-/plugin marketplace add candyco/claude-plugins
+/plugin marketplace add candyco-plugins/claude-plugins
 /plugin install candyco-design-system@candyco
 ```
 

@@ -64,7 +64,7 @@ These conventions live in code (formatting helpers, not CSS), but are documented
 
 ## How to extend
 
-This is a living system. The canonical copy lives in the `candyco/claude-plugins` repo under `plugins/candyco-design-system/`. To change the system, edit the files there and publish a new version (bump `version` in `.claude-plugin/plugin.json`), then have the team run `/plugin marketplace update candyco`. Edit locations:
+This is a living system. The canonical copy lives in the `candyco-plugins/claude-plugins` repo under `plugins/candyco-design-system/`. To change the system, edit the files there and publish a new version (bump `version` in `.claude-plugin/plugin.json`), then have the team run `/plugin marketplace update candyco`. Edit locations:
 
 - Tokens → `colors_and_type.css`
 - Rules and voice → `README.md`

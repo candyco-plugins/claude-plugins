@@ -7,13 +7,13 @@ CandyCo's internal Claude Code plugin marketplace. Add it once and install the p
 In Claude Code, run:
 
 ```
-/plugin marketplace add candyco/claude-plugins
+/plugin marketplace add candyco-plugins/claude-plugins
 /plugin install candyco-design-system@candyco
 ```
 
 That's it. The design system — tokens, fonts, logos, the report template, and the always-on design skill — is now bundled on your machine and applied automatically when you build anything visual.
 
-> If `candyco/claude-plugins` is a **private** repo, make sure your machine is authenticated to GitHub first (`gh auth login`, or an SSH key with access to the CandyCo org).
+> If `candyco-plugins/claude-plugins` is a **private** repo, make sure your machine is authenticated to GitHub first (`gh auth login`, or an SSH key with access to the `candyco-plugins` org).
 
 ## What's inside
 
