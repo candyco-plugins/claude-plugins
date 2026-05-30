@@ -1,7 +1,7 @@
 {
   "name": "candyco-design-system",
   "description": "CandyCo's design system — colors, typography, spacing, voice, components, fonts, logos, the paged 8.5×11 report template, and board-deck scaffolding. The default visual language for every artifact, report, slide, dashboard, or document built for CandyCo.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": {
     "name": "CandyCo",
     "email": "scott.maxfield@candyco.com"

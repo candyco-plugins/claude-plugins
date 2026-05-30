@@ -898,3 +898,254 @@
   margin-top: clamp(6px, 0.8vh, 14px);
   border-top: 1px solid rgba(196, 145, 90, 0.35);
 }
+
+
+/* ============================================================
+  15.  PRINT  —  Legal landscape (14in × 8.5in), one slide / page
+       ------------------------------------------------------------
+       Printing is critical for every board deck. The screen design
+       leans hard on clamp(…vw,…vh) for type and padding; Chrome's
+       print engine computes vw/vh against an unpredictable print
+       viewport, so without this block content shrinks to ~60% of
+       the page. The rules here:
+
+         1. Force the page to Legal landscape with zero margin and
+            lock every dynamic token to an absolute unit.
+         2. Make each .slide fill exactly one page; one slide / page.
+         3. Flip dark slides (cover / agenda / dividers / closing) to
+            a white canvas so a full deck doesn't burn toner on navy —
+            done by swapping the same token set the light theme uses,
+            so existing rules resolve to print colors automatically.
+         4. Flatten the light-slide grey canvas to white (no banding),
+            kill drop-shadows (print engines rasterize them as grey
+            boxes), and re-anchor every card with a hairline border.
+         5. Brute-force vertical fill: Chrome's print engine ignores
+            `flex:1` on children of a fixed-height flex column, so
+            content-slide chrome is absolutely pinned and slide-content
+            is forced to fill the page.
+
+       Brand accents (copper, brand-blue, emerald, racing-red) stay as
+       chosen — they were picked to read on either canvas.
+   ============================================================ */
+@page {
+  size: 14in 8.5in;   /* Legal landscape */
+  margin: 0;
+}
+
+@media print {
+  /* 15.1  Lock dynamic tokens to absolute units. */
+  :root {
+    --slide-pad-x:  0.7in  !important;
+    --slide-pad-y:  0.5in  !important;
+    --content-gap:  0.18in !important;
+    --card-radius:  14px   !important;
+    --eyebrow-size: 8pt    !important;
+    --small-size:   9pt    !important;
+    --body-size:    11pt   !important;
+    --h1-size:      28pt   !important;
+    --h2-size:      22pt   !important;
+    --title-size:   28pt   !important;
+  }
+  html {
+    background: #FFFFFF;
+    height: auto;
+    overflow: visible;
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+    margin: 0; padding: 0;
+    /* Anchor 1rem to a stable 14px regardless of the print viewport. */
+    font-size: 14px !important;
+  }
+  body {
+    background: #FFFFFF;
+    height: auto;
+    overflow: visible;
+    display: block !important;   /* never let a flex parent compress slides together */
+    margin: 0; padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* 15.2  Each slide is the full Legal-landscape page. Use 100vw/100vh
+     (which resolve to @page size in print) — explicit `8.5in` was being
+     silently ignored by Chrome, collapsing slides to content height. */
+  .slide {
+    width: 100vw !important;
+    height: 100vh !important;
+    min-width: 100vw !important;
+    min-height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    /* Belt + suspenders — Chrome versions disagree on which property
+       they honor; set both, one slide per page. */
+    break-after: page !important;
+    page-break-after: always !important;
+    break-before: auto !important;
+    page-break-before: auto !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .slide:last-of-type {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  /* 15.3  Chrome sits inside the 16:9 band, not at the paper edge. */
+  .slide .chrome-top    { top: calc(0.3125in + clamp(0.18in, 2.5vh, 0.32in)) !important; }
+  .slide .chrome-bottom { bottom: calc(0.3125in + clamp(0.18in, 2.5vh, 0.32in)) !important; }
+  .title-slide .title-bar { top: 0.3125in !important; }
+  .slide[data-section="cover"]::before,
+  .slide[data-section="agenda"]::before { inset: 0.3125in 0 !important; }
+
+  /* Inter-slide gap + hairline are screen-only. */
+  .slide + .slide { margin-top: 0 !important; border-top: 0 !important; }
+
+  /* Reveals show in final state; on-screen-only chrome is hidden. */
+  .reveal, .reveal-x { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .progress-bar, .nav-dots, .keyboard-hint { display: none !important; }
+
+  /* 15.4  Ink-saving white flip for dark slides (cover / agenda /
+     dividers / closing all carry data-section="cover" or "agenda").
+     Swap the same token set the light theme uses so every existing
+     var()-based rule resolves to a print color automatically. */
+  .slide[data-section="cover"],
+  .slide[data-section="agenda"] {
+    --bg-page:    #FFFFFF;
+    --bg-panel:   #F5F2EC;
+    --fg-primary: #1A1C27;
+    --fg-muted:   #4E5268;
+    --fg-dim:     #646981;
+    /* --shadow-50 is the bright ivory headline ink on screen (title /
+       divider / agenda / closing headlines all use it). Remap it to dark
+       so those headlines print as ink, not invisible near-white. */
+    --shadow-50:  #1A1C27;
+    --shadow-100: #1A1C27;
+    --shadow-200: #4E5268;
+    --shadow-300: #4E5268;
+    --shadow-400: #83879A;
+    --shadow-600: #C1C3CC;
+    --shadow-800: #E0E1E6;
+    --ivory:      #4E5268;  /* the title-bar's third band needs ink on white */
+    background: #FFFFFF !important;
+  }
+  .title-slide { background: #FFFFFF !important; }
+  /* Ghost watermark: swap white PNG → black PNG, same faint opacity. */
+  .slide[data-section="cover"]::before,
+  .slide[data-section="agenda"]::before {
+    background-image: url('assets/candyco-logo-black.png') !important;
+  }
+  /* Undo screen-mode near-ivory text tunings that would print invisible. */
+  .title-slide .title-date          { color: #1A1C27 !important; }
+  .title-slide .title-footer .left  { color: #646981 !important; }
+  .title-slide .title-footer .left strong { color: #1A1C27 !important; }
+  .title-slide .title-footer .right { color: #646981 !important; }
+  .title-slide .title-footer .audience { color: #1A1C27 !important; }
+  .slide[data-section="agenda"] .agenda-tag { color: #4E5268 !important; }
+  /* Headwinds label (copper-soft) washes out on ivory → copper-deep. */
+  .slide[data-section="cover"] .col-panel.neg .col-label { color: var(--copper-deep) !important; }
+
+  /* 15.5  Light content slides — flatten to white (kills the grey-canvas
+     banding) and brute-force the vertical fill by pinning chrome bars to
+     the page edges and forcing slide-content to fill. */
+  .slide:is(
+    [data-section="financial"], [data-section="operations"],
+    [data-section="sales"], [data-section="capacity"],
+    [data-section="fsqa"], [data-section="customer"], [data-section="plant"]
+  ) {
+    display: block !important;
+    position: relative !important;
+    background: #FFFFFF !important;
+    --card-shadow: none !important;
+  }
+  .slide:is(
+    [data-section="financial"], [data-section="operations"],
+    [data-section="sales"], [data-section="capacity"],
+    [data-section="fsqa"], [data-section="customer"], [data-section="plant"]
+  ) :is(.slide-content, .slide-body, .slide-header, .chrome-top, .chrome-bottom) {
+    background: #FFFFFF !important;
+  }
+  .slide:is(
+    [data-section="financial"], [data-section="operations"],
+    [data-section="sales"], [data-section="capacity"],
+    [data-section="fsqa"], [data-section="customer"], [data-section="plant"]
+  ) .chrome-top {
+    position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; z-index: 4;
+  }
+  .slide:is(
+    [data-section="financial"], [data-section="operations"],
+    [data-section="sales"], [data-section="capacity"],
+    [data-section="fsqa"], [data-section="customer"], [data-section="plant"]
+  ) .chrome-bottom {
+    position: absolute !important; bottom: 0 !important; top: auto !important; left: 0 !important; right: 0 !important; z-index: 4;
+  }
+  .slide:is(
+    [data-section="financial"], [data-section="operations"],
+    [data-section="sales"], [data-section="capacity"],
+    [data-section="fsqa"], [data-section="customer"], [data-section="plant"]
+  ) .slide-content {
+    position: absolute !important;
+    top: 0 !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
+    padding-top: 0.55in !important;     /* room for absolute chrome-top */
+    padding-bottom: 0.5in !important;   /* room for absolute chrome-bottom */
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .slide:is(
+    [data-section="financial"], [data-section="operations"],
+    [data-section="sales"], [data-section="capacity"],
+    [data-section="fsqa"], [data-section="customer"], [data-section="plant"]
+  ) .slide-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    justify-content: flex-start !important;   /* pack to top, no "spread to fill" gaps */
+    gap: 0.18in !important;
+  }
+
+  /* 15.6  Kill drop-shadows everywhere (print engines rasterize them as
+     grey boxes) and re-anchor every card with a hairline border so they
+     still read as discrete objects on paper. */
+  .slide *, .slide *::before, .slide *::after {
+    box-shadow: none !important;
+    filter: none !important;
+  }
+  .slide :is(.kpi, .data-table, .fin-op-metric, .partner-stat, .col-panel) {
+    box-shadow: none !important;
+    border: 1px solid rgba(26, 28, 39, 0.14) !important;
+  }
+
+  /* 15.7  Restore content gutters on cover / agenda / divider. The
+     `.slide { padding: 0 }` above lets content-slide chrome pin to the
+     page edges, but these layouts rely on the slide's own padding for
+     the headline / footer gutter. */
+  .slide.title-slide,
+  .slide[data-section="cover"],
+  .slide[data-section="agenda"],
+  .slide.divider {
+    padding: 0.5in 0.7in !important;
+  }
+
+  /* 15.8  Title bars never split across pages. */
+  .slide .chrome-top,
+  .slide .chrome-bottom,
+  .slide .slide-header,
+  .slide .title-bar {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* 15.9  Iframes (exhibit embeds) — Chrome rasterizes them at the
+     wrong size unless given explicit dimensions. */
+  .slide iframe {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 6in !important;
+    border: 0 !important;
+  }
+}

@@ -104,6 +104,34 @@ which resolves both in the plugin tree (`board-deck/assets/`) and when
 the stylesheet + an `assets/` folder are copied into a deck working
 folder. Keep the two logo PNGs beside the stylesheet.
 
+### Printing (§15)
+
+Every board deck must print, so the stylesheet ships a complete print
+system. Just **Print → Save as PDF** — no per-deck setup.
+
+- **Legal landscape, one slide per page.** `@page` is `14in × 8.5in`,
+  zero margin; each `.slide` fills exactly one page.
+- **Token lockdown.** The screen design leans on `clamp(…vw,…vh)`, which
+  Chrome's print engine miscomputes (content shrinks to ~60%). Print
+  re-pins every dynamic token to absolute units and anchors `1rem` to
+  14px, so type and spacing stay correct on paper.
+- **Ink-saving white flip.** Dark slides (cover / agenda / dividers /
+  closing) flip to a white canvas — the same token swap the light theme
+  uses — so a full deck doesn't burn toner on full-page navy. The ghost
+  watermark swaps to the black logo at the same faint opacity; copper /
+  brand-blue / emerald / red accents stay as chosen.
+- **No print artifacts.** The grey content-slide canvas flattens to
+  white (no horizontal banding), drop-shadows are killed (print engines
+  rasterize them as grey boxes) and every card is re-anchored with a
+  hairline border, and content-slide chrome is absolutely pinned so each
+  slide fills the page (Chrome's print engine ignores `flex:1`).
+- Reveals print in their final state; progress bar / nav dots / keyboard
+  hint are hidden.
+
+Deck-specific print fixes (e.g. scaling an embedded org chart or iframe
+to the page) still belong in a deck-specific stylesheet — §15 covers the
+canonical slide structure, not bespoke embeds.
+
 ### Light-slide anatomy
 
 ```
