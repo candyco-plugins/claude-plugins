@@ -1,0 +1,223 @@
+/* ============================================================
+   BOARD DECK · LIVE HTML TABLES
+   ------------------------------------------------------------
+   Drop-in stylesheet for financial tables embedded as live HTML
+   inside a board-deck slide (rather than as static screenshots).
+
+   USE THIS FOR:
+   - YTD P&L (full or split into vs-budget / vs-prior-year)
+   - Quarterly balance sheet
+   - Financial projections / covenant tables
+   - Any tabular financial detail that needs to be data-driven,
+     selectable, search-friendly, and printable as crisp text.
+
+   USE A STATIC IMAGE FOR:
+   - Bridge waterfalls and other chart-shaped figures where the
+     visual layout (not the cell grid) is the message.
+
+   USAGE:
+     <div class="slide-body reveal" data-d="4">
+       <div class="pl-embed pl-pnl">       ← modifier picks the fit
+         <div class="pl-card">              ← white floating card
+           <table>
+             <colgroup>…</colgroup>
+             <tr class="ghead">…</tr>       ← top group headers
+             <tr class="shead">…</tr>       ← $ / % / $/Lb sub-headers
+             <tr class="sp">…</tr>          ← spacer
+             <tr>…</tr>                     ← data row
+             <tr class="b rt">…</tr>        ← bold subtotal w/ top rule
+             …
+           </table>
+         </div>
+       </div>
+     </div>
+
+   THE SLIDE ITSELF MUST DECLARE `container-type: inline-size`
+   (see board-deck-style.css) so the `cqi` font-clamp below
+   scales the table with the slide's width.
+
+   CONTRACT WITH GENERATOR SCRIPTS:
+   Generator scripts (Python + openpyxl) emit just the <table>
+   contents (colgroup + rows). The wrapper (.pl-embed + .pl-card)
+   is hand-written in the slide. Match indentation: <table> at
+   column 10 in the slide source.
+   ============================================================ */
+
+
+/* ============================================================
+   1. WRAPPER  —  the floating white card
+   ============================================================ */
+.pl-embed {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.3rem, 1vh, 0.8rem);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.pl-embed .pl-card {
+  background: #fff;
+  font-family: Arial, Helvetica, "Helvetica Neue", sans-serif;
+  color: #000;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  /* Float above the grey canvas like every other card. */
+  border-radius: var(--card-radius, 14px);
+  box-shadow: var(--card-shadow,
+    0 1px 3px rgba(26,28,39,0.06),
+    0 12px 32px rgba(26,28,39,0.08));
+  padding: clamp(0.7rem, 1.6vh, 1.3rem) clamp(0.85rem, 1.5vw, 1.45rem);
+}
+
+
+/* ============================================================
+   2. TABLE  —  default (medium-density, ~15 cols)
+   Use for: tables that already span most of the page naturally.
+   ============================================================ */
+.pl-embed table {
+  border-collapse: collapse;
+  font-size: clamp(6.5px, 0.72cqi, 11px);
+  line-height: 1.15;
+}
+.pl-embed td,
+.pl-embed th {
+  padding: 0.14em 0.64em;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+
+/* ============================================================
+   3. CELL CLASSES  —  used by every variant
+   ------------------------------------------------------------
+   .lbl      first column, left-aligned row label
+   .num      every numeric cell, right-aligned tabular nums
+   .d        $-prefixed cell (renders a leading "$" via ::before)
+   .g        group gap — first cell of each column group gets
+             extra left padding to separate the groups visually
+   .blue     CandyCo blue, used for Pounds Sold / Pounds Produced
+             rows and Operating Metrics rows
+   .b        bold (used on subtotal / total rows via <tr class="b">)
+   .serif    Times serif (used on adjustments below EBITDA)
+   .rt       row gets a 1px black top rule    (subtotal)
+   .rb       row gets a 1px black bottom rule (Gross Margin)
+   .rd       row gets a 3px black double rule (Net Income, EBITDA)
+   .sp       spacer row — empty, ~0.72em tall
+   .ghead    top group-header row — pill chips for column groups
+   .shead    sub-header row — $ / % / $/Lb labels under groups
+   .ul       underline (used inside .shead to underline month
+             columns in balance sheet / projections tables)
+   .psec     section-header row spanning all cols
+             (INCOME STATEMENT / BALANCE SHEET / COVENANTS
+             dividers in the financial projections table)
+   .comp     covenant compliance flag — renders "YES" in emerald
+             bold; signals that a covenant test passed
+   .spacerCol  the empty first column under .ghead — no chip,
+             no border
+   ============================================================ */
+.pl-embed .lbl    { text-align: left; padding-right: 2em; }
+.pl-embed .num    { text-align: right; font-variant-numeric: tabular-nums; min-width: 4em; }
+.pl-embed .d      { min-width: 5em; position: relative; }
+.pl-embed .d::before { content: "$"; position: absolute; left: 0.64em; }
+.pl-embed .g      { padding-left: 1.55em; }
+.pl-embed .blue   { color: #1f70c1; }
+.pl-embed .b      { font-weight: bold; }
+.pl-embed .serif  { font-family: "Times New Roman", Times, Georgia, serif; }
+.pl-embed .rt     { border-top: 1px solid #000; }
+.pl-embed .rb     { border-bottom: 1px solid #000; }
+.pl-embed .rd     { border-bottom: 3px double #000; }
+.pl-embed .sp td  { height: 0.72em; padding: 0; }
+
+.pl-embed .ghead th {
+  border: 1px solid #7a7a7a;
+  background: #f1f1f1;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: bold;
+  padding: 0.27em 0.7em;
+}
+.pl-embed .ghead .spacerCol { border: 0; background: transparent; }
+
+.pl-embed .shead th       { text-align: center; font-weight: bold; padding-bottom: 0.27em; }
+.pl-embed .shead .ul      { border-bottom: 1px solid #000; }
+
+.pl-embed .psec td {
+  border-top: 1.5px solid #000;
+  border-bottom: 1px solid #000;
+  padding-top: 0.45em;
+  padding-bottom: 0.3em;
+  letter-spacing: 0.04em;
+}
+
+.pl-embed .comp   { color: var(--emerald-deep, #1a7a4b); font-weight: bold; }
+
+
+/* ============================================================
+   4. MODIFIER:  .pl-bs   —  Balance Sheet (5–7 cols)
+   ------------------------------------------------------------
+   The balance sheet is shorter (fewer columns, fewer rows than
+   a full P&L), so the default font-clamp leaves it looking lost
+   in the middle of the slide. This modifier:
+     - bumps the font cap to 13.5px
+     - stretches the table to width:100%
+     - sets the card to a fixed wider width so columns spread
+   Result: ~93% height fill, ~63% width fill at 1080p.
+   ============================================================ */
+.pl-embed.pl-bs table {
+  font-size: clamp(8px, 0.82cqi, 13.5px);
+  width: 100%;
+}
+.pl-embed.pl-bs .pl-card { width: min(64%, 1120px); }
+.pl-embed.pl-bs td,
+.pl-embed.pl-bs th       { padding: 0.18em 0.7em; }
+
+
+/* ============================================================
+   5. MODIFIER:  .pl-pnl  —  P&L vs-Budget / vs-Prior-Year (9 cols)
+   ------------------------------------------------------------
+   Used when the P&L is split into two slides — one comparing
+   Actual to Budget, the other comparing Actual to Prior Year.
+   Each table has the same row set plus an Operating Metrics
+   block, and 9 columns: spacer + Actual(3) + Compare(3) + Var(2).
+   This modifier:
+     - bumps the font cap to 14px
+     - stretches width like .pl-bs
+   Result: ~87% height fill, ~81% width fill at 1080p.
+   ============================================================ */
+.pl-embed.pl-pnl table {
+  font-size: clamp(7px, 0.92cqi, 14px);
+  width: 100%;
+}
+.pl-embed.pl-pnl .pl-card { width: min(82%, 1480px); }
+.pl-embed.pl-pnl td,
+.pl-embed.pl-pnl th       { padding: 0.16em 0.66em; }
+
+
+/* ============================================================
+   6. MODIFIER:  .pl-fp   —  Financial Projections (~14 cols, dense)
+   ------------------------------------------------------------
+   The 13-month + quarter-end projections table is the densest
+   layout: monthly Apr–Dec plus Mar-27 / Jun-27 / Sep-27 / Dec-27,
+   stacked into three sections (Income Statement / Balance Sheet /
+   Covenants) via `.psec` rows. Fits edge-to-edge — no width
+   constraint on the card.
+   ============================================================ */
+.pl-embed.pl-fp           { padding: clamp(0.15rem, 0.4vh, 0.35rem); }
+.pl-embed.pl-fp .pl-card  {
+  width: 100%;
+  height: 100%;
+  padding: clamp(0.3rem, 0.6vh, 0.55rem) clamp(0.5rem, 0.85vw, 0.85rem);
+  display: flex;
+  flex-direction: column;
+}
+.pl-embed.pl-fp table     {
+  font-size: clamp(6.5px, 0.78cqi, 11.5px);
+  width: 100%;
+  flex: 1 1 auto;
+}
+.pl-embed.pl-fp td,
+.pl-embed.pl-fp th        { padding: 0.08em 0.5em; }
+.pl-embed.pl-fp .psec td  { padding-top: 0.16em; padding-bottom: 0.12em; }

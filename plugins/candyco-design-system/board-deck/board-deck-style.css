@@ -1,0 +1,540 @@
+/* ============================================================
+   CandyCo · Board Deck Style
+   ------------------------------------------------------------
+   Canonical stylesheet for the CandyCo board-deck aesthetic
+   used on the May 28, 2026 Pure Foods / Pondera / Promus deck.
+
+   Two-theme split:
+   - DARK slides (cover, agenda, section dividers, closing):
+       Shadow Grey 900 canvas, ivory type, copper editorial
+       chrome, ghost wordmark watermark. Driven by the base
+       palette in `colors_and_type.css` — this stylesheet does
+       not override anything for dark sections.
+   - LIGHT slides (every content section — financial, operations,
+       sales, capacity, FSQA, etc.): cool-grey canvas, white
+       cards lifted via soft shadow, white title + footer bars,
+       no copper text. Defined entirely by this stylesheet.
+
+   How to use:
+   - Copy this file into the deck working folder alongside the
+     deck's main HTML, or `@import` it from the deck stylesheet.
+   - Author content slides as `<section class="slide" data-section="…">`
+     where `data-section` is one of: financial, operations, sales,
+     capacity, fsqa, customer, plant.
+   - Inside each slide, use the chrome / title / body / footer
+     structure documented in `template.html`.
+
+   The class names and variable tokens align with `colors_and_type.css`.
+   ============================================================ */
+
+/* ============================================================
+   1.  TOKENS  —  defined inline so this file is self-contained.
+       If the deck already imports `colors_and_type.css`, these
+       values match and become harmless duplicates.
+   ============================================================ */
+:root {
+  --emerald:         #23CE6B;
+  --emerald-deep:    #0E7A3A;
+  --golden-yellow:   #FFCA3A;
+  --racing-red:      #FF0022;
+  --racing-red-deep: #B30019;
+  --copper:          #C4915A;
+  --copper-deep:     #8B5A2B;
+
+  --shadow-50:       #F2F2F4;
+  --shadow-100:      #E0E1E6;
+  --shadow-200:      #C1C3CC;
+  --shadow-300:      #A2A5B3;
+  --shadow-400:      #83879A;
+  --shadow-500:      #646981;
+  --shadow-600:      #4E5268;
+  --shadow-700:      #3A3D50;
+  --shadow-800:      #272838;
+  --shadow-900:      #1A1C27;
+}
+
+/* ============================================================
+   2.  LIGHT-SLIDE SCOPE
+       Every rule below applies only to slides whose section is
+       one of the content-section categories. Cover / agenda /
+       dividers / closing are NOT light slides and stay on the
+       dark palette.
+   ============================================================ */
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) {
+  /* Canvas + card tokens. Override at the slide scope so cards
+     inside this slide pick up the new values via inheritance. */
+  --bg-page:    var(--shadow-50);
+  --bg-panel:   #FFFFFF;
+  --fg-primary: var(--shadow-900);
+  --fg-muted:   var(--shadow-600);
+  --fg-dim:     var(--shadow-500);
+
+  --card-radius: 14px;
+  --card-shadow: 0 1px 3px rgba(26, 28, 39, 0.06),
+                 0 12px 32px rgba(26, 28, 39, 0.08);
+
+  /* The slide canvas — cool grey, not white. This is the one
+     change that makes white cards visually float instead of
+     blending into the page. */
+  background: var(--bg-page);
+
+  /* Body-text variables some legacy components read directly. */
+  --shadow-100: var(--shadow-900);
+  --shadow-200: var(--shadow-600);
+  --shadow-400: var(--shadow-400);
+  --shadow-600: var(--shadow-200);
+
+  color: var(--fg-primary);
+
+  /* Slide is a flex column so chrome-top, slide-content and
+     chrome-bottom flow naturally instead of being positioned
+     absolute. The dark-section slides stay absolutely positioned;
+     they live outside this selector and aren't affected. */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   3.  TITLE BAR  —  white bar at top of every light slide.
+       Visually a single bar; structurally it's chrome-top
+       stacked on top of slide-header. Both share white bg and
+       sit edge-to-edge so they read as one band.
+   ============================================================ */
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .chrome-top {
+  position: static;
+  background: #FFFFFF;
+  padding: clamp(0.75rem, 1.4vh, 1.2rem) var(--slide-pad-x) clamp(0.35rem, 0.7vh, 0.6rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--fg-muted);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  flex: 0 0 auto;
+  z-index: 4;
+}
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .chrome-top .brand {
+  font-size: var(--eyebrow-size);
+  color: var(--fg-muted);
+}
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .chrome-top .brand-logo {
+  height: clamp(20px, 2.6vh, 30px);
+  opacity: 1;
+  background-image: url('../assets/candyco-logo-black.png');
+}
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .chrome-top .section-tag {
+  color: var(--fg-muted);
+  font-size: var(--eyebrow-size);
+  text-align: right;
+}
+
+/* slide-content becomes a transparent passthrough so the white
+   title band and the grey body canvas show through cleanly. */
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .slide-content {
+  padding: 0;
+  flex: 1;
+  min-height: 0;
+}
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .slide-header {
+  background: #FFFFFF;
+  padding: 0 var(--slide-pad-x) clamp(0.65rem, 1.2vh, 1rem);
+  border-bottom: 1px solid rgba(26, 28, 39, 0.08);
+  flex: 0 0 auto;
+}
+/* The original slide-eyebrow is redundant with chrome-top's
+   section-tag; the slide-rule is replaced by the bar's bottom
+   border. Hide both on light slides. */
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .slide-eyebrow,
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .slide-rule {
+  display: none;
+}
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .slide-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+  color: var(--fg-primary);
+  margin-top: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .slide-title .ital,
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .slide-title .accent {
+  color: var(--shadow-400);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* ============================================================
+   4.  BODY CANVAS  —  sits between the title bar and the footer
+       bar. Transparent background lets the grey slide canvas
+       show through. Floating white cards live here.
+   ============================================================ */
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .slide-body {
+  padding: clamp(0.9rem, 1.8vh, 1.5rem) var(--slide-pad-x);
+  background: transparent;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.6rem, 1.2vh, 1rem);
+}
+
+/* ============================================================
+   5.  FOOTER BAR  —  white bar at bottom: Confidential left,
+       page number right. No logo, no center wordmark.
+   ============================================================ */
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .chrome-bottom {
+  position: static;
+  background: #FFFFFF;
+  border-top: 1px solid rgba(26, 28, 39, 0.08);
+  padding: clamp(0.55rem, 1vh, 0.85rem) var(--slide-pad-x);
+  font-size: var(--eyebrow-size);
+  color: var(--fg-muted);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+/* Swap the meta text. Original may say "CandyCo · Board Deck · …";
+   on light slides it reads as the Confidential tag instead. */
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .chrome-bottom .meta {
+  font-size: 0;
+}
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .chrome-bottom .meta::before {
+  content: "Confidential · Internal use only";
+  font-size: var(--eyebrow-size);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--fg-muted);
+}
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .chrome-bottom .page-num {
+  color: var(--fg-primary);
+  font-weight: 700;
+}
+
+/* ============================================================
+   6.  CARDS  —  every panel-shaped element on a light slide.
+       White background, soft two-layer shadow, 14px radius.
+       No top-edge accent stripes — color appears only where it
+       carries meaning (status chips, delta numbers).
+   ============================================================ */
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) :is(.kpi, .data-table, .fin-op-metric, .partner-stat) {
+  border-top: 0;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+/* ============================================================
+   7.  STATUS DOTS  —  the one quiet color signal on KPI labels,
+       op-metric labels, and customer rows. green = favorable,
+       red = unfavorable, grey = neutral / no signal. Apply via
+       a leading `<span class="dot fav|unfav|neutral">`.
+   ============================================================ */
+.dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--shadow-200);
+  flex-shrink: 0;
+  margin-right: 8px;
+  vertical-align: 1px;
+}
+.dot.fav     { background: var(--emerald); }
+.dot.unfav   { background: var(--racing-red); }
+.dot.neutral { background: var(--shadow-400); }
+
+/* ============================================================
+   8.  YELLOW TAG CHIP  —  small categorical callout, mirrors the
+       "SHARED" tag pattern in the org chart. Use sparingly: one
+       tag per table eyebrow at most, to label what the panel is.
+   ============================================================ */
+.tag-chip {
+  display: inline-block;
+  background: var(--golden-yellow);
+  color: var(--shadow-900);
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  padding: 4px 9px;
+  border-radius: 4px;
+  vertical-align: 1px;
+  margin-right: 8px;
+}
+
+/* ============================================================
+   9.  NO-COPPER-TEXT RULE
+       On light slides, copper is reserved for the dark-section
+       canvas only. Any structural accents that previously used
+       copper (year-group headers, tier-section rows, total-row
+       top-rule) get flipped to dark navy on light slides.
+   ============================================================ */
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .data-table.customer-tier-table thead tr:first-child th.year-group {
+  color: var(--fg-primary);
+  border-bottom-color: var(--shadow-200);
+}
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .data-table.customer-tier-table tr.tier-section td {
+  color: var(--fg-primary);
+  border-bottom-color: var(--shadow-200);
+}
+.slide:is(
+  [data-section="financial"],
+  [data-section="operations"],
+  [data-section="sales"],
+  [data-section="capacity"],
+  [data-section="fsqa"],
+  [data-section="customer"],
+  [data-section="plant"]
+) .data-table.customer-tier-table tr.tier-total td {
+  border-top-color: var(--shadow-900);
+}
+
+
+/* ============================================================
+  10.  CONTAINER QUERIES ON SLIDES
+       Every .slide is a container query context. CSS inside the
+       slide can use `cqi` units to scale with slide width (not
+       viewport width). The live-tables system relies on this
+       to scale fonts and column widths with the slide.
+   ============================================================ */
+.slide { container-type: inline-size; }
+
+
+/* ============================================================
+  11.  ITALIC SERIF SUBTITLE CLAUSE
+       Pattern used inside slide titles to add a soft editorial
+       clarifier — e.g. "YTD P&L detail — vs budget, April 2026."
+       The <span class="ital"> renders as italic Frank Ruhl
+       Libre, weight 300, in shadow-200 so it sits behind the
+       main title without competing.
+
+         <h2 class="slide-title">Title
+           <span class="ital">— subtitle clause.</span>
+         </h2>
+   ============================================================ */
+.slide-title .ital,
+.title-headline .ital,
+.agenda h2 .ital {
+  font-family: var(--font-serif, "Frank Ruhl Libre", "Times New Roman", Times, serif);
+  font-style: italic;
+  font-weight: 300;
+  color: var(--shadow-200);
+}
+
+
+/* ============================================================
+  12.  STATUS / BITE CHIPS
+       Small pill labels used to mark the state of an item in a
+       row, card header, or KPI eyebrow. Semantic colors are
+       fixed — do not invent new colors for state. Always pair
+       the chip with text the user can read at a glance.
+
+         <span class="bite-chip live">Live</span>
+         <span class="bite-chip ready">Bench candidate</span>
+         <span class="bite-chip dev">Future</span>
+
+       SEMANTIC MAPPING:
+       - .live   — In market today / committed / approved.
+                   Solid emerald background, white text.
+       - .ready  — Ramping, in trial, or "candidate." Soft
+                   steel-blue tint. Reads as "in motion, not
+                   yet at scale."
+       - .dev    — Future, TBD, waiting on a decision, or in
+                   development. Golden-yellow background, dark
+                   text. Reads as "not yet committed."
+   ============================================================ */
+.bite-chip {
+  display: inline-block;
+  font-size: 0.72em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  vertical-align: 1px;
+}
+.bite-chip.live  { background: var(--emerald);                 color: #FFFFFF; }
+.bite-chip.ready { background: rgba(25, 130, 196, 0.16);       color: #1763A0; }
+.bite-chip.dev   { background: rgba(255, 202, 58, 0.9);        color: var(--shadow-900); }
+
+
+/* ============================================================
+  13.  APPENDIX IMAGE
+       For chart-shaped figures kept as static screenshots in
+       the appendix (e.g. the bridge waterfall in Exhibit A).
+       Use this ONLY for figures whose visual shape is the
+       message; financial tables should use the live-tables
+       system in live-tables.css.
+   ============================================================ */
+.appendix-img {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}

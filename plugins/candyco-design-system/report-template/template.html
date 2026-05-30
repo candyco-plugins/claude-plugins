@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>[Report title] — CandyCo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Frank+Ruhl+Libre:wght@400;500;700&family=Yeseva+One&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="report.css">
+</head>
+<body>
+<div class="doc-frame">
+
+<!-- ============================================================
+     SHEET 1 — COVER + EXECUTIVE SUMMARY
+     ============================================================ -->
+<section class="sheet">
+
+  <div class="cover-head">
+    <div class="brand">
+      <img src="../assets/logo/candyco-logo-black.png" alt="CandyCo">
+    </div>
+    <div class="doc-meta">
+      <div class="eyebrow" style="font-size: 7pt;">[Department or audience]</div>
+      <div>[Date] &nbsp;·&nbsp; [Plant or scope] &nbsp;·&nbsp; [Line or function]</div>
+    </div>
+  </div>
+
+  <h1>[Report title]</h1>
+  <p class="lead">[One sentence stating what the report reconciles, analyzes, or recommends. Distribution: [Finance, Operations, FSQA, R&amp;D].]</p>
+
+  <div class="meta-strip">
+    <div class="item"><div class="eyebrow">Subject</div><div class="v">[FG / item / line]</div></div>
+    <div class="item"><div class="eyebrow">Line</div><div class="v">[Sollich 2 / Molding 1]</div></div>
+    <div class="item"><div class="eyebrow">Period</div><div class="v">[Date range]</div></div>
+    <div class="item"><div class="eyebrow">Sample</div><div class="v">[N checks / N pouches]</div></div>
+  </div>
+
+  <h2>Executive summary</h2>
+
+  <div class="hero">
+    <div class="eyebrow">The single most important finding</div>
+    <p class="headline">[Lead with the gap. One sentence. Use <span class="accent">accent</span> on the one number that matters most. Bold any other key numbers with <strong>strong</strong>.]</p>
+  </div>
+  <!-- Light-cream hero is print-safe. For digital-only artifacts, add class="hero dark"
+       to use the inverse Shadow Grey + golden-yellow accent look. -->
+
+  <!-- Operational reports often add a goal-box below the appendix table on later sheets:
+       <div class="goal-box goal-warn"> <div class="goal-row">
+         <div class="goal-cell"><div class="goal-label">Net adjustment</div><div class="goal-value">$(163,999)</div></div>
+         <div class="goal-cell"><div class="goal-label">Production revenue</div><div class="goal-value">$3,652,939</div></div>
+         <div class="goal-cell goal-headline"><div class="goal-label">Scrap as % of revenue</div><div class="goal-value">-4.5%</div></div>
+       </div></div>
+  -->
+
+  <!-- For a wide appendix table:
+       1. Use <section class="sheet landscape" style="--print-scale: N;"> where N is computed
+          based on table row count: 1.0 ≤6 rows, 0.82 = 7-8 rows, 0.72 = 9-10 rows, 0.62 = 11+
+       2. Wrap ALL the section's content (h2, intro, meta-strip, table, goal-box, caption, footer)
+          inside <div class="print-rotated-region"><div class="print-rotated-inner">...</div></div>
+          On screen the content flows normally inside the 14"-wide sheet; on print everything
+          rotates -90° together to fit Letter portrait.
+       3. Use <table class="appendix-wide"> with rowspan/colspan thead grouping for grouped headers.
+       See report-template/README.md → "Wide tables on portrait pages" for the full pattern. -->
+
+
+  <div class="stats">
+    <div class="stat">
+      <div class="eyebrow">[Metric 1]</div>
+      <div class="num">[Value]</div>
+      <div class="sub">[Context · trend]</div>
+    </div>
+    <div class="stat">
+      <div class="eyebrow">[Metric 2]</div>
+      <div class="num">[Value]</div>
+      <div class="sub">[Context · trend]</div>
+    </div>
+    <div class="stat">
+      <div class="eyebrow">[Metric 3]</div>
+      <div class="num">[Value]</div>
+      <div class="sub">[Context · trend]</div>
+    </div>
+    <div class="stat">
+      <div class="eyebrow">Win to protect</div>
+      <div class="num">[Value]</div>
+      <div class="sub">[Why it's working · replicate]</div>
+    </div>
+  </div>
+
+  <h3>Top three improvement opportunities</h3>
+  <table>
+    <thead>
+      <tr><th style="width: 26%;">Opportunity</th><th style="width: 22%;">Estimated impact</th><th>Why it matters</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>[Opportunity 1]</strong></td><td><span class="cap error"><span class="dot error"></span>~$[X]</span></td><td>[One-line rationale.]</td></tr>
+      <tr><td><strong>[Opportunity 2]</strong></td><td><span class="cap warning"><span class="dot warning"></span>~$[X]</span></td><td>[One-line rationale.]</td></tr>
+      <tr><td><strong>[Opportunity 3]</strong></td><td><span class="cap warning"><span class="dot warning"></span>~$[X]</span></td><td>[One-line rationale.]</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sheet-footer"><span class="doc">[Report short title]</span><span class="page-no">Page 1 of N</span></div>
+</section>
+
+<!-- ============================================================
+     SHEET 2 — FULL ANALYSIS (chart + supporting table)
+     ============================================================ -->
+<section class="sheet">
+
+  <h2>[Full analysis section]</h2>
+  <p>[Lead paragraph. Lead with the gap, name the driver, name the action.]</p>
+
+  <div class="card">
+    <div class="eyebrow">Chart 1 · [What this view shows]</div>
+    <h4>[Chart title]</h4>
+    <div style="height: 220px;"><canvas id="chart_1"></canvas></div>
+    <div class="caption">[Plain-English read of the chart.]</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>[Item]</th><th class="num">[Metric]</th><th class="num">[Metric]</th><th>[Note]</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>[Row]</td><td class="num">[Val]</td><td class="num neg">−$[X]</td><td>[Note]</td></tr>
+      <tr class="totals"><td>[Total]</td><td class="num">[Val]</td><td class="num">[Val]</td><td>[Source]</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sheet-footer"><span class="doc">[Report short title]</span><span class="page-no">Page 2 of N</span></div>
+</section>
+
+<!-- ============================================================
+     SHEET 3 — AUDIENCE CALLOUTS (per team)
+     ============================================================ -->
+<section class="sheet">
+
+  <h2>What this means for each team</h2>
+  <div class="audience-grid">
+    <div class="audience">
+      <div class="head"><i class="icon" data-lucide="dollar-sign"></i><div class="title">Finance</div></div>
+      <ul>
+        <li>[Bullet — concrete number first.]</li>
+        <li>[Bullet.]</li>
+      </ul>
+    </div>
+    <div class="audience">
+      <div class="head"><i class="icon" data-lucide="factory"></i><div class="title">Operations</div></div>
+      <ul>
+        <li>[Bullet.]</li>
+        <li>[Bullet.]</li>
+      </ul>
+    </div>
+    <div class="audience">
+      <div class="head"><i class="icon" data-lucide="shield-check"></i><div class="title">FSQA</div></div>
+      <ul>
+        <li>[Bullet.]</li>
+        <li>[Bullet.]</li>
+      </ul>
+    </div>
+    <div class="audience">
+      <div class="head"><i class="icon" data-lucide="flask-conical"></i><div class="title">R&amp;D</div></div>
+      <ul>
+        <li>[Bullet.]</li>
+        <li>[Bullet.]</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sheet-footer"><span class="doc">[Report short title]</span><span class="page-no">Page 3 of N</span></div>
+</section>
+
+<!-- ============================================================
+     SHEET 4 — ACTION ASSIGNMENTS + SOURCES
+     ============================================================ -->
+<section class="sheet">
+
+  <h2>Action assignments</h2>
+  <table class="actions">
+    <thead>
+      <tr>
+        <th class="priority">#</th>
+        <th>Action</th>
+        <th style="width: 22%;">Owner</th>
+        <th style="width: 11%;">Priority</th>
+        <th style="width: 13%;">Due</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="priority">1</td>
+        <td>[Action — concrete, name the deliverable.]</td>
+        <td class="owner">[Role + person]</td>
+        <td><span class="cap error"><span class="dot error"></span>High</span></td>
+        <td>[Date]</td>
+      </tr>
+      <tr>
+        <td class="priority">2</td>
+        <td>[Action.]</td>
+        <td class="owner">[Role]</td>
+        <td><span class="cap warning"><span class="dot warning"></span>Medium</span></td>
+        <td>[Date]</td>
+      </tr>
+      <tr>
+        <td class="priority">3</td>
+        <td>[Action.]</td>
+        <td class="owner">[Role]</td>
+        <td><span class="cap success"><span class="dot success"></span>Low</span></td>
+        <td>[Date]</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footnote">
+    <strong>Sources.</strong> [Source 1; Source 2; Source 3.] [Methodology note. Confidence statement: high / medium / low on which dimensions and why.]
+  </div>
+
+  <div class="sheet-footer"><span class="doc">[Report short title]</span><span class="page-no">Page N of N</span></div>
+</section>
+
+</div><!-- /doc-frame -->
+
+<script>
+  if (window.lucide) window.lucide.createIcons();
+
+  Chart.defaults.font.family = "Assistant, -apple-system, BlinkMacSystemFont, sans-serif";
+  Chart.defaults.font.size = 9;
+  Chart.defaults.color = '#1E293B';
+  Chart.defaults.animation = false;
+  Chart.defaults.responsive = true;
+  Chart.defaults.maintainAspectRatio = false;
+
+  // Token colors — keep in sync with colors_and_type.css
+  const T = {
+    primary:    '#272838',
+    steelBlue:  '#1982C4',
+    emerald:    '#23CE6B',
+    yellow:     '#FFCA3A',
+    red:        '#FF0022',
+    grid:       '#E0E1E6',
+    fg2:        '#4E5268'
+  };
+
+  // Example chart — replace with your own
+  // new Chart(document.getElementById('chart_1'), { ... });
+</script>
+
+</body>
+</html>

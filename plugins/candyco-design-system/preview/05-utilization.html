@@ -1,0 +1,40 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Utilization Scale</title><link rel="stylesheet" href="_card.css"></head><body>
+<style>
+  .util-bar { flex:1; height:10px; background:var(--shadow-grey-100); border-radius:999px; overflow:hidden; }
+  .util-bar > div { height:100%; border-radius:999px; }
+  .ramping     { background: linear-gradient(90deg, #4FA8DC 0%, #1982C4 100%); }
+  .growing     { background: linear-gradient(90deg, #5DDC92 0%, #23CE6B 100%); }
+  .approaching { background: linear-gradient(90deg, #FFD96A 0%, #FFCA3A 60%, #FFB000 100%); }
+  .full        { background: linear-gradient(90deg, #FF5A5A 0%, #FF0022 100%); }
+</style>
+<div class="card">
+  <div class="eyebrow">Capacity utilization · Signature data-viz</div>
+
+  <div class="col" style="gap:10px;">
+    <div class="row" style="align-items:center;">
+      <div style="width:120px; font-size:13px;">Plant 03 · Memphis</div>
+      <div class="util-bar"><div class="ramping" style="width:32%;"></div></div>
+      <div class="mono" style="width:48px; text-align:right; color:#1982C4; font-weight:600;">32%</div>
+      <div style="font-size:11px; padding:2px 8px; background:#E3F1FB; color:#0B5180; border-radius:999px; font-weight:600;">Ramping</div>
+    </div>
+    <div class="row" style="align-items:center;">
+      <div style="width:120px; font-size:13px;">Plant 07 · Boise</div>
+      <div class="util-bar"><div class="growing" style="width:58%;"></div></div>
+      <div class="mono" style="width:48px; text-align:right; color:#176B3A; font-weight:600;">58%</div>
+      <div style="font-size:11px; padding:2px 8px; background:#E8FAF0; color:#176B3A; border-radius:999px; font-weight:600;">Growing</div>
+    </div>
+    <div class="row" style="align-items:center;">
+      <div style="width:120px; font-size:13px;">Plant 12 · Allentown</div>
+      <div class="util-bar"><div class="approaching" style="width:82%;"></div></div>
+      <div class="mono" style="width:48px; text-align:right; color:#7A5800; font-weight:600;">82%</div>
+      <div style="font-size:11px; padding:2px 8px; background:#FFF7DB; color:#7A5800; border-radius:999px; font-weight:600;">Approaching</div>
+    </div>
+    <div class="row" style="align-items:center;">
+      <div style="width:120px; font-size:13px;">Plant 04 · Reno</div>
+      <div class="util-bar"><div class="full" style="width:96%;"></div></div>
+      <div class="mono" style="width:48px; text-align:right; color:#A30016; font-weight:600;">96%</div>
+      <div style="font-size:11px; padding:2px 8px; background:#FFE5E9; color:#A30016; border-radius:999px; font-weight:600;">At capacity</div>
+    </div>
+  </div>
+</div>
+</body></html>

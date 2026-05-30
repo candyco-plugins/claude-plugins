@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- ==========================================================
+     CandyCo · Board Deck · <DATE>
+     ----------------------------------------------------------
+     Drop-in starter for a new CandyCo board deck. Author content
+     slides as <section class="slide" data-section="…">. See
+     README.md and board-deck-style.css for the visual contract.
+     ========================================================== -->
+<title>CandyCo · Board Deck · &lt;DATE&gt;</title>
+
+<!-- Brand fonts via Google CDN. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@300;400;500;700&family=Yeseva+One&display=swap" rel="stylesheet">
+
+<!-- Canonical board-deck stylesheet. Do not modify here — extend in a
+     deck-specific stylesheet if you need additional components. -->
+<link rel="stylesheet" href="board-deck-style.css">
+
+<!-- Live-HTML financial tables (P&L, balance sheet, projections,
+     covenants). Safe to keep imported even if the deck has no
+     financial slides — the rules are scoped to .pl-embed. -->
+<link rel="stylesheet" href="live-tables.css">
+
+<style>
+/* ==========================================================
+   MINIMAL DECK FRAMEWORK
+   ----------------------------------------------------------
+   Boilerplate for the 16:9 slide canvas, fluid type, and
+   navigation. Pulled from the canonical board-deck so a new
+   deck spins up without dependencies on other working folders.
+   ========================================================== */
+:root {
+  /* Type-scale variables — every clamp() is calibrated to the
+     1920×1080 design target. */
+  --eyebrow-size: clamp(0.6rem, 0.72vw, 0.72rem);
+  --small-size:   clamp(0.7rem, 0.85vw, 0.85rem);
+  --body-size:    clamp(0.85rem, 1vw, 1rem);
+  --h2-size:      clamp(1.25rem, 2vw, 1.75rem);
+  --h1-size:      clamp(2rem, 3.5vw, 3.5rem);
+
+  --slide-pad-x:  clamp(2rem, 5vw, 6rem);
+  --slide-pad-y:  clamp(1.5rem, 3.5vh, 3rem);
+
+  --font-sans:    "Assistant", system-ui, -apple-system, sans-serif;
+  --font-serif:   "Frank Ruhl Libre", Georgia, serif;
+  --font-display: "Yeseva One", "Frank Ruhl Libre", Georgia, serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Anchor 1rem to the slide's actual on-screen width so every
+   rem-based dimension (font, padding, table cell) scales in
+   lockstep with the 16:9 canvas. Divisor 120 → 1rem = 16px at
+   the 1920-wide design target. 8px floor stops tiny viewports
+   from collapsing below readable type. */
+html {
+  font-size: max(8px, min(calc(100vw / 120), calc(100vh * 16 / 9 / 120)));
+}
+
+body {
+  background: var(--shadow-900);
+  font-family: var(--font-sans);
+  color: var(--shadow-50);
+  font-size: var(--body-size);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  scroll-snap-type: y mandatory;
+  overflow-x: hidden;
+}
+
+/* Each slide is locked to a 16:9 canvas — the largest 16:9
+   rectangle that fits the viewport. When the browser is not 16:9,
+   the body background letterboxes around the slide. */
+.slide {
+  width:  min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
+  flex: 0 0 auto;
+  position: relative;
+  scroll-snap-align: start;
+  background: var(--shadow-900);
+  color: var(--shadow-50);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Default chrome positions for DARK slides (cover, agenda,
+   dividers, closing). The board-deck-style.css overrides these
+   for light-section slides. */
+.chrome-top {
+  position: absolute;
+  top: clamp(1rem, 2.5vh, 2rem);
+  left: var(--slide-pad-x);
+  right: var(--slide-pad-x);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--eyebrow-size);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--shadow-400);
+  z-index: 3;
+}
+.chrome-top .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+}
+.chrome-top .brand-logo {
+  display: inline-block;
+  width: 1.7em;
+  height: 1.2em;
+  background: url('assets/candyco-logo-white.png') no-repeat center / contain;
+  vertical-align: middle;
+}
+.chrome-top .brand-sep::before {
+  content: "·";
+  margin: 0 0.4em;
+  color: var(--shadow-400);
+}
+.chrome-bottom {
+  position: absolute;
+  bottom: clamp(1rem, 2.5vh, 2rem);
+  left: var(--slide-pad-x);
+  right: var(--slide-pad-x);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--eyebrow-size);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--shadow-400);
+  z-index: 3;
+}
+
+.slide-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--slide-pad-y) var(--slide-pad-x);
+  min-height: 0;
+}
+.slide-header { margin-bottom: clamp(1rem, 2vh, 1.75rem); }
+.slide-eyebrow {
+  font-size: var(--eyebrow-size);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  color: var(--copper);
+}
+.slide-title {
+  font-family: var(--font-display);
+  font-size: var(--h1-size);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin-top: 4px;
+}
+.slide-title .ital {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  color: var(--shadow-200);
+}
+.slide-rule {
+  width: 44px;
+  height: 2px;
+  background: var(--copper);
+  margin-top: 12px;
+}
+.slide-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.5vh, 1.25rem);
+}
+</style>
+</head>
+<body>
+
+
+<!-- ==========================================================
+     COVER  (dark)
+     ========================================================== -->
+<section class="slide" data-section="cover">
+  <div class="chrome-top">
+    <span class="brand"><span class="brand-logo"></span><span class="brand-sep"></span>Board Deck · &lt;DATE&gt;</span>
+    <span class="section-tag">Cover</span>
+  </div>
+  <div class="slide-content" style="justify-content:center; align-items:flex-start;">
+    <div class="slide-eyebrow">CandyCo · Board of Directors</div>
+    <h1 class="slide-title" style="font-size: clamp(3rem, 6vw, 6rem); margin-top: 0.3em;">
+      &lt;Board meeting title&gt; <span class="ital">— &lt;subtitle&gt;.</span>
+    </h1>
+    <div style="margin-top: clamp(1rem, 2vh, 1.5rem); color: var(--shadow-300); font-size: var(--body-size); letter-spacing: 0.1em; text-transform: uppercase;">
+      &lt;Audience · Pure Foods / Pondera / Promus&gt;
+    </div>
+  </div>
+  <div class="chrome-bottom">
+    <span class="meta">CandyCo · Board Deck · &lt;DATE&gt;</span>
+    <span class="page-num">01 / NN</span>
+  </div>
+</section>
+
+
+<!-- ==========================================================
+     SECTION DIVIDER  (dark)
+     ========================================================== -->
+<section class="slide" data-section="cover" id="section-i">
+  <div class="chrome-top">
+    <span class="brand"><span class="brand-logo"></span><span class="brand-sep"></span>Board Deck · &lt;DATE&gt;</span>
+    <span class="section-tag">Section · I</span>
+  </div>
+  <div class="slide-content" style="justify-content:center; align-items:flex-start;">
+    <div class="slide-eyebrow">Section One</div>
+    <h1 class="slide-title" style="font-size: clamp(2.5rem, 5vw, 5rem); margin-top: 0.3em;">
+      &lt;Section title&gt;.
+    </h1>
+    <div class="slide-rule" style="width: clamp(3rem, 6vw, 5rem); height: 4px; margin-top: clamp(0.75rem, 1.5vh, 1.25rem);"></div>
+  </div>
+  <div class="chrome-bottom">
+    <span class="meta">CandyCo · Board Deck · &lt;DATE&gt;</span>
+    <span class="page-num">02 / NN</span>
+  </div>
+</section>
+
+
+<!-- ==========================================================
+     LIGHT CONTENT SLIDE  —  Financial example
+     Section options that trigger the light-canvas treatment:
+       data-section="financial"
+       data-section="operations"
+       data-section="sales"
+       data-section="capacity"
+       data-section="fsqa"
+       data-section="customer"
+       data-section="plant"
+     ========================================================== -->
+<section class="slide" data-section="financial">
+  <div class="chrome-top">
+    <span class="brand"><span class="brand-logo"></span><span class="brand-sep"></span>Board Deck · &lt;DATE&gt;</span>
+    <span class="section-tag">I · Financial update</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-header">
+      <div class="slide-eyebrow">Financial update</div>
+      <h2 class="slide-title">&lt;Slide title&gt; <span class="ital">— &lt;subtitle&gt;.</span></h2>
+      <div class="slide-rule"></div>
+    </div>
+    <div class="slide-body">
+
+      <!-- Example: a row of four KPI cards with status dots. -->
+      <div class="kpi-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: clamp(0.5rem, 1vw, 1rem);">
+        <div class="kpi" style="background:#FFFFFF; padding: clamp(0.65rem, 1.25vh, 1.1rem) clamp(0.7rem, 1.15vw, 1.15rem);">
+          <div class="kpi-label" style="font-size: var(--eyebrow-size); font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color: var(--shadow-500); display:flex; align-items:center;">
+            <span class="dot neutral"></span>KPI label
+          </div>
+          <div class="kpi-value" style="font-family: var(--font-display); font-size: clamp(1.5rem, 2.4vw, 2rem); line-height:1; margin-top:0.4em;">
+            $0.0M
+          </div>
+        </div>
+        <!-- repeat KPI cards … -->
+      </div>
+
+      <!-- Example: a data-table card. -->
+      <div class="data-table" style="background:#FFFFFF; padding: clamp(0.55rem, 1.1vh, 0.95rem); flex:1; min-height:0;">
+        <div class="tbl-label" style="font-size: var(--eyebrow-size); font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color: var(--shadow-500); margin-bottom: 0.5rem;">
+          <span class="tag-chip">P&amp;L</span>Table title
+        </div>
+        <table style="width:100%; border-collapse:collapse; font-size: var(--small-size); font-variant-numeric: tabular-nums;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding: 0.4rem 0.6rem; font-size: var(--eyebrow-size); letter-spacing: 0.14em; text-transform: uppercase; color: var(--shadow-500); border-bottom: 1px solid var(--shadow-100);">Column</th>
+              <th style="text-align:right; padding: 0.4rem 0.6rem; font-size: var(--eyebrow-size); letter-spacing: 0.14em; text-transform: uppercase; color: var(--shadow-500); border-bottom: 1px solid var(--shadow-100);">Actual</th>
+              <th style="text-align:right; padding: 0.4rem 0.6rem; font-size: var(--eyebrow-size); letter-spacing: 0.14em; text-transform: uppercase; color: var(--shadow-500); border-bottom: 1px solid var(--shadow-100);">Budget</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 0.4rem 0.6rem; border-bottom: 1px solid rgba(26,28,39,0.05);">Row label</td>
+              <td style="padding: 0.4rem 0.6rem; text-align:right; border-bottom: 1px solid rgba(26,28,39,0.05);">$0,000</td>
+              <td style="padding: 0.4rem 0.6rem; text-align:right; border-bottom: 1px solid rgba(26,28,39,0.05);">$0,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+  <div class="chrome-bottom">
+    <span class="meta">CandyCo · Board Deck · &lt;DATE&gt;</span>
+    <span class="page-num">03 / NN</span>
+  </div>
+</section>
+
+
+<!-- ==========================================================
+     CLOSING  (dark)
+     ========================================================== -->
+<section class="slide" data-section="cover">
+  <div class="chrome-top">
+    <span class="brand"><span class="brand-logo"></span><span class="brand-sep"></span>Board Deck · &lt;DATE&gt;</span>
+    <span class="section-tag">Closing</span>
+  </div>
+  <div class="slide-content" style="justify-content:center; align-items:center; text-align:center;">
+    <div class="slide-eyebrow" style="text-align:center;">Discussion</div>
+    <h1 class="slide-title" style="font-size: clamp(3rem, 6vw, 6rem); margin-top: 0.3em; text-align:center;">
+      Q&amp;A.
+    </h1>
+  </div>
+  <div class="chrome-bottom">
+    <span class="meta">CandyCo · Board Deck · &lt;DATE&gt;</span>
+    <span class="page-num">NN / NN</span>
+  </div>
+</section>
+
+</body>
+</html>

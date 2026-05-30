@@ -1,0 +1,224 @@
+/* === scoped marketing-site styles === */
+.ms-body {
+  font-family: var(--font-sans);
+  color: var(--fg-1);
+  background: var(--bg-1);
+}
+.ms-container { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+
+/* Header */
+.ms-header {
+  position: sticky; top: 0; z-index: 50;
+  height: 72px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.ms-header-inner { height: 100%; display: flex; align-items: center; gap: 32px; }
+.ms-nav { display: flex; gap: 28px; margin-left: 24px; }
+.ms-nav a { color: var(--fg-1); text-decoration: none; font-size: 14px; font-weight: 500; }
+.ms-nav a:hover { color: var(--shadow-grey-600); }
+.ms-header-cta { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+
+/* Buttons */
+.ms-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+  padding: 11px 20px; border-radius: var(--radius);
+  border: 1px solid transparent; cursor: pointer;
+  transition: all 200ms var(--ease-standard); text-decoration: none;
+}
+.ms-btn-primary { background: var(--primary); color: white; }
+.ms-btn-primary:hover { background: var(--primary-dark); }
+.ms-btn-primary-light { background: white; color: var(--primary); }
+.ms-btn-primary-light:hover { background: var(--shadow-grey-50); }
+.ms-btn-ghost { background: transparent; color: var(--fg-1); }
+.ms-btn-ghost:hover { background: var(--shadow-grey-50); }
+.ms-btn-ghost-light { background: transparent; color: white; border-color: rgba(255,255,255,0.25); }
+.ms-btn-ghost-light:hover { background: rgba(255,255,255,0.08); }
+
+/* Hero */
+.ms-hero {
+  background: var(--primary);
+  color: white;
+  padding: 96px 0 112px;
+  position: relative;
+  overflow: hidden;
+}
+.ms-hero::after {
+  content: ""; position: absolute; right: -80px; top: -80px;
+  width: 360px; height: 360px; border-radius: 50%;
+  background: radial-gradient(circle, #C97B3F 0%, #8B4A1F 100%); opacity: 0.10;
+}
+.ms-eyebrow {
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  background: linear-gradient(180deg, #E8A06A 0%, #B97441 50%, #E8A06A 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ms-hero h1 {
+  font-family: var(--font-display);
+  font-size: 88px; font-weight: 400;
+  line-height: 1.02; letter-spacing: -0.02em;
+  color: white;
+  margin: 16px 0 24px;
+  max-width: 14ch;
+}
+/* Metallic copper text — used on hero italic accent and stat punctuation */
+.metallic-copper {
+  background: linear-gradient(
+    180deg,
+    #6B3416 0%,
+    #B97441 18%,
+    #E8A06A 38%,
+    #FFD9B0 50%,
+    #E8A06A 62%,
+    #B97441 82%,
+    #6B3416 100%
+  );
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.25));
+}
+.ms-hero h1 em { font-style: italic; }
+.ms-hero h1 em.metallic-copper { -webkit-text-fill-color: transparent; }
+.ms-hero p {
+  font-size: 20px; line-height: 1.55;
+  color: rgba(255,255,255,0.78);
+  max-width: 56ch;
+  margin: 0 0 36px;
+}
+.ms-hero-ctas { display: flex; gap: 12px; }
+
+/* Stat strip */
+.ms-stats {
+  background: white;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 56px 0;
+}
+.ms-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
+.ms-stat .ms-eyebrow { color: var(--shadow-grey-500); }
+.ms-stat-num {
+  font-family: var(--font-display);
+  font-size: 72px; font-weight: 400; line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--primary);
+  margin-top: 12px;
+}
+.ms-stat-num .accent {
+  background: linear-gradient(
+    180deg,
+    #6B3416 0%,
+    #B97441 18%,
+    #E8A06A 38%,
+    #FFD9B0 50%,
+    #E8A06A 62%,
+    #B97441 82%,
+    #6B3416 100%
+  );
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ms-stat-label { margin-top: 8px; color: var(--fg-2); font-size: 14px; }
+
+/* Section */
+.ms-section { padding: 96px 0; }
+.ms-section-bg { background: var(--bg-2); }
+.ms-section-head { max-width: 720px; margin-bottom: 48px; }
+.ms-section-head h2 {
+  font-size: 44px; font-weight: 600;
+  line-height: 1.1; letter-spacing: -0.02em;
+  margin: 12px 0 16px;
+}
+.ms-section-head p {
+  font-size: 18px; line-height: 1.55;
+  color: var(--fg-2);
+  margin: 0;
+}
+
+/* Capability cards */
+.ms-cap-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+}
+.ms-cap-card {
+  background: white;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 200ms var(--ease-standard);
+}
+.ms-cap-card:hover { box-shadow: var(--shadow); }
+.ms-cap-icon {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--shadow-grey-50);
+  border-radius: var(--radius);
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+.ms-cap-card h3 {
+  font-size: 20px; font-weight: 600;
+  margin: 0 0 8px;
+}
+.ms-cap-card p {
+  font-size: 15px; line-height: 1.55;
+  color: var(--fg-2);
+  margin: 0;
+}
+
+/* Utilization panel */
+.ms-util-panel {
+  background: white;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  box-shadow: var(--shadow-sm);
+}
+.ms-util-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; }
+.ms-util-head h3 { font-size: 22px; font-weight: 600; margin: 0; }
+.ms-util-row { display: grid; grid-template-columns: 280px 1fr 60px 130px; gap: 16px; align-items: center; padding: 14px 0; border-top: 1px solid var(--border-subtle); }
+.ms-util-plant { white-space: nowrap; }
+.ms-util-cap { white-space: nowrap; }
+.ms-util-row:first-of-type { border-top: none; }
+.ms-util-plant { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; }
+.ms-util-bar { height: 10px; background: var(--shadow-grey-100); border-radius: 999px; overflow: hidden; }
+.ms-util-bar-fill { height: 100%; border-radius: 999px; transition: width 600ms var(--ease-out); }
+.ms-util-bar-fill.ramping     { background: linear-gradient(90deg, #4FA8DC 0%, #1982C4 100%); }
+.ms-util-bar-fill.growing     { background: linear-gradient(90deg, #5DDC92 0%, #23CE6B 100%); }
+.ms-util-bar-fill.approaching { background: linear-gradient(90deg, #FFD96A 0%, #FFCA3A 60%, #FFB000 100%); }
+.ms-util-bar-fill.full        { background: linear-gradient(90deg, #FF5A5A 0%, #FF0022 100%); }
+.ms-util-pct { font-family: var(--font-mono); font-size: 13px; font-weight: 600; text-align: right; }
+.ms-util-cap { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; justify-self: end; }
+.ms-util-cap .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* Retailer strip */
+.ms-retailer-strip {
+  background: white;
+  padding: 48px 0;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.ms-retailer-row { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.ms-retailer-pill {
+  font-size: 14px; font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--shadow-grey-50);
+  color: var(--shadow-grey-700);
+}
+
+/* Footer */
+.ms-footer {
+  background: var(--primary-dark);
+  color: rgba(255,255,255,0.7);
+  padding: 64px 0 36px;
+}
+.ms-footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+.ms-footer h4 { color: white; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 16px; }
+.ms-footer ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.ms-footer a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; }
+.ms-footer a:hover { color: white; }
+.ms-footer-tag { font-size: 14px; line-height: 1.55; max-width: 32ch; margin: 16px 0 0; color: rgba(255,255,255,0.6); }
+.ms-footer-legal { display: flex; justify-content: space-between; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 13px; }

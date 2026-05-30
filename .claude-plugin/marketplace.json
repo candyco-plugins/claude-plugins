@@ -1,0 +1,18 @@
+{
+  "name": "candyco",
+  "owner": {
+    "name": "CandyCo",
+    "email": "scott.maxfield@candyco.com"
+  },
+  "metadata": {
+    "description": "CandyCo's internal Claude Code plugin marketplace.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "candyco-design-system",
+      "source": "./plugins/candyco-design-system",
+      "description": "CandyCo's design system — colors, typography, voice, components, fonts, logos, the paged 8.5×11 report template, and board-deck scaffolding. The default visual language for every CandyCo artifact."
+    }
+  ]
+}
