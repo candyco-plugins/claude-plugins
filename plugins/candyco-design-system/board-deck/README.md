@@ -54,11 +54,55 @@ To start a new deck:
 - **Dark slides** — Cover, agenda, section dividers, closing.
   Shadow Grey 900 canvas, ivory type, copper editorial chrome (eyebrow
   + slide rule), faint ghost wordmark watermark anchored bottom-right.
-  This is the **only** place copper appears in text.
+  This is the **only** place copper appears in text. Implemented in
+  `board-deck-style.css` §14 (see **Dark-slide components** below) —
+  previously these treatments lived only inside each deck's inline
+  `<style>`, so design changes drifted out of the system.
 - **Light slides** — every content section (Financial, Operations,
   Sales, Capacity, FSQA, etc.). Cool-grey `#F2F2F4` canvas, white
   cards lifted via soft shadow, white title bar at top, white footer
   bar at bottom, no copper text anywhere.
+
+### Dark-slide components (§14)
+
+Every dark-slide treatment now ships in the stylesheet. Author the
+markup per `template.html`; the classes below carry the look.
+
+| Component | Mark the `<section>` | Key classes |
+|-----------|----------------------|-------------|
+| **Ghost watermark** | `data-section="cover"` or `="agenda"` | applied automatically via `::before` — a faint oversized wordmark anchored bottom-right. The sole logo treatment on dark slides. |
+| **Title / cover** | `class="slide title-slide" data-section="cover"` | `.title-bar` (four-stop color-bar) · `.title-eyebrow` + pulsing `.dot` · `.title-date` (the "CandyCo" stamp) · `.title-headline` with copper `.accent` and serif-italic `.ital` · `.title-footer` → `.left` / `.right` / `.audience` |
+| **Agenda** | `data-section="agenda"` | `.agenda` · `.agenda-list` · `.agenda-item` (clickable `<a>` rows) · `.agenda-num` · `.agenda-title` · `.agenda-tag` |
+| **Section divider** | `class="slide divider" data-section="cover"` | `.divider-inner` · `.divider-num` (oversized copper numeral) · `.divider-eyebrow` · `.divider-title` · `.divider-rule` |
+| **Closing** | `data-section="cover"` | `.two-col` · `.col-panel.pos` (tailwinds, emerald) / `.col-panel.neg` (headwinds, copper-soft) · `.closing-qa` |
+
+Copper is the **only** text accent on dark slides — the chart palette
+(emerald / steel-blue / racing-red / golden-yellow) never appears in
+dark-slide chrome. Tailwinds/headwinds panels stay plain (no green/red
+gradients — a locked-in decision).
+
+### New tokens (§1)
+
+Added alongside the existing palette so dark-slide chrome resolves
+without the deck redefining them: `--copper-soft`, `--brand-blue`,
+`--brand-blue-2`, `--ivory`, `--aqua`, and `--hero-num` (the oversized
+divider numeral clamp).
+
+### Optional presentation runtime
+
+`template.html` ships an optional controller (progress bar, nav dots,
+keyboard/touch nav, and the `IntersectionObserver` that fires the
+staggered `.reveal` animations). Reveals are gated on `html.has-js`, so
+**a deck with the `<script>` removed still shows all content** — the
+runtime is additive, never required. It also honors
+`prefers-reduced-motion`.
+
+### Asset paths
+
+`board-deck-style.css` references logos as `assets/…` (not `../assets/…`),
+which resolves both in the plugin tree (`board-deck/assets/`) and when
+the stylesheet + an `assets/` folder are copied into a deck working
+folder. Keep the two logo PNGs beside the stylesheet.
 
 ### Light-slide anatomy
 

@@ -7,9 +7,10 @@
    Two-theme split:
    - DARK slides (cover, agenda, section dividers, closing):
        Shadow Grey 900 canvas, ivory type, copper editorial
-       chrome, ghost wordmark watermark. Driven by the base
-       palette in `colors_and_type.css` — this stylesheet does
-       not override anything for dark sections.
+       chrome, ghost wordmark watermark. Implemented in §14
+       (Dark-slide editorial system) — title-slide, agenda,
+       divider, and closing components all live here so a deck's
+       look no longer drifts away from the design system.
    - LIGHT slides (every content section — financial, operations,
        sales, capacity, FSQA, etc.): cool-grey canvas, white
        cards lifted via soft shadow, white title + footer bars,
@@ -40,6 +41,16 @@
   --racing-red-deep: #B30019;
   --copper:          #C4915A;
   --copper-deep:     #8B5A2B;
+  --copper-soft:     #D6AC81;
+
+  /* Dark-slide editorial accents (cover color-bar, title-slide glow). */
+  --brand-blue:      #1E3A5F;   /* deep professional navy — distinct from chart steel-blue */
+  --brand-blue-2:    #2C547F;
+  --ivory:           #F5F2EC;
+  --aqua:            #06B6D4;
+
+  /* Oversized display numeral used on section dividers. */
+  --hero-num:        clamp(8rem, 26vw, 28rem);
 
   --shadow-50:       #F2F2F4;
   --shadow-100:      #E0E1E6;
@@ -152,7 +163,9 @@
 ) .chrome-top .brand-logo {
   height: clamp(20px, 2.6vh, 30px);
   opacity: 1;
-  background-image: url('../assets/candyco-logo-black.png');
+  /* assets/ sits alongside this stylesheet both in the plugin tree
+     (board-deck/assets/) and when copied into a deck folder. */
+  background-image: url('assets/candyco-logo-black.png');
 }
 .slide:is(
   [data-section="financial"],
@@ -537,4 +550,351 @@
   height: 100%;
   object-fit: contain;
   display: block;
+}
+
+
+/* ============================================================
+  14.  DARK-SLIDE EDITORIAL SYSTEM
+       ------------------------------------------------------------
+       Cover, agenda, section dividers, and closing stay on the
+       Shadow Grey 900 canvas. This section is the canonical
+       implementation of every dark-slide treatment used on the
+       reference deck — previously these lived only inside each
+       deck's inline <style>, so changes drifted out of the design
+       system. They now live here.
+
+       Copper is the SOLE text accent on dark slides (eyebrows,
+       rules, roman numerals, the color-bar). The chart palette
+       (emerald / steel-blue / racing-red / golden-yellow) never
+       appears in dark-slide chrome.
+
+       Assets resolve from the assets/ folder beside this file
+       (board-deck/assets/ in the plugin tree, or the copied
+       assets/ folder in a deck working folder).
+   ============================================================ */
+
+/* --- 14.1  GHOST WORDMARK WATERMARK -------------------------
+   A faint oversized CandyCo wordmark anchored bottom-right on
+   every dark-canvas slide, bleeding a hair past the corner so it
+   grounds the page. Painted just lighter than the canvas — felt,
+   not read. This is the SOLE logo treatment on dark slides; the
+   hero title-logo, the closing-logo, and the small chrome
+   wordmark are all suppressed so the watermark stands alone. */
+.slide[data-section="cover"]::before,
+.slide[data-section="agenda"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('assets/candyco-logo-white.png') right -4% bottom -3% / auto 62% no-repeat;
+  opacity: 0.06;
+  z-index: 0;
+  pointer-events: none;
+}
+/* Content sits above the watermark layer. */
+.slide[data-section="cover"] .slide-content,
+.slide[data-section="agenda"] .slide-content,
+.slide[data-section="cover"] .divider-inner,
+.slide[data-section="cover"] > div:not(.title-bar) {
+  position: relative;
+  z-index: 1;
+}
+/* Suppress the small chrome wordmark IMAGE on dark slides, but keep
+   the "CandyCo · " text so the chrome rhythm reads unchanged. */
+.slide[data-section="cover"] .brand-logo,
+.slide[data-section="cover"] .brand-sep,
+.slide[data-section="agenda"] .brand-logo,
+.slide[data-section="agenda"] .brand-sep { display: none; }
+.slide[data-section="cover"] .brand::before,
+.slide[data-section="agenda"] .brand::before { content: "CandyCo · "; }
+
+
+/* --- 14.2  TITLE (COVER) SLIDE -----------------------------
+   A radial-glow canvas, a four-stop color-bar across the top, a
+   pulsing-dot eyebrow, the "CandyCo" display stamp, the oversized
+   headline (copper .accent + serif-italic .ital), and a footer
+   row. Mark the cover <section> with class="title-slide". */
+.title-slide {
+  background:
+    radial-gradient(80% 100% at 100% 0%, rgba(30, 58, 95, 0.32), transparent 60%),
+    radial-gradient(70% 70% at 0% 100%, rgba(196, 145, 90, 0.18), transparent 60%),
+    var(--shadow-900);
+  justify-content: space-between;
+}
+
+/* Four-stop color-bar at the very top of the title slide. */
+.title-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 6px;
+  display: flex;
+  z-index: 4;
+}
+.title-bar span { flex: 1; }
+.title-bar .b1 { background: var(--brand-blue); }
+.title-bar .b2 { background: var(--copper); }
+.title-bar .b3 { background: var(--ivory); }
+.title-bar .b4 { background: var(--copper-deep); }
+
+.title-eyebrow {
+  font-size: clamp(0.8rem, 1.1vw, 1.05rem);
+  letter-spacing: 0.32em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-top: clamp(2rem, 6vh, 5rem);
+}
+.title-eyebrow .dot {
+  display: inline-block;
+  width: 0.45em;
+  height: 0.45em;
+  background: var(--copper);
+  border-radius: 50%;
+  margin: 0 0.6em 0.1em 0;
+  vertical-align: middle;
+  animation: pulse 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1);   opacity: 1;   }
+  50%      { transform: scale(1.6); opacity: 0.4; }
+}
+
+.title-date {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  color: var(--shadow-50);
+  margin-top: clamp(0.5rem, 1vh, 1rem);
+  letter-spacing: -0.01em;
+}
+
+.title-headline {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 9vw, 10rem);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  color: var(--shadow-50);
+  margin-top: clamp(1.5rem, 5vh, 4rem);
+  max-width: 22ch;
+}
+.title-headline .accent { color: var(--copper); }
+.title-headline .ital {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  color: var(--shadow-200);
+}
+
+.title-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: clamp(1rem, 3vw, 3rem);
+  padding-bottom: clamp(0.5rem, 1vh, 1rem);
+}
+.title-footer .left {
+  font-size: clamp(0.6rem, 0.78vw, 0.78rem);
+  color: var(--shadow-300);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  max-width: 30ch;
+}
+.title-footer .left strong {
+  display: block;
+  color: var(--shadow-50);
+  font-weight: 700;
+  margin-bottom: 0.3em;
+}
+.title-footer .right {
+  text-align: right;
+  font-size: clamp(0.6rem, 0.78vw, 0.78rem);
+  color: var(--shadow-300);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.title-footer .right .audience {
+  display: block;
+  margin-top: 0.3em;
+  color: var(--shadow-50);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.3vw, 1.3rem);
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+/* The hero title-logo and centered closing-logo are replaced by the
+   ghost watermark on dark slides — suppress them if present. */
+.title-logo,
+.closing-logo { display: none; }
+
+
+/* --- 14.3  SECTION DIVIDER ---------------------------------
+   Big copper roman numeral beside an eyebrow + title + rule.
+   Mark the divider <section> with class="slide divider". */
+.divider { justify-content: center; }
+.divider-inner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(2rem, 4vw, 5rem);
+  align-items: center;
+  padding: 0 var(--slide-pad-x);
+}
+.divider-num {
+  font-family: var(--font-display);
+  font-size: var(--hero-num);
+  line-height: 0.78;
+  color: var(--copper);
+  letter-spacing: -0.05em;
+}
+.divider-text { display: flex; flex-direction: column; gap: clamp(0.5rem, 1vh, 1rem); }
+.divider-eyebrow {
+  font-size: var(--eyebrow-size, clamp(0.6rem, 0.72vw, 0.72rem));
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--shadow-400);
+  font-weight: 700;
+}
+.divider-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--shadow-50);
+}
+.divider-rule {
+  width: clamp(3rem, 6vw, 5rem);
+  height: 4px;
+  background: var(--copper);
+  margin-top: clamp(0.5rem, 1vh, 1rem);
+}
+
+
+/* --- 14.4  AGENDA ------------------------------------------
+   Title block above a list of clickable section rows. The whole
+   stack sits in the left ~78% and is vertically centered. Mark
+   the agenda <section> with data-section="agenda". */
+.slide[data-section="agenda"] .slide-content { justify-content: center; }
+.agenda {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vh, 2.25rem);
+  max-width: 78%;
+}
+.agenda h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 4.5vw, 4.25rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--shadow-50);
+}
+.agenda h2 .accent { color: var(--copper); display: block; font-size: 0.7em; }
+.agenda h2 .ital {
+  display: block;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  color: var(--shadow-200);
+  font-size: 0.7em;
+}
+.agenda-list { list-style: none; display: flex; flex-direction: column; }
+.agenda-item { padding: 0; border-bottom: 1px solid var(--shadow-800); }
+.agenda-item:last-child { border-bottom: 0; }
+.agenda-item a {
+  display: grid;
+  grid-template-columns: clamp(3.5rem, 5vw, 5.5rem) 1fr auto;
+  gap: clamp(1rem, 1.8vw, 1.75rem);
+  align-items: baseline;
+  padding: clamp(0.95rem, 2vh, 1.6rem) 0;
+  text-decoration: none;
+  color: inherit;
+  transition: padding-left 240ms cubic-bezier(0.16,1,0.3,1), color 200ms;
+}
+.agenda-item a:hover,
+.agenda-item a:focus-visible { padding-left: clamp(0.4rem, 0.8vw, 0.7rem); outline: none; }
+.agenda-item a:hover .agenda-title,
+.agenda-item a:focus-visible .agenda-title { color: var(--copper); }
+.agenda-num {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 2.8vw, 3.2rem);
+  color: var(--copper);
+  line-height: 1;
+}
+.agenda-title {
+  font-size: clamp(1.35rem, 2.3vw, 2.5rem);
+  font-weight: 600;
+  color: var(--shadow-50);
+  letter-spacing: -0.01em;
+  transition: color 200ms;
+}
+.agenda-tag {
+  font-size: clamp(0.78rem, 1vw, 1.05rem);
+  color: var(--shadow-300);
+  letter-spacing: 0.04em;
+  text-align: right;
+  max-width: 38ch;
+  line-height: 1.5;
+}
+
+
+/* --- 14.5  CLOSING ----------------------------------------
+   Tailwinds / headwinds two-column panel + a "Discussion · Q&A"
+   line. Plain panels — the framing is the structure, no green/red
+   gradients (locked-in decision). */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1rem, 2.5vw, 2.5rem);
+  flex: 1;
+  min-height: 0;
+}
+.col-panel {
+  background: var(--shadow-800);
+  border-radius: 14px;
+  padding: clamp(1rem, 2.2vh, 1.75rem) clamp(1.1rem, 2vw, 1.9rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.col-panel .col-label {
+  font-size: var(--eyebrow-size, clamp(0.6rem, 0.72vw, 0.72rem));
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.col-panel.pos .col-label { color: var(--emerald); }
+.col-panel.neg .col-label { color: var(--copper-soft); }
+.col-panel ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.col-panel li {
+  position: relative;
+  padding-left: 1.1em;
+  font-size: clamp(0.78rem, 1vw, 1.02rem);
+  line-height: 1.45;
+  color: var(--shadow-200);
+}
+.col-panel li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.55em;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+}
+.col-panel.pos li::before { background: var(--emerald); }
+.col-panel.neg li::before { background: var(--copper-soft); }
+.closing-qa {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 3rem);
+  color: var(--shadow-50);
+  margin-top: clamp(0.5rem, 1.5vh, 1.25rem);
+}
+.closing-qa em { font-family: var(--font-serif); font-style: italic; color: var(--copper); }
+
+
+/* --- 14.6  INTER-SLIDE DELINEATION -------------------------
+   A thin dark gap + faint copper hairline between consecutive
+   slides so back-to-back same-theme slides don't visually merge
+   during scroll-snap. */
+.slide + .slide {
+  margin-top: clamp(6px, 0.8vh, 14px);
+  border-top: 1px solid rgba(196, 145, 90, 0.35);
 }

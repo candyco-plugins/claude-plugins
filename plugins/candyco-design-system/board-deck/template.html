@@ -3,13 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Set has-js before first paint so reveal elements start hidden only
+     when the controller is present (no-JS = content stays visible). -->
+<script>document.documentElement.className += ' has-js';</script>
 
 <!-- ==========================================================
      CandyCo · Board Deck · <DATE>
      ----------------------------------------------------------
-     Drop-in starter for a new CandyCo board deck. Author content
-     slides as <section class="slide" data-section="…">. See
-     README.md and board-deck-style.css for the visual contract.
+     Drop-in starter for a new CandyCo board deck. Dark slides
+     (cover / agenda / divider / closing) and light content
+     slides are both driven by board-deck-style.css. Author
+     content slides as <section class="slide" data-section="…">.
+     See README.md for the visual contract.
      ========================================================== -->
 <title>CandyCo · Board Deck · &lt;DATE&gt;</title>
 
@@ -18,31 +23,31 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@300;400;500;700&family=Yeseva+One&display=swap" rel="stylesheet">
 
-<!-- Canonical board-deck stylesheet. Do not modify here — extend in a
-     deck-specific stylesheet if you need additional components. -->
+<!-- Canonical board-deck stylesheet — owns BOTH the dark-slide
+     editorial system and the light content-slide treatment. Do not
+     modify here; extend in a deck-specific stylesheet if needed. -->
 <link rel="stylesheet" href="board-deck-style.css">
 
-<!-- Live-HTML financial tables (P&L, balance sheet, projections,
-     covenants). Safe to keep imported even if the deck has no
-     financial slides — the rules are scoped to .pl-embed. -->
+<!-- Live-HTML financial tables (P&L, balance sheet, projections). Safe
+     to keep imported even with no financial slides — scoped to .pl-embed. -->
 <link rel="stylesheet" href="live-tables.css">
 
 <style>
 /* ==========================================================
    MINIMAL DECK FRAMEWORK
    ----------------------------------------------------------
-   Boilerplate for the 16:9 slide canvas, fluid type, and
-   navigation. Pulled from the canonical board-deck so a new
-   deck spins up without dependencies on other working folders.
+   16:9 slide canvas, fluid type, dark-slide chrome, and the
+   optional presentation runtime (progress bar, nav dots,
+   staggered reveals). Component LOOK lives in board-deck-style.css;
+   this block is just the canvas + chrome scaffolding.
    ========================================================== */
 :root {
-  /* Type-scale variables — every clamp() is calibrated to the
-     1920×1080 design target. */
   --eyebrow-size: clamp(0.6rem, 0.72vw, 0.72rem);
   --small-size:   clamp(0.7rem, 0.85vw, 0.85rem);
   --body-size:    clamp(0.85rem, 1vw, 1rem);
   --h2-size:      clamp(1.25rem, 2vw, 1.75rem);
   --h1-size:      clamp(2rem, 3.5vw, 3.5rem);
+  --hero-num:     clamp(8rem, 26vw, 28rem);
 
   --slide-pad-x:  clamp(2rem, 5vw, 6rem);
   --slide-pad-y:  clamp(1.5rem, 3.5vh, 3rem);
@@ -54,13 +59,11 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* Anchor 1rem to the slide's actual on-screen width so every
-   rem-based dimension (font, padding, table cell) scales in
-   lockstep with the 16:9 canvas. Divisor 120 → 1rem = 16px at
-   the 1920-wide design target. 8px floor stops tiny viewports
-   from collapsing below readable type. */
 html {
   font-size: max(8px, min(calc(100vw / 120), calc(100vh * 16 / 9 / 120)));
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  background: var(--shadow-900);
 }
 
 body {
@@ -71,13 +74,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  scroll-snap-type: y mandatory;
   overflow-x: hidden;
 }
 
-/* Each slide is locked to a 16:9 canvas — the largest 16:9
-   rectangle that fits the viewport. When the browser is not 16:9,
-   the body background letterboxes around the slide. */
 .slide {
   width:  min(100vw, calc(100dvh * 16 / 9));
   height: min(100dvh, calc(100vw * 9 / 16));
@@ -91,9 +90,8 @@ body {
   overflow: hidden;
 }
 
-/* Default chrome positions for DARK slides (cover, agenda,
-   dividers, closing). The board-deck-style.css overrides these
-   for light-section slides. */
+/* Dark-slide chrome positions (cover / agenda / divider / closing).
+   board-deck-style.css overrides these for light content slides. */
 .chrome-top {
   position: absolute;
   top: clamp(1rem, 2.5vh, 2rem);
@@ -108,11 +106,7 @@ body {
   color: var(--shadow-400);
   z-index: 3;
 }
-.chrome-top .brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55em;
-}
+.chrome-top .brand { display: inline-flex; align-items: center; gap: 0.55em; }
 .chrome-top .brand-logo {
   display: inline-block;
   width: 1.7em;
@@ -120,11 +114,7 @@ body {
   background: url('assets/candyco-logo-white.png') no-repeat center / contain;
   vertical-align: middle;
 }
-.chrome-top .brand-sep::before {
-  content: "·";
-  margin: 0 0.4em;
-  color: var(--shadow-400);
-}
+.chrome-top .brand-sep::before { content: "·"; margin: 0 0.4em; color: var(--shadow-400); }
 .chrome-bottom {
   position: absolute;
   bottom: clamp(1rem, 2.5vh, 2rem);
@@ -168,12 +158,7 @@ body {
   font-weight: 300;
   color: var(--shadow-200);
 }
-.slide-rule {
-  width: 44px;
-  height: 2px;
-  background: var(--copper);
-  margin-top: 12px;
-}
+.slide-rule { width: 44px; height: 2px; background: var(--copper); margin-top: 12px; }
 .slide-body {
   flex: 1;
   min-height: 0;
@@ -181,49 +166,139 @@ body {
   flex-direction: column;
   gap: clamp(0.75rem, 1.5vh, 1.25rem);
 }
+
+/* ----------------------------------------------------------
+   OPTIONAL PRESENTATION RUNTIME
+   Progress bar, nav dots, keyboard hint, and staggered reveals.
+   Remove this block + the <script> at the end of <body> for a
+   static deck — content stays visible either way (reveals are
+   gated on html.has-js).
+   ---------------------------------------------------------- */
+.progress-bar {
+  position: fixed; top: 0; left: 0;
+  height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--brand-blue), var(--copper));
+  z-index: 100; transition: width 120ms linear;
+}
+.nav-dots {
+  position: fixed; right: clamp(0.75rem, 1.5vw, 1.5rem); top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 0.4rem; z-index: 50;
+}
+.nav-dots button {
+  width: 7px; height: 7px; border-radius: 50%; border: 0; padding: 0;
+  background: rgba(255,255,255,0.18); cursor: pointer;
+  transition: all 280ms cubic-bezier(0.16,1,0.3,1);
+}
+.nav-dots button:hover { background: rgba(255,255,255,0.45); }
+.nav-dots button.active { background: var(--copper); height: 20px; border-radius: 4px; }
+.keyboard-hint {
+  position: fixed; bottom: clamp(0.75rem, 1.5vh, 1.25rem); right: clamp(0.75rem, 1.5vw, 1.5rem);
+  font-size: 0.65rem; color: var(--shadow-500); letter-spacing: 0.12em;
+  text-transform: uppercase; z-index: 50; opacity: 0.7; transition: opacity 300ms;
+}
+.keyboard-hint:hover { opacity: 1; }
+.keyboard-hint kbd {
+  display: inline-block; padding: 1px 5px; margin: 0 1px;
+  border: 1px solid var(--shadow-600); border-radius: 3px;
+  font-family: var(--font-sans); font-size: 0.6rem; background: var(--shadow-800);
+}
+
+/* Staggered reveals — only active when the controller is present. */
+html.has-js .reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 720ms cubic-bezier(0.16,1,0.3,1),
+              transform 720ms cubic-bezier(0.16,1,0.3,1);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.slide.visible .reveal[data-d="1"] { transition-delay: 0.05s; }
+.slide.visible .reveal[data-d="2"] { transition-delay: 0.15s; }
+.slide.visible .reveal[data-d="3"] { transition-delay: 0.25s; }
+.slide.visible .reveal[data-d="4"] { transition-delay: 0.35s; }
+.slide.visible .reveal[data-d="5"] { transition-delay: 0.45s; }
+.slide.visible .reveal[data-d="6"] { transition-delay: 0.55s; }
+.slide.visible .reveal[data-d="7"] { transition-delay: 0.65s; }
+@media (prefers-reduced-motion: reduce) {
+  html.has-js .reveal { opacity: 1; transform: none; transition: none; }
+}
 </style>
 </head>
 <body>
 
+<div class="progress-bar" id="progressBar"></div>
+<nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+<div class="keyboard-hint"><kbd>↑</kbd><kbd>↓</kbd> navigate · <kbd>space</kbd> next</div>
+
 
 <!-- ==========================================================
-     COVER  (dark)
+     SLIDE 01 · COVER / TITLE  (dark · ghost watermark)
      ========================================================== -->
-<section class="slide" data-section="cover">
-  <div class="chrome-top">
-    <span class="brand"><span class="brand-logo"></span><span class="brand-sep"></span>Board Deck · &lt;DATE&gt;</span>
-    <span class="section-tag">Cover</span>
+<section class="slide title-slide" data-section="cover">
+  <div class="title-bar">
+    <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span>
   </div>
-  <div class="slide-content" style="justify-content:center; align-items:flex-start;">
-    <div class="slide-eyebrow">CandyCo · Board of Directors</div>
-    <h1 class="slide-title" style="font-size: clamp(3rem, 6vw, 6rem); margin-top: 0.3em;">
-      &lt;Board meeting title&gt; <span class="ital">— &lt;subtitle&gt;.</span>
+  <div>
+    <div class="title-eyebrow reveal" data-d="1"><span class="dot"></span>Board Meeting · &lt;DATE&gt;</div>
+    <div class="title-date reveal" data-d="2">CandyCo</div>
+    <h1 class="title-headline reveal" data-d="3">
+      &lt;Board meeting title&gt; <span class="ital">against the</span><br>
+      <span class="accent">&lt;subtitle&gt;</span>.
     </h1>
-    <div style="margin-top: clamp(1rem, 2vh, 1.5rem); color: var(--shadow-300); font-size: var(--body-size); letter-spacing: 0.1em; text-transform: uppercase;">
-      &lt;Audience · Pure Foods / Pondera / Promus&gt;
-    </div>
   </div>
-  <div class="chrome-bottom">
-    <span class="meta">CandyCo · Board Deck · &lt;DATE&gt;</span>
-    <span class="page-num">01 / NN</span>
+  <div class="title-footer reveal" data-d="5">
+    <div class="left">
+      <strong>Prepared for</strong>
+      The CandyCo Board of Directors
+    </div>
+    <div class="right">
+      Audience
+      <span class="audience">Pure Foods · Pondera Holdings · Promus Equity</span>
+    </div>
   </div>
 </section>
 
 
 <!-- ==========================================================
-     SECTION DIVIDER  (dark)
+     SLIDE 02 · AGENDA  (dark · ghost watermark)
      ========================================================== -->
-<section class="slide" data-section="cover" id="section-i">
+<section class="slide" data-section="agenda">
   <div class="chrome-top">
     <span class="brand"><span class="brand-logo"></span><span class="brand-sep"></span>Board Deck · &lt;DATE&gt;</span>
-    <span class="section-tag">Section · I</span>
+    <span class="section-tag">Agenda</span>
   </div>
-  <div class="slide-content" style="justify-content:center; align-items:flex-start;">
-    <div class="slide-eyebrow">Section One</div>
-    <h1 class="slide-title" style="font-size: clamp(2.5rem, 5vw, 5rem); margin-top: 0.3em;">
-      &lt;Section title&gt;.
-    </h1>
-    <div class="slide-rule" style="width: clamp(3rem, 6vw, 5rem); height: 4px; margin-top: clamp(0.75rem, 1.5vh, 1.25rem);"></div>
+  <div class="slide-content">
+    <div class="agenda">
+      <div>
+        <div class="slide-eyebrow reveal" data-d="1">Today's discussion</div>
+        <h2 class="reveal" data-d="2">
+          <span class="ital">In four parts</span>
+          <span class="accent">Agenda.</span>
+        </h2>
+      </div>
+      <ul class="agenda-list">
+        <li class="agenda-item reveal" data-d="2"><a href="#section-i">
+          <span class="agenda-num">I</span>
+          <span class="agenda-title">Financial update</span>
+          <span class="agenda-tag">&lt;section one summary&gt;</span>
+        </a></li>
+        <li class="agenda-item reveal" data-d="3"><a href="#section-ii">
+          <span class="agenda-num">II</span>
+          <span class="agenda-title">Operations update</span>
+          <span class="agenda-tag">&lt;section two summary&gt;</span>
+        </a></li>
+        <li class="agenda-item reveal" data-d="4"><a href="#section-iii">
+          <span class="agenda-num">III</span>
+          <span class="agenda-title">Sales update</span>
+          <span class="agenda-tag">&lt;section three summary&gt;</span>
+        </a></li>
+        <li class="agenda-item reveal" data-d="5"><a href="#section-iv">
+          <span class="agenda-num">IV</span>
+          <span class="agenda-title">Capacity &amp; capital</span>
+          <span class="agenda-tag">&lt;section four summary&gt;</span>
+        </a></li>
+      </ul>
+    </div>
   </div>
   <div class="chrome-bottom">
     <span class="meta">CandyCo · Board Deck · &lt;DATE&gt;</span>
@@ -233,15 +308,32 @@ body {
 
 
 <!-- ==========================================================
-     LIGHT CONTENT SLIDE  —  Financial example
+     SLIDE 03 · SECTION DIVIDER  (dark · ghost watermark)
+     ========================================================== -->
+<section class="slide divider" data-section="cover" id="section-i">
+  <div class="chrome-top">
+    <span class="brand"><span class="brand-logo"></span><span class="brand-sep"></span>Board Deck · &lt;DATE&gt;</span>
+    <span class="section-tag">Section · I</span>
+  </div>
+  <div class="divider-inner">
+    <div class="divider-num reveal" data-d="1">I</div>
+    <div class="divider-text">
+      <div class="divider-eyebrow reveal" data-d="2">Section one</div>
+      <div class="divider-title reveal" data-d="3">&lt;Section title&gt;.</div>
+      <div class="divider-rule reveal" data-d="4"></div>
+    </div>
+  </div>
+  <div class="chrome-bottom">
+    <span class="meta">CandyCo · Board Deck · &lt;DATE&gt;</span>
+    <span class="page-num">03 / NN</span>
+  </div>
+</section>
+
+
+<!-- ==========================================================
+     SLIDE 04 · LIGHT CONTENT SLIDE  —  Financial example
      Section options that trigger the light-canvas treatment:
-       data-section="financial"
-       data-section="operations"
-       data-section="sales"
-       data-section="capacity"
-       data-section="fsqa"
-       data-section="customer"
-       data-section="plant"
+       financial · operations · sales · capacity · fsqa · customer · plant
      ========================================================== -->
 <section class="slide" data-section="financial">
   <div class="chrome-top">
@@ -296,30 +388,135 @@ body {
   </div>
   <div class="chrome-bottom">
     <span class="meta">CandyCo · Board Deck · &lt;DATE&gt;</span>
-    <span class="page-num">03 / NN</span>
+    <span class="page-num">04 / NN</span>
   </div>
 </section>
 
 
 <!-- ==========================================================
-     CLOSING  (dark)
+     SLIDE NN · CLOSING  (dark · tailwinds / headwinds + Q&A)
      ========================================================== -->
 <section class="slide" data-section="cover">
   <div class="chrome-top">
     <span class="brand"><span class="brand-logo"></span><span class="brand-sep"></span>Board Deck · &lt;DATE&gt;</span>
     <span class="section-tag">Closing</span>
   </div>
-  <div class="slide-content" style="justify-content:center; align-items:center; text-align:center;">
-    <div class="slide-eyebrow" style="text-align:center;">Discussion</div>
-    <h1 class="slide-title" style="font-size: clamp(3rem, 6vw, 6rem); margin-top: 0.3em; text-align:center;">
-      Q&amp;A.
-    </h1>
+  <div class="slide-content">
+    <div class="slide-header">
+      <div class="slide-eyebrow reveal" data-d="1">Closing</div>
+      <h2 class="slide-title reveal" data-d="2">&lt;Outlook title&gt; <span class="ital">— tailwinds and headwinds.</span></h2>
+      <div class="slide-rule reveal" data-d="3"></div>
+    </div>
+    <div class="slide-body">
+      <div class="two-col">
+        <div class="col-panel pos reveal" data-d="3">
+          <div class="col-label">Tailwinds</div>
+          <ul>
+            <li>&lt;tailwind one&gt;</li>
+            <li>&lt;tailwind two&gt;</li>
+            <li>&lt;tailwind three&gt;</li>
+          </ul>
+        </div>
+        <div class="col-panel neg reveal" data-d="5">
+          <div class="col-label">Headwinds</div>
+          <ul>
+            <li>&lt;headwind one&gt;</li>
+            <li>&lt;headwind two&gt;</li>
+          </ul>
+        </div>
+      </div>
+      <div class="closing-qa reveal" data-d="7">Discussion · <em>Q &amp; A</em></div>
+    </div>
   </div>
   <div class="chrome-bottom">
     <span class="meta">CandyCo · Board Deck · &lt;DATE&gt;</span>
     <span class="page-num">NN / NN</span>
   </div>
 </section>
+
+
+<!-- ==========================================================
+     OPTIONAL PRESENTATION RUNTIME
+     Scroll-snap navigation, keyboard / touch, progress bar, nav
+     dots, and the IntersectionObserver that fires staggered
+     reveals. Delete this <script> (and the runtime CSS block) for
+     a fully static deck — content remains visible without it.
+     ========================================================== -->
+<script>
+class SlidePresentation {
+  constructor() {
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.progressBar = document.getElementById('progressBar');
+    this.navDotsContainer = document.getElementById('navDots');
+    this.currentSlide = 0;
+    this.setupIntersectionObserver();
+    this.setupKeyboardNav();
+    this.setupTouchNav();
+    this.setupNavDots();
+    this.updateProgress();
+    window.addEventListener('scroll', () => this.updateProgress(), { passive: true });
+  }
+  setupIntersectionObserver() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.intersectionRatio > 0.4) {
+          entry.target.classList.add('visible');
+          const idx = this.slides.indexOf(entry.target);
+          if (idx !== -1) this.setCurrent(idx);
+        }
+      });
+    }, { threshold: [0.4, 0.6] });
+    this.slides.forEach((s) => observer.observe(s));
+  }
+  setupKeyboardNav() {
+    document.addEventListener('keydown', (e) => {
+      if (e.target.matches('input, textarea, [contenteditable]')) return;
+      switch (e.key) {
+        case 'ArrowDown': case 'PageDown': case ' ':
+          e.preventDefault(); this.go(this.currentSlide + 1); break;
+        case 'ArrowUp': case 'PageUp':
+          e.preventDefault(); this.go(this.currentSlide - 1); break;
+        case 'Home': e.preventDefault(); this.go(0); break;
+        case 'End':  e.preventDefault(); this.go(this.slides.length - 1); break;
+      }
+    });
+  }
+  setupTouchNav() {
+    let startY = 0;
+    document.addEventListener('touchstart', (e) => { startY = e.changedTouches[0].screenY; }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const dy = startY - e.changedTouches[0].screenY;
+      if (Math.abs(dy) < 50) return;
+      this.go(this.currentSlide + (dy > 0 ? 1 : -1));
+    }, { passive: true });
+  }
+  setupNavDots() {
+    this.navDotsContainer.innerHTML = '';
+    this.slides.forEach((_, i) => {
+      const btn = document.createElement('button');
+      btn.setAttribute('aria-label', `Slide ${i + 1}`);
+      btn.addEventListener('click', () => this.go(i));
+      this.navDotsContainer.appendChild(btn);
+    });
+    this.updateDots();
+  }
+  go(idx) {
+    idx = Math.max(0, Math.min(this.slides.length - 1, idx));
+    this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+    this.setCurrent(idx);
+  }
+  setCurrent(idx) { this.currentSlide = idx; this.updateDots(); }
+  updateDots() {
+    const dots = this.navDotsContainer.children;
+    for (let i = 0; i < dots.length; i++) dots[i].classList.toggle('active', i === this.currentSlide);
+  }
+  updateProgress() {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    this.progressBar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+  }
+}
+document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+</script>
 
 </body>
 </html>
