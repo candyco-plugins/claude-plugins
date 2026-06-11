@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Consumer complaint investigation response — template — CandyCo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Frank+Ruhl+Libre:wght@400;500;700&family=Yeseva+One&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CandyCo Design System — tokens (from colors_and_type.css)
+   ============================================================ */
+:root {
+  --primary: #272838;
+  --primary-light: #3A3D50;
+  --primary-dark: #1A1C27;
+  --shadow-grey-50:  #F2F2F4;
+  --shadow-grey-100: #E0E1E6;
+  --shadow-grey-200: #C1C3CC;
+  --shadow-grey-300: #A2A5B3;
+  --shadow-grey-400: #83879A;
+  --shadow-grey-500: #646981;
+  --shadow-grey-600: #4E5268;
+  --shadow-grey-700: #3A3D50;
+  --shadow-grey-800: #272838;
+  --shadow-grey-900: #1A1C27;
+  --emerald:        #23CE6B;
+  --steel-blue:     #1982C4;
+  --golden-yellow:  #FFCA3A;
+  --racing-red:     #FF0022;
+  --background:   #FFFFFF;
+  --secondary:    #F5F5F5;
+  --muted:        #E8E8E8;
+  --foreground:   #1E293B;
+  --muted-text:   #64748B;
+  --on-primary:   #FFFFFF;
+  --fg-1: var(--foreground);
+  --fg-2: var(--shadow-grey-600);
+  --fg-3: var(--muted-text);
+  --fg-inverse: var(--on-primary);
+  --bg-1: var(--background);
+  --bg-2: var(--secondary);
+  --bg-3: var(--muted);
+  --bg-inverse: var(--primary);
+  --border-subtle: var(--shadow-grey-100);
+  --border-default: var(--shadow-grey-200);
+  --border-strong: var(--shadow-grey-300);
+  --success: #23CE6B;
+  --warning: #FFCA3A;
+  --error:   #FF0022;
+  --info:    #1982C4;
+  --success-bg: #E8FAF0;
+  --warning-bg: #FFF7DB;
+  --error-bg:   #FFE5E9;
+  --info-bg:    #E3F1FB;
+  --font-sans:    "Assistant", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif:   "Frank Ruhl Libre", Georgia, "Times New Roman", serif;
+  --font-display: "Yeseva One", "Frank Ruhl Libre", Georgia, serif;
+  --radius-sm: 0.375rem;
+  --radius:    0.625rem;
+  --radius-pill: 999px;
+  --shadow-sm: 0 2px 4px rgba(39, 40, 56, 0.08), 0 1px 2px rgba(39, 40, 56, 0.04);
+}
+
+/* ============================================================
+   Report layout (from report-template/report.css)
+   ============================================================ */
+@page { size: letter portrait; margin: 0.5in; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-1);
+  color: var(--fg-1);
+  font-family: var(--font-sans);
+  font-size: 9.5pt;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24pt;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 0 0 4pt 0;
+  color: var(--fg-1);
+}
+h2 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 14pt;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 0 0 6pt 0;
+  color: var(--fg-1);
+  page-break-after: avoid;
+}
+h3 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 11pt;
+  margin: 10pt 0 4pt 0;
+  color: var(--fg-1);
+  page-break-after: avoid;
+}
+p { margin: 3pt 0 7pt 0; }
+.eyebrow {
+  font-size: 8pt;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  font-family: var(--font-sans);
+}
+.lead {
+  font-family: var(--font-serif);
+  font-size: 11pt;
+  line-height: 1.5;
+  color: var(--fg-2);
+  margin: 4pt 0 10pt 0;
+  font-weight: 400;
+  text-wrap: pretty;
+}
+.cover-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--border-default);
+  padding-bottom: 10pt;
+  margin-bottom: 12pt;
+}
+.cover-head .brand img { height: 42px; width: auto; display: block; margin: -2px 0; }
+.cover-head .doc-meta {
+  font-size: 8.5pt;
+  color: var(--fg-2);
+  text-align: right;
+  line-height: 1.4;
+}
+.meta-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12pt;
+  padding: 8pt 0;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 12pt;
+}
+.meta-strip .item .eyebrow { margin-bottom: 2pt; font-size: 7.5pt; }
+.meta-strip .item .v { font-size: 9.5pt; font-weight: 600; color: var(--fg-1); }
+.hero {
+  background: #F5F4EE;
+  color: var(--fg-1);
+  border-left: 6pt solid var(--primary);
+  border-radius: var(--radius);
+  padding: 14pt 18pt;
+  margin: 8pt 0 14pt 0;
+  page-break-inside: avoid;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.hero .eyebrow { color: var(--fg-3); margin-bottom: 6pt; }
+.hero .headline {
+  font-family: var(--font-display);
+  font-size: 14pt;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  margin: 0;
+  color: var(--fg-1);
+  font-weight: 600;
+}
+.hero .headline strong { color: var(--fg-1); font-weight: 800; }
+.cap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-sans);
+  font-size: 8pt;
+  font-weight: 600;
+  padding: 1pt 7pt;
+  border-radius: var(--radius-pill);
+  line-height: 1.4;
+  white-space: nowrap;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.cap .dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+.cap.success { background: var(--success-bg); color: #176B3A; }
+.cap.warning { background: var(--warning-bg); color: #7A5800; }
+.cap.error   { background: var(--error-bg);   color: #A30016; }
+.cap.info    { background: var(--info-bg);    color: #0B5180; }
+.cap.neutral { background: var(--shadow-grey-50); color: var(--shadow-grey-700); }
+.cap .dot.success { background: var(--success); }
+.cap .dot.warning { background: var(--warning); }
+.cap .dot.error   { background: var(--error); }
+.cap .dot.info    { background: var(--info); }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 4pt 0 10pt 0;
+  font-size: 8.5pt;
+  page-break-inside: avoid;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+thead th {
+  background: var(--shadow-grey-50);
+  color: var(--fg-1);
+  text-align: left;
+  font-weight: 600;
+  font-size: 8pt;
+  padding: 5pt 7pt;
+  border-bottom: 1px solid var(--border-default);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+tbody td {
+  padding: 4pt 7pt;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
+  color: var(--fg-1);
+}
+tbody tr:last-child td { border-bottom: none; }
+.actions thead th {
+  background: var(--primary);
+  color: var(--fg-inverse);
+  border-bottom-color: var(--primary);
+}
+.actions td.priority {
+  width: 22pt;
+  text-align: center;
+  font-weight: 800;
+  color: var(--fg-1);
+  font-variant-numeric: tabular-nums;
+}
+.actions td.owner { font-weight: 600; color: var(--primary); }
+.footnote {
+  font-family: var(--font-serif);
+  font-size: 8pt;
+  color: var(--fg-2);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 6pt;
+  margin-top: 12pt;
+  line-height: 1.5;
+}
+.footnote strong { color: var(--fg-1); font-family: var(--font-sans); font-weight: 600; }
+.run-meta-strip {
+  display: flex;
+  gap: 30pt;
+  margin: 4pt 0 10pt 0;
+  padding: 6pt 10pt;
+  background: #FAF9F4;
+  border-left: 3pt solid var(--primary);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.run-meta-strip .meta-item { font-size: 9pt; }
+.run-meta-strip .meta-label { color: var(--fg-3); font-weight: 600; margin-right: 4pt; }
+.run-meta-strip .meta-val { color: var(--fg-1); font-weight: 700; }
+.sheet {
+  background: var(--bg-1);
+  width: 8.5in;
+  min-height: 11in;
+  padding: 0.5in;
+  box-sizing: border-box;
+  page-break-after: always;
+  page-break-inside: avoid;
+  overflow: hidden;
+  position: relative;
+}
+.sheet:last-child { page-break-after: auto; }
+.sheet-footer {
+  position: absolute;
+  bottom: 0.25in;
+  left: 0.5in;
+  right: 0.5in;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 7.5pt;
+  color: var(--fg-3);
+  font-family: var(--font-sans);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 6pt;
+}
+.sheet-footer .doc { color: var(--fg-2); }
+.sheet-footer .page-no {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--fg-1);
+}
+@media print {
+  body { font-size: 9.5pt; background: white; padding: 0; margin: 0; }
+  .no-print { display: none; }
+  .hero { box-shadow: none; }
+  .sheet {
+    width: 8.5in;
+    height: 11in;
+    min-height: 11in;
+    max-height: 11in;
+    padding: 0.5in;
+    margin: 0;
+    box-sizing: border-box;
+    box-shadow: none;
+    border-radius: 0;
+    page-break-after: always;
+    page-break-inside: avoid;
+    overflow: hidden;
+  }
+  .sheet:last-child { page-break-after: auto; }
+}
+@media screen {
+  body { background: var(--shadow-grey-50); padding: 24px 0; }
+  .doc-frame {
+    width: 8.5in;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .sheet {
+    box-shadow: 0 4px 18px rgba(39, 40, 56, 0.16);
+    border-radius: 4px;
+  }
+}
+
+/* ============================================================
+   Template-specific additions
+   ============================================================ */
+
+/* Fill-in field — replace the bracketed text; the yellow tint disappears
+   when you replace it with plain text. No yellow may remain at send time. */
+.ph {
+  background: var(--warning-bg);
+  border-radius: 2px;
+  padding: 0 2px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Verbatim complaint restatement */
+.quote-block {
+  font-family: var(--font-serif);
+  font-size: 10pt;
+  line-height: 1.55;
+  color: var(--fg-1);
+  background: var(--bg-2);
+  border-left: 3pt solid var(--shadow-grey-300);
+  border-radius: var(--radius-sm);
+  padding: 8pt 12pt;
+  margin: 4pt 0 10pt 0;
+  page-break-inside: avoid;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Signature block */
+.sig-block {
+  margin-top: 16pt;
+  page-break-inside: avoid;
+}
+.sig-block .sig-name { font-weight: 700; font-size: 10.5pt; }
+.sig-block .sig-title { color: var(--fg-2); font-size: 9pt; }
+.sig-block .sig-contact { color: var(--fg-2); font-size: 8.5pt; margin-top: 2pt; }
+
+/* Internal guidance pages — visually distinct, removed before sending */
+.internal-banner {
+  background: var(--warning-bg);
+  border: 1px solid var(--golden-yellow);
+  border-radius: var(--radius);
+  padding: 8pt 12pt;
+  margin-bottom: 12pt;
+  font-weight: 700;
+  font-size: 10pt;
+  color: #7A5800;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.checklist { list-style: none; padding-left: 0; margin: 4pt 0 10pt 0; font-size: 9pt; }
+.checklist li {
+  padding: 3pt 0 3pt 18pt;
+  position: relative;
+  border-bottom: 1px solid var(--border-subtle);
+  line-height: 1.4;
+}
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 5pt;
+  width: 9pt;
+  height: 9pt;
+  border: 1.2pt solid var(--shadow-grey-400);
+  border-radius: 2pt;
+}
+</style>
+</head>
+<body>
+<div class="doc-frame">
+
+<!-- ============================================================
+     PAGE 1 — COVER · IDENTIFICATION · COMPLAINT · CONCLUSION
+     The customer's FSQA reviewer and buyer often read only this
+     page. It must stand alone: what was reported, what we found.
+     ============================================================ -->
+<section class="sheet">
+
+  <div class="cover-head">
+    <div class="brand">
+      <!-- When starting a new response, copy candyco-logo-black.png from
+           ../assets/logo/ into your working folder and point this src at the
+           local file so the report renders when shared or printed. -->
+      <img src="../assets/logo/candyco-logo-black.png" alt="CandyCo">
+    </div>
+    <div class="doc-meta">
+      <div class="eyebrow" style="font-size: 7pt;">Food safety &amp; quality</div>
+      <div><span class="ph">[Response date]</span> &nbsp;·&nbsp; <span class="ph">[L1 Caramel Plant / L2 Moulding Plant / L3 Chocolate Plant]</span> &nbsp;·&nbsp; Ref <span class="ph">[CC-YYYY-####]</span></div>
+    </div>
+  </div>
+
+  <h1>Consumer complaint investigation report</h1>
+  <p class="lead">Prepared for <span class="ph">[Customer company — e.g. Costco Wholesale]</span> in response to case <span class="ph">[customer case / complaint number]</span>, concerning <span class="ph">[product name]</span>, lot <span class="ph">[lot code]</span>. This report documents our investigation, root cause analysis, and the corrective and preventive actions we have taken.</p>
+
+  <div class="meta-strip">
+    <div class="item"><div class="eyebrow">CandyCo reference</div><div class="v"><span class="ph">[CC-YYYY-####]</span></div></div>
+    <div class="item"><div class="eyebrow">Customer case</div><div class="v"><span class="ph">[Customer #]</span></div></div>
+    <div class="item"><div class="eyebrow">Complaint received</div><div class="v"><span class="ph">[Date]</span></div></div>
+    <div class="item"><div class="eyebrow">Classification</div><div class="v"><span class="cap warning"><span class="dot warning"></span><span class="ph">[Critical / Major / Minor]</span></span></div></div>
+  </div>
+
+  <h2>Product identification</h2>
+  <table>
+    <tbody>
+      <tr><td style="width: 32%; font-weight: 600;">Product name</td><td><span class="ph">[Full product name as it appears on pack]</span></td></tr>
+      <tr><td style="font-weight: 600;">Customer item number</td><td><span class="ph">[Customer item / UPC]</span></td></tr>
+      <tr><td style="font-weight: 600;">CandyCo item number</td><td><span class="ph">[Internal SKU]</span></td></tr>
+      <tr><td style="font-weight: 600;">Lot code / best-by date</td><td><span class="ph">[Lot code]</span> · best by <span class="ph">[date]</span></td></tr>
+      <tr><td style="font-weight: 600;">Production date, line, and shift</td><td><span class="ph">[Date]</span> · <span class="ph">[Line, e.g. Sollich 3]</span> · <span class="ph">[Shift]</span> · <span class="ph">[Plant]</span>, Lindon, UT</td></tr>
+      <tr><td style="font-weight: 600;">Complaint category</td><td><span class="ph">[Foreign material / allergen / illness or injury / off-flavor or odor / appearance (bloom) / texture / packaging defect / fill weight / other]</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Complaint as reported</h2>
+  <div class="quote-block">
+    "<span class="ph">[Restate the complaint exactly as it was forwarded to us — the consumer's words where available. Do not paraphrase, soften, or interpret.]</span>"
+  </div>
+  <p>Reported by <span class="ph">[consumer / store #]</span> on <span class="ph">[date]</span>; product purchased at <span class="ph">[location, if known]</span>. <span class="ph">[State whether the sample, packaging, or photos were available to us — e.g. "No physical sample was available; the investigation relied on photographs and our retained samples."]</span></p>
+
+  <p>Thank you for forwarding this complaint and for the detail your team provided. We take every consumer report seriously. This complaint was investigated under our documented complaint-handling and corrective action program, part of our SQF-certified food safety and quality system.</p>
+
+  <h2>Summary of findings</h2>
+  <div class="hero">
+    <div class="eyebrow">Investigation conclusion</div>
+    <p class="headline"><span class="ph">[State the root cause (or most probable cause) and the scope in one or two plain sentences — e.g. "The fragment came from a worn scraper blade, replaced the same day. All evidence supports a single production interval."]</span></p>
+  </div>
+
+  <div class="sheet-footer"><span class="doc">Consumer complaint investigation · <span class="ph">[CC-YYYY-####]</span></span><span class="page-no">Page 1 of 4</span></div>
+</section>
+
+<!-- ============================================================
+     PAGE 2 — CONTAINMENT + INVESTIGATION DETAIL
+     ============================================================ -->
+<section class="sheet">
+
+  <h2>Immediate containment actions</h2>
+  <p>On receipt of the complaint, we took the following actions to contain any potential risk while the investigation was underway.</p>
+  <table>
+    <thead>
+      <tr><th style="width: 44%;">Action</th><th style="width: 16%;">Date completed</th><th>Outcome</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Hold placed on all remaining inventory of lot <span class="ph">[lot code]</span> in our control</td><td><span class="ph">[Date]</span></td><td><span class="ph">[Quantity held / "no product from this lot remained in our control"]</span></td></tr>
+      <tr><td>Retained samples from the lot pulled for evaluation</td><td><span class="ph">[Date]</span></td><td><span class="ph">[Number of retains pulled]</span></td></tr>
+      <tr><td>Distribution check — where the lot shipped and what remains in the supply chain</td><td><span class="ph">[Date]</span></td><td><span class="ph">[Ship dates, destinations, quantities]</span></td></tr>
+      <tr><td>Production line inspected for the suspected condition</td><td><span class="ph">[Date]</span></td><td><span class="ph">[Finding — e.g. "no damaged or missing equipment components found" / delete row if not applicable]</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Investigation detail</h2>
+
+  <h3>Traceability and production record review</h3>
+  <p>Lot <span class="ph">[lot code]</span> was traced to production on <span class="ph">[date]</span> on <span class="ph">[line]</span> at our <span class="ph">[plant]</span>. We reviewed the following records for the production run.</p>
+  <table>
+    <thead>
+      <tr><th style="width: 36%;">Record reviewed</th><th style="width: 18%;">Result</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Batch production record</td><td><span class="cap success"><span class="dot success"></span><span class="ph">[In spec]</span></span></td><td><span class="ph">[Note any deviations and how they were handled]</span></td></tr>
+      <tr><td>In-process quality checks</td><td><span class="cap success"><span class="dot success"></span><span class="ph">[In spec]</span></span></td><td><span class="ph">[Checks performed and frequency]</span></td></tr>
+      <tr><td>Metal detection / X-ray verification (CCP)</td><td><span class="cap success"><span class="dot success"></span><span class="ph">[In spec]</span></span></td><td><span class="ph">[Hourly verification results; rejects logged, if any]</span></td></tr>
+      <tr><td>Equipment maintenance and work-order history</td><td><span class="cap success"><span class="dot success"></span><span class="ph">[Reviewed]</span></span></td><td><span class="ph">[Relevant work orders before/after the run]</span></td></tr>
+      <tr><td>Sanitation and changeover records</td><td><span class="cap success"><span class="dot success"></span><span class="ph">[Complete]</span></span></td><td><span class="ph">[Including allergen changeover verification, if applicable]</span></td></tr>
+      <tr><td><span class="ph">[Other — ingredient/supplier lot trace, CCTV review, label verification. Delete if not used.]</span></td><td><span class="ph">[Result]</span></td><td><span class="ph">[Notes]</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Retained sample evaluation</h3>
+  <p><span class="ph">[We evaluated N retained samples from lot X on date. Describe what was checked — appearance, aroma, flavor, texture, weight, package integrity, seal quality — and the result. E.g. "All retained samples were within specification for appearance, flavor, and texture, and showed no evidence of the reported condition."]</span></p>
+
+  <h3>Complaint history review</h3>
+  <p>We reviewed our complaint history for the previous <span class="ph">[six months, or the product's full shelf life if longer]</span> across this item, similar items, and shared raw materials. <span class="ph">[State the result with numbers — e.g. "This is the only complaint of this type recorded against this item across N lots and approximately N units produced in the period. No similar complaints exist on other items sharing this line or these raw materials."]</span></p>
+
+  <div class="sheet-footer"><span class="doc">Consumer complaint investigation · <span class="ph">[CC-YYYY-####]</span></span><span class="page-no">Page 2 of 4</span></div>
+</section>
+
+<!-- ============================================================
+     PAGE 3 — ROOT CAUSE + CONCLUSION + DISPOSITION
+     ============================================================ -->
+<section class="sheet">
+
+  <h2>Root cause analysis</h2>
+  <p>Root cause was evaluated using the <span class="ph">[5-Why / fishbone (Ishikawa) / who-what-when-where-why-how]</span> method by our quality team with <span class="ph">[operations / maintenance / sanitation]</span> participation.</p>
+  <table>
+    <thead>
+      <tr><th style="width: 14%;">Step</th><th>Question and finding</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="font-weight: 600;">Why 1</td><td><span class="ph">[Why did the reported condition occur? — finding]</span></td></tr>
+      <tr><td style="font-weight: 600;">Why 2</td><td><span class="ph">[Why did that happen? — finding]</span></td></tr>
+      <tr><td style="font-weight: 600;">Why 3</td><td><span class="ph">[Why did that happen? — finding]</span></td></tr>
+      <tr><td style="font-weight: 600;">Why 4</td><td><span class="ph">[Continue until the answer is a system or process cause, not a person. Delete unused rows.]</span></td></tr>
+      <tr><td style="font-weight: 600;">Why 5</td><td><span class="ph">[Final why — the root cause]</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="run-meta-strip">
+    <div class="meta-item"><span class="meta-label">Root cause</span><span class="meta-val"><span class="ph">[One-sentence root cause statement. If not confirmed, say "most probable cause" and state it as probable, never as fact.]</span></span></div>
+  </div>
+
+  <h2>Conclusion and scope</h2>
+  <p><span class="ph">[State whether the condition was confined to a single unit, a production interval, or a lot — or whether it is systemic — and give the evidence basis: records in specification, retained sample results, complaint history, line inspection findings. If the investigation found no source of the reported condition within our facility, explain how that was ruled out — e.g. "no material of this composition exists in our process" — rather than only asserting it. Use "isolated" only when complaint history genuinely supports it.]</span></p>
+
+  <h2>Product disposition</h2>
+  <table>
+    <thead>
+      <tr><th style="width: 30%;">Product / location</th><th style="width: 18%;">Quantity</th><th style="width: 22%;">Disposition</th><th>Basis</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="ph">[Lot X — held at our DC]</span></td><td><span class="ph">[Qty]</span></td><td><span class="ph">[Released / reworked / destroyed]</span></td><td><span class="ph">[E.g. "released after 100% inspection of N cases found no defects" / "destroyed as a precaution"]</span></td></tr>
+      <tr><td><span class="ph">[Add a row per location, or delete this table if no product remained in our control]</span></td><td><span class="ph">[Qty]</span></td><td><span class="ph">[—]</span></td><td><span class="ph">[—]</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="sheet-footer"><span class="doc">Consumer complaint investigation · <span class="ph">[CC-YYYY-####]</span></span><span class="page-no">Page 3 of 4</span></div>
+</section>
+
+<!-- ============================================================
+     PAGE 4 — CORRECTIVE & PREVENTIVE ACTIONS + CLOSING
+     ============================================================ -->
+<section class="sheet">
+
+  <h2>Corrective and preventive actions</h2>
+  <p>The actions below address the root cause and prevent recurrence. Each has an owner, a due date, and a verification step to confirm it is effective.</p>
+  <table class="actions">
+    <thead>
+      <tr>
+        <th class="priority">#</th>
+        <th style="width: 12%;">Type</th>
+        <th>Action</th>
+        <th style="width: 15%;">Owner</th>
+        <th style="width: 11%;">Due</th>
+        <th style="width: 13%;">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="priority">1</td>
+        <td>Corrective</td>
+        <td><span class="ph">[Action that fixes the cause of this occurrence — e.g. "Replaced the worn scraper blade and inspected all blades on the line." Concrete and specific, not "retrained employee."]</span></td>
+        <td class="owner"><span class="ph">[Role — name]</span></td>
+        <td><span class="ph">[Date]</span></td>
+        <td><span class="cap success"><span class="dot success"></span>Complete</span></td>
+      </tr>
+      <tr>
+        <td class="priority">2</td>
+        <td>Preventive</td>
+        <td><span class="ph">[Action that prevents recurrence — e.g. "Added blade condition to the weekly preventive maintenance checklist for all enrobing lines." A system change: PM schedule, inspection frequency, equipment modification, specification change.]</span></td>
+        <td class="owner"><span class="ph">[Role — name]</span></td>
+        <td><span class="ph">[Date]</span></td>
+        <td><span class="cap warning"><span class="dot warning"></span>In progress</span></td>
+      </tr>
+      <tr>
+        <td class="priority">3</td>
+        <td>Verification</td>
+        <td><span class="ph">[How effectiveness will be confirmed — e.g. "Quality will audit the new PM checklist completion weekly for 8 weeks and monitor complaint trend on this item for 6 months."]</span></td>
+        <td class="owner"><span class="ph">[Role — name]</span></td>
+        <td><span class="ph">[Date]</span></td>
+        <td><span class="cap neutral">Scheduled</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Closing</h2>
+  <p>We appreciate the opportunity to investigate this complaint and the trust you place in us as your manufacturing partner. Food safety and product quality are the foundation of that partnership, and the actions above have been built into our quality system so this condition does not recur.</p>
+  <p><span class="ph">[Goodwill / credit sentence if applicable — e.g. "We have issued credit for the affected unit through your standard process." Replacement or credit is a goodwill gesture, not an admission of fault. Delete if handled separately.]</span></p>
+  <p>We consider this investigation closed. If your team has any questions or would like supporting records, please contact us and we will provide them promptly.</p>
+
+  <div class="sig-block">
+    <div class="sig-name"><span class="ph">[Name]</span></div>
+    <div class="sig-title"><span class="ph">[Title — e.g. Quality Manager / VP of Food Safety &amp; Quality]</span>, CandyCo</div>
+    <div class="sig-contact"><span class="ph">[email]</span> · <span class="ph">[phone]</span> · <span class="ph">[plant address]</span>, Lindon, UT</div>
+  </div>
+
+  <div class="footnote">
+    <strong>Attachments.</strong> <span class="ph">[List what accompanies this report — photographs of retained samples, lab results, lot trace summary, CCP verification records. Attach only what supports the findings; do not attach raw internal records wholesale. Delete this block if none.]</span>
+  </div>
+
+  <div class="sheet-footer"><span class="doc">Consumer complaint investigation · <span class="ph">[CC-YYYY-####]</span></span><span class="page-no">Page 4 of 4</span></div>
+</section>
+
+<!-- ============================================================
+     INTERNAL PAGE A — HOW TO USE THIS TEMPLATE
+     Delete this page and the next before sending to the customer.
+     ============================================================ -->
+<section class="sheet">
+
+  <div class="internal-banner">Internal guidance — delete this page and the next before sending. No yellow-tinted field may remain in the finished report.</div>
+
+  <h2>How to use this template</h2>
+  <p>This is CandyCo's standard written response to a retail or brand customer about a consumer complaint investigation. It follows what GFSI-certified customers (Costco, Walmart, Kroger, and brand partners) expect to see: identification and traceability, containment, evidence-based investigation, a named root cause method, scope, disposition, and time-bound corrective actions with verification. Fill every yellow field, delete rows and blocks marked optional that don't apply, update the page numbers if you add or remove pages, and print to PDF (Letter, portrait, background graphics on, browser headers off).</p>
+
+  <h3>Response timelines</h3>
+  <table>
+    <thead>
+      <tr><th style="width: 44%;">Milestone</th><th style="width: 20%;">Standard</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Acknowledge receipt to the customer</td><td>Within 24 hours</td><td>Even one line: received, investigating, response date to follow.</td></tr>
+      <tr><td>Containment for critical / food safety complaints</td><td>Within 24 hours</td><td>Hold inventory, pull retains, distribution check — before further production where the line is implicated.</td></tr>
+      <tr><td>Full written investigation report</td><td>Within 14 calendar days</td><td>Or the customer's stated SLA if shorter. Walmart specifies two weeks; Costco requires corrective action plans within 14 days.</td></tr>
+      <tr><td>If the investigation will run past the deadline</td><td>Interim update</td><td>Never go silent. Send what is known, what remains open, and a date.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Severity classification</h3>
+  <table>
+    <thead>
+      <tr><th style="width: 14%;">Class</th><th style="width: 46%;">Examples</th><th>Response</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="cap error"><span class="dot error"></span>Critical</span></td><td>Illness or injury, medical attention, foreign object capable of harm, allergen mislabel or cross-contact, tampering, legal involvement</td><td>Escalate to the VP of Food Safety &amp; Quality immediately. Containment within 24 hours. Recall assessment. Senior FSQA sign-off on the response; legal review for illness or injury claims.</td></tr>
+      <tr><td><span class="cap warning"><span class="dot warning"></span>Major</span></td><td>Foreign material not capable of harm, off-flavor or odor, significant texture or appearance defect, packaging integrity failure</td><td>Full investigation and CAPA using all sections of this template. Standard 14-day written response.</td></tr>
+      <tr><td><span class="cap neutral">Minor</span></td><td>Cosmetic appearance (light bloom), minor fill or count variance, single-unit packaging cosmetic defect</td><td>Log and trend. Investigation effort proportionate; a shortened response is acceptable. Repeat complaints on the same item escalate to major.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Confectionery-specific notes</h3>
+  <p>Bloom (whitish or grey surface on chocolate) is a quality condition, not a safety issue — explain it in consumer-friendly terms, and where temperature abuse in distribution is the probable cause, present the evidence (shipping records, seasonal timing) rather than asserting it. For foreign material, the metal detection / X-ray CCP record is the evidence customers look for first. Treat every allergen complaint as critical until the investigation says otherwise — our facilities are peanut free, but milk, soy, wheat, egg, and tree nut are present by line.</p>
+
+  <div class="sheet-footer"><span class="doc">Internal guidance — not part of the customer response</span><span class="page-no">Internal A</span></div>
+</section>
+
+<!-- ============================================================
+     INTERNAL PAGE B — WRITING RULES + PRE-SEND CHECKLIST
+     Delete before sending.
+     ============================================================ -->
+<section class="sheet">
+
+  <div class="internal-banner">Internal guidance — delete this page before sending.</div>
+
+  <h2>Writing rules</h2>
+  <table>
+    <thead>
+      <tr><th style="width: 50%;">Do</th><th>Don't</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Express concern without admitting cause: "We're sorry to hear about this experience" is safe.</td><td>Admit liability or speculate about cause before the evidence supports it.</td></tr>
+      <tr><td>Stick to verified facts from the investigation record, with concrete numbers — lot codes, retain results, units produced, complaint counts.</td><td>Pad with generalities. A response with no lot-specific evidence reads as boilerplate, and retailer FSQA reviewers flag it.</td></tr>
+      <tr><td>Name the root cause method and show the logic. If root cause was not confirmed, say so and present the most probable cause as probable.</td><td>Write "root cause: operator error" or "unknown" with no analysis shown — and don't name or blame individuals.</td></tr>
+      <tr><td>Describe the process gap and the fix.</td><td>Make "retrained employee" the only preventive action. Customers read that as no real fix.</td></tr>
+      <tr><td>Stay neutral if consumer fraud is suspected: "our investigation found no source of this material within our facility," with the basis.</td><td>Blame the consumer or imply fraud, ever.</td></tr>
+      <tr><td>Use "isolated" only when complaint history genuinely supports it, and show the history.</td><td>Call anything an "isolated incident" by default — misusing it destroys credibility on the next complaint.</td></tr>
+      <tr><td>Close decisively: state the investigation is closed and invite questions.</td><td>Leave the conclusion ambiguous or the case open-ended.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Pre-send checklist</h2>
+  <ul class="checklist">
+    <li>Every yellow field replaced; every guidance bracket deleted; both internal pages removed.</li>
+    <li>Page footers renumbered if pages were added or removed (customer report is Page N of 4 by default).</li>
+    <li>Lot code, item numbers, and dates match the complaint record and NetSuite lot trace exactly.</li>
+    <li>Containment, retained sample evaluation, and complaint history sections are all present — these are the first things a retailer FSQA reviewer looks for.</li>
+    <li>Every corrective action has an owner, a due date, and a verification step.</li>
+    <li>Severity is critical: VP of Food Safety &amp; Quality has signed off; illness or injury: legal has reviewed.</li>
+    <li>A second quality reviewer has proofread the response.</li>
+    <li>Response is within the customer's SLA — or an interim update has already been sent.</li>
+    <li>Complaint logged and trended in the complaint register; CAPA entered in the CAPA log with the same reference number.</li>
+  </ul>
+
+  <div class="footnote">
+    <strong>Sources.</strong> Structure and timelines per Walmart supplier complaint-investigation expectations, Costco Food Safety &amp; Quality Audit Expectations V3, SQF complaint management (2.1.4), and BRCGS Issue 9 clause 3.10. Maintained by CandyCo Quality; the master copy lives with the design system templates.
+  </div>
+
+  <div class="sheet-footer"><span class="doc">Internal guidance — not part of the customer response</span><span class="page-no">Internal B</span></div>
+</section>
+
+</div><!-- /doc-frame -->
+</body>
+</html>

@@ -24,6 +24,7 @@ colors_and_type.css        ← canonical tokens + semantic CSS variables
 assets/                    ← logos, marks, illustrations, imagery
 preview/                   ← cards rendered in the Design System tab
 report-template/           ← default 8.5×11 paged layout for HTML reports
+complaint-response-template/ ← consumer complaint investigation response (FSQA → retail customers)
 ui_kits/
   marketing-site/          ← B2B marketing site recreation (homepage + capabilities)
 fonts/                     ← (Google-Fonts hosted; no local TTFs)
@@ -158,6 +159,13 @@ instructions in `report-template/README.md`. The component library —
 hero callout, stat strip, capsules, audience grid, action-assignment table,
 chart card, footnote — is already wired up and uses only tokens from
 `colors_and_type.css`.
+
+**Consumer complaint investigation responses** (the quality team's written
+response to a retail or brand customer) start from
+`complaint-response-template/template.html` instead — a pre-structured
+4-page customer report plus two internal guidance pages (timelines, severity
+classification, writing rules, pre-send checklist). See
+`complaint-response-template/README.md`.
 
 **Skip the paged layout only when** the user says "raw," "single page,"
 "one-pager," "no branding," "quick draft," "dashboard," "slide," or asks for

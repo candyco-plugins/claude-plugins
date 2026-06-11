@@ -21,6 +21,7 @@ This skill is the always-on default for artifacts. When invoked (explicitly or b
 - `assets/icons/` — Lucide iconography reference. Lucide icons are CDN-linked, 1.5px stroke, `currentColor` only.
 - `preview/` — specimen cards for every token group. Useful as cookbook examples.
 - `report-template/` — **default layout for every HTML report.** Paged 8.5×11 sheets with logo header, page-numbered footers, ready-to-use components. Always start here for reports, briefings, analyses, and long-form documents.
+- `complaint-response-template/` — **standard written response to a retail or brand customer about a consumer complaint investigation.** 4-page customer-facing report (identification + traceability, containment, investigation evidence, root cause, CAPA) plus two internal guidance pages that are deleted before sending. Start from its `template.html` whenever the quality team responds to a customer complaint.
 - `ui_kits/marketing-site/` — JSX components and a working `index.html` showing the system in production layout.
 - `board-deck/` — board deck reference materials and reusable deck-stage scaffolding.
 
