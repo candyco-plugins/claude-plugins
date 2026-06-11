@@ -1,6 +1,6 @@
 ---
 name: candyco-design
-description: CandyCo's design system — colors, typography, spacing, voice, components, and assets. This is the DEFAULT visual language for every artifact, widget, HTML page, slide deck, dashboard, document, mock, or any visual output created for CandyCo unless the user explicitly says otherwise. Apply automatically whenever building any visual artifact, even if the user does not name the design system. Skip only when the user signals "raw," "no branding," "quick sketch," or similar.
+description: CandyCo's design system — colors, typography, spacing, voice, components, and assets. This is the DEFAULT visual language for every artifact, widget, HTML page, slide deck, dashboard, document, mock, or any visual output created for CandyCo unless the user explicitly says otherwise. Apply automatically whenever building any visual artifact, even if the user does not name the design system. ALSO apply whenever drafting a response to a customer complaint — e.g. "respond to a Costco complaint," "consumer complaint investigation," "complaint response," "answer this complaint from Hershey / Sam's Club / Trader Joe's," or any request to write back to a retail or brand customer about a complaint — and start from complaint-response-template/template.html. Skip only when the user signals "raw," "no branding," "quick sketch," or similar.
 user-invocable: true
 ---
 
