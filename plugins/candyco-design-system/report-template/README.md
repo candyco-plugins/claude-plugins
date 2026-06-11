@@ -10,8 +10,10 @@ a slide deck, a raw markdown file, etc.).
 - **Discrete pages.** Each `<section class="sheet">` renders as an 8.5" × 11"
   page on screen and prints as one page on Letter paper.
 - **Logo lockup.** The cover header places the official `candyco-logo-black.png`
-  at 38px height beside the document meta. White-background only — switch to
-  `candyco-logo-white.png` if a sheet inverts to Shadow Grey.
+  at 42px height beside the document meta (both logo PNGs carry a 4%
+  transparent margin, so the artwork renders at the standard 38px).
+  White-background only — switch to `candyco-logo-white.png` if a sheet
+  inverts to Shadow Grey.
 - **Page-numbered footers.** Every sheet ends with `[Doc title] · Page N of M`.
 - **Print-ready by default.** `@page` is set to Letter portrait at 0.5" margins.
   Browser print produces clean output with no extra setup.

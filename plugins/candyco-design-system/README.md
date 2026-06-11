@@ -48,6 +48,13 @@ fonts/                     ← (Google-Fonts hosted; no local TTFs)
 
 **Numbers.** Always concrete. "12 plants," "1.4B units/yr," "98.7% on-time." Never "lots of" or "many." Use thin space or comma separators consistently. Percentages get the `%` symbol attached (no space).
 
+**Plant names.** Refer to the three Lindon plants using one of these forms only:
+- L1 — "L1 Caramel Plant" · "Lindon 1" · "L1"
+- L2 — "L2 Moulding Plant" · "Lindon 2" · "L2"
+- L3 — "L3 Chocolate Plant" · "Lindon 3" · "L3"
+
+Do not use "Eco" / "Eco Moulding" for L2 — it is retired.
+
 **Emoji.** Not used. CandyCo speaks to procurement teams; emoji read as unserious. Status communicated through semantic color and named tokens (success/warning/error) and short text labels ("On track," "At capacity").
 
 **Punctuation.** Em-dashes for emphasis are welcome. Oxford comma always. No exclamation points outside of error states or genuine celebration (a successful audit, a contract win).
@@ -137,7 +144,9 @@ The format is non-negotiable on three points:
    screen and prints as one page on Letter paper. The reader sees the page
    boundaries while drafting and gets a clean PDF on print.
 2. **Logo lockup in every cover header.** The official `candyco-logo-black.png`
-   sits at 38px height beside the document meta (eyebrow + date + scope).
+   sits at 42px height beside the document meta (eyebrow + date + scope).
+   Both logo PNGs carry a 4% transparent margin so no artwork sits on the
+   image boundary — the 42px box renders the artwork at the standard 38px.
    Never substitute with a text wordmark. Use the white logo on inverse
    Shadow Grey blocks.
 3. **Page-numbered footers on every sheet.** `[Doc title] · Page N of M` in
