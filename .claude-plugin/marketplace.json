@@ -17,7 +17,7 @@
     {
       "name": "candyco-mrp",
       "source": "./plugins/candyco-mrp",
-      "description": "Procurement MRP: enter a finished-good item number and get a one-page ~30-week MRP report (Excel + HTML) for every purchased component of its multi-level BOM, straight from live NetSuite. Replaces the manual item-by-item Copy & Paste process."
+      "description": "Procurement MRP: say 'run MRP Hack Report' with a finished-good item number and get a one-page ~30-week MRP report (Excel + HTML) for every purchased component of its multi-level BOM, straight from live NetSuite. Replaces the manual item-by-item Copy & Paste process."
     }
   ]
 }

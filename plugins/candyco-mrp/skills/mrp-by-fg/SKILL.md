@@ -1,26 +1,30 @@
 ---
 name: mrp-by-fg
-description: "Given a CandyCo finished-good item number, explode its multi-level NetSuite BOM and produce a consolidated ~30-week time-phased MRP report for every PURCHASED component (raw materials + packaging) on one page — as both an Excel workbook and an HTML dashboard. Replaces procurement's manual, item-by-item 'MRP Consolidated Report - Weekly Copy & Paste' process (paste each component's number into a saved-search criteria and copy the result). Uses the live NetSuite connector: BOM via SuiteQL, the trusted time-phased numbers (Forecast / Demand / Planned_Demand / Planned_Supply / Ending) from the UNFILTERED planning search 'MRP Consolidated Report - Weekly' (customsearch_st_mrp_consolidated_repor_5), filtered client-side to the BOM component set. Components missing from the planning run are flagged as DATA GAPs, never zeroed. VALIDATION PENDING until reconciled against the manual output. Invoke when Scott or procurement says 'run MRP for <item>', 'MRP report for finished good <item>', 'consolidated MRP for <item>', 'BOM MRP for <item>', or 'what do we need to buy for <item>'."
-allowed-tools: mcp__8a715704-911b-4006-88dc-91a40704f34e__ns_runCustomSuiteQL, mcp__8a715704-911b-4006-88dc-91a40704f34e__ns_runSavedSearch, mcp__8a715704-911b-4006-88dc-91a40704f34e__ns_getSuiteQLMetadata, Read, Write, Bash
+description: "Run the MRP Hack Report: given a CandyCo finished-good item number, explode its multi-level NetSuite BOM and produce a consolidated ~30-week time-phased MRP report for every PURCHASED component (raw materials + packaging) on one page — as both an Excel workbook and an HTML dashboard. Replaces procurement's manual, item-by-item 'MRP Consolidated Report - Weekly Copy & Paste' process (paste each component's number into a saved-search criteria and copy the result). Uses the live NetSuite connector: BOM via SuiteQL, the trusted time-phased numbers (Forecast / Demand / Planned_Demand / Planned_Supply / Ending) from the UNFILTERED planning search 'MRP Consolidated Report - Weekly' (customsearch_st_mrp_consolidated_repor_5), filtered client-side to the BOM component set. Components missing from the planning run are flagged as DATA GAPs, never zeroed. Invoke when the user says 'run MRP Hack Report', 'run the MRP Hack Report for <item>', 'MRP Hack Report <item>', 'run MRP for <item>', 'consolidated MRP for <item>', 'BOM MRP for <item>', or 'what do we need to buy for <item>'."
+user-invocable: true
 metadata:
-  version: "0.1.0"
-  argument-hint: "mrp-by-fg <fg_item_number> [weeks=30] [location=<name>] [out_dir=<path>]"
-  user-invocable: true
+  version: "0.2.0"
+  argument-hint: "run MRP Hack Report <fg_item_number>"
   validation-status: "Validated cell-for-cell on FG 21125 (bar) and 30804-Case12 (case-pack), Jul 2026. Procurement: confirm against your manual copy & paste output on your first few real runs."
 ---
 
 # mrp-by-fg
 
 Produce one consolidated MRP page for every purchased component of a finished good,
-from CandyCo's live NetSuite data. Validated cell-for-cell on FG 21125 (bar) and
-30804-Case12 (case-pack). On your first few real runs, spot-check a couple of values
-against the manual NetSuite output and tell Scott if anything is off.
+from CandyCo's live NetSuite data. Users invoke this by saying **"run MRP Hack
+Report"** — if they don't include a finished-good item number, ask for one before
+proceeding. Validated cell-for-cell on FG 21125 (bar) and 30804-Case12 (case-pack).
+On your first few real runs, spot-check a couple of values against the manual NetSuite
+output and tell Scott if anything is off.
 
-Read `references/query-notes.md` first — it holds the confirmed field IDs, the
-saved-search cell format, the BOM boolean gotcha, the recursion method, and the
-two-tier FG scoping note. The SuiteQL lives in `references/bom-explode.sql`; the
-renderer in `references/build_report.py`. The `${skill_dir}` below is this skill's
-own directory.
+This skill ships inside the `candyco-mrp` plugin. Its bundled files live under the
+plugin root, exposed as `${CLAUDE_PLUGIN_ROOT}`. **Resolve it once:** run
+`echo $CLAUDE_PLUGIN_ROOT`, then reference files as
+`${CLAUDE_PLUGIN_ROOT}/skills/mrp-by-fg/references/<file>`. Read
+`references/query-notes.md` first — confirmed field IDs, the saved-search cell format,
+the BOM boolean gotcha, the internal-id join key, itemtype classification, the
+recursion method, and the two-tier FG scoping note. SuiteQL is in
+`references/bom-explode.sql`; the renderer is `references/build_report.py`.
 
 ## ARGS
 | Arg | Required | Default | Notes |
@@ -130,7 +134,7 @@ values. (The reverse — search rows outside the set — are simply not kept.)
 
 ## STEP 6 — Render both outputs
 ```bash
-python3 "${skill_dir}/references/build_report.py" \
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/mrp-by-fg/references/build_report.py" \
   --bom "$SCRATCH/bom_<fg>.json" \
   --mrp "$SCRATCH/mrp_rows_<fg>.json" \
   --out-dir "<out_dir>" \

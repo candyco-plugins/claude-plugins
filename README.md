@@ -30,7 +30,7 @@ Once the marketplace is added, install any plugin by name. For example, procurem
 | Plugin | What it does |
 |--------|--------------|
 | `candyco-design-system` | Loads the CandyCo design skill plus all bundled assets: `colors_and_type.css` tokens, the four brand font families, the official logos, the paged 8.5×11 report template, component specimens, and board-deck scaffolding. Applies by default to every visual artifact. |
-| `candyco-mrp` | The `mrp-by-fg` skill: enter a finished-good item number and get a consolidated ~30-week MRP report (Excel + HTML) for every purchased component of its multi-level NetSuite BOM. Replaces the manual item-by-item "MRP Consolidated Report - Weekly Copy & Paste." Say "run MRP for &lt;item&gt;". |
+| `candyco-mrp` | The `mrp-by-fg` skill: enter a finished-good item number and get a consolidated ~30-week MRP report (Excel + HTML) for every purchased component of its multi-level NetSuite BOM. Replaces the manual item-by-item "MRP Consolidated Report - Weekly Copy & Paste." Say **"run MRP Hack Report"** with an item number. |
 
 ## Updating
 
