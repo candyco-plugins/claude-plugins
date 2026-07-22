@@ -13,6 +13,11 @@
       "name": "candyco-design-system",
       "source": "./plugins/candyco-design-system",
       "description": "CandyCo's design system — colors, typography, voice, components, fonts, logos, the paged 8.5×11 report template, and board-deck scaffolding. The default visual language for every CandyCo artifact."
+    },
+    {
+      "name": "candyco-mrp",
+      "source": "./plugins/candyco-mrp",
+      "description": "Procurement MRP: enter a finished-good item number and get a one-page ~30-week MRP report (Excel + HTML) for every purchased component of its multi-level BOM, straight from live NetSuite. Replaces the manual item-by-item Copy & Paste process."
     }
   ]
 }

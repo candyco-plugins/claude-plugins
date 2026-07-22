@@ -1,0 +1,17 @@
+{
+  "name": "candyco-mrp",
+  "description": "CandyCo procurement MRP tools. Given a finished-good item number, explodes its multi-level NetSuite BOM and produces a consolidated ~30-week time-phased MRP view (Forecast / Demand / Planned_Demand / Planned_Supply / Ending) for every purchased component (raw materials + packaging) on one page — as both an Excel workbook and an HTML dashboard. Replaces the manual item-by-item 'MRP Consolidated Report - Weekly Copy & Paste' process. Validated cell-for-cell on FG 21125 (bar) and 30804-Case12 (case-pack); confirm against your manual output on first runs.",
+  "version": "0.1.0",
+  "author": {
+    "name": "CandyCo",
+    "email": "scott.maxfield@candyco.com"
+  },
+  "keywords": [
+    "candyco",
+    "mrp",
+    "procurement",
+    "netsuite",
+    "bom",
+    "planning"
+  ]
+}
