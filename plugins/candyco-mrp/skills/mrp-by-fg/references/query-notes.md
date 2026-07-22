@@ -16,38 +16,41 @@ missing or auth fails: stop, tell the user to re-authenticate NetSuite, do **not
 retry in a loop and do **not** fabricate numbers.
 
 ## Data source 1 — the MRP grid (planning search)
-- Use **`searchId="customsearch_st_mrp_consolidated_repor_5"`** — title
-  "MRP Consolidated Report - Weekly". With **`type="PlanningEngineResult"`**
+- Use **`searchId="9661"`** — "MRP Consolidated Report", the base report the Copy &
+  Paste MASTER is built from (per Scott). With **`type="PlanningEngineResult"`**
   (required — standalone search type; without it the call fails "Unable to
   determine record type").
-- **WHY THIS SEARCH, not the "Copy & Paste"/"in Criteria"/"MASTER" ones:** the
-  Copy & Paste family (incl. numeric id **9955**, `..._repor_7`, `..._repo_12`
-  MASTER) is *pre-filtered to a manually-pasted item list* — that paste IS the
-  manual step we're replacing. Confirmed live: 9955 returned only 16 items
-  (105–1928) and **none** of a real FG's components. `..._repor_5` is the
-  UNFILTERED universe — confirmed to still return rows at offset 800 (≈800+
-  items). It carries the identical 7-div formula cells, so filtering it to the
-  BOM set reproduces exactly what the manual copy & paste would show.
+- **WHY 9661, not the "Copy & Paste"/"in Criteria"/"MASTER" ones:** that family (incl.
+  numeric id **9955**, `..._repor_7`, `..._repo_12` MASTER) is *pre-filtered to a
+  manually-pasted item list* — that paste IS the manual step we're replacing. Confirmed
+  live: 9955 returned only 16 items and **none** of a real FG's components. 9661 is the
+  UNFILTERED universe (≈1,085 items; confirmed rows at offset 800). (An earlier build
+  used `..._repor_5`, also unfiltered, but Scott identified 9661 as the correct base and
+  it uses the richer layout below.)
 - **No runtime filter parameter exists** — only `searchId, type, range_start,
   range_end`. You cannot pass an item list. Run the whole search, page through it,
   and keep only rows whose `"Item"` is in the purchased-component set.
-- `Current QTY` can be blank (`""`) for some items — treat as null, not zero.
 - **JOIN KEY GOTCHA:** the search's `"Item"` column is the item **INTERNAL ID**
   (e.g. `165`, `1940`, `1995`), NOT the displayed itemid. `"Description"` is the
   item description. So match search rows to BOM components on
   `bomrevisioncomponent.item` (= `component_id`, the internal id), which we carry as
   `internal_id`. Matching on the 5-digit itemid finds nothing. Confirmed live:
   internal `165`→itemid `10177`, `1940`→`10228`, `1995`→`41093`, `2632`→`41237`.
-- One row per item. Columns: `Item`, `Description`, `" "` (a single-space key that
-  holds the row legend — ignore it), `Current QTY`, `Overdue`, `This Week`,
-  `Next Week`, `2 Weeks Out` … `30 Weeks Out`.
-- Each time-bucket column is an HTML string of **7 stacked `<div>`s**, fixed order:
-  `[0]` Date (literal `"Overdue"` in the Overdue column), `[1]` Forecast,
-  `[2]` Demand, `[3]` Planned_Demand (tint `#0F9ED5`), `[4]` Supply,
-  `[5]` Planned_Supply (tint `#28a745`), `[6]` Ending. `"-"` means null; numbers
-  carry thousands separators and left padding. `Current QTY` is a plain number.
-  `Description` embeds `\r\n` between name and code. `build_report.py::parse_cell`
-  handles all of this — do not re-parse elsewhere.
+- One row per item. Columns: `Item`, `Description`, `" "` (single-space key holding the
+  per-item row-label **legend**), `Current QTY`, `Overdue`, `This Week`, `Next Week`,
+  `2 Weeks Out` … `30 Weeks Out`.
+- **CELL LAYOUT — read the legend, do not hardcode indices.** Search variants differ.
+  9661's legend/cells have **9 stacked lines** in ONE `<div>` separated by `<br>`:
+  `Date, Forecast, Demand, Supply, Ending, <separator "-----">, Planned_Demand
+  (#0F9ED5), Planned_Supply (#28a745), System Balance`. The older `..._repor_5` used
+  **7 lines across separate `<div>`s** (`Date, Forecast, Demand, Planned_Demand, Supply,
+  Planned_Supply, Ending`). Note 9661 reports TWO balances: **Ending** (pre-planned,
+  includes firm Supply) and **System Balance** (net projected — equals what repor_5
+  called "Ending"). `Current QTY` in 9661 is also HTML-wrapped (padded with `<br>`s).
+  `"-"` / a `-----` separator = null; numbers carry thousands separators and padding.
+  `build_report.py` is **legend-driven**: it reads the `" "` column, normalizes each
+  label to a key, and maps cell segments to those keys by position — handling both the
+  single-`<div>`+`<br>` and multi-`<div>` shapes. Do not re-parse elsewhere.
 - The numbers are **planning-engine outputs**. They are NOT reproducible from
   SuiteQL (only Planned_Supply is queryable, via `plannedorder`). So the saved
   search is the single source of truth — this is what guarantees the report
@@ -111,7 +114,7 @@ which tier procurement enters, and whether shipping packaging must appear.
 - **Search universe completeness:** a purchased component absent from the search's
   result set is surfaced as a **DATA GAP** (blank, "unknown ≠ zero") — never a silent
   zero. (An item with no planning demand/supply may legitimately be absent.)
-- **Paging cost:** the search has no item filter, so all ≈800+ pages/rows are scanned
+- **Paging cost:** the search has no item filter, so all ≈1,085 rows are scanned
   and only the ~handful of matching rows kept. This is why STEP 4 is delegated to a
   subagent. Record page count during validation.
 - **VALIDATION PENDING:** until a full run for a known FG is reconciled cell-for-cell

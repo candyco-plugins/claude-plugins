@@ -1,7 +1,7 @@
 {
   "name": "candyco-mrp",
-  "description": "CandyCo procurement MRP tools. Say 'run MRP Hack Report' with a finished-good item number; it explodes the item's multi-level NetSuite BOM and produces a consolidated ~30-week time-phased MRP view (Forecast / Demand / Planned_Demand / Planned_Supply / Ending) for every purchased component (raw materials + packaging) on one page — as both an Excel workbook and an HTML dashboard. Replaces the manual item-by-item 'MRP Consolidated Report - Weekly Copy & Paste' process. Validated cell-for-cell on FG 21125 (bar) and 30804-Case12 (case-pack); confirm against your manual output on first runs.",
-  "version": "0.2.0",
+  "description": "CandyCo procurement MRP tools. Say 'run MRP Hack Report' with a finished-good item number; it explodes the item's multi-level NetSuite BOM and produces a consolidated ~30-week time-phased MRP view (Forecast / Demand / Supply / Ending / Planned_Demand / Planned_Supply / System Balance) for every purchased component (raw materials + packaging) on one page — as both an Excel workbook and an HTML dashboard. Sources the trusted numbers from planning search id 9661. Replaces the manual item-by-item 'MRP Consolidated Report - Weekly Copy & Paste' process. Validated cell-for-cell on FG 21125 (bar) and 30804-Case12 (case-pack); confirm against your manual output on first runs.",
+  "version": "0.3.0",
   "author": {
     "name": "CandyCo",
     "email": "scott.maxfield@candyco.com"

@@ -37,22 +37,32 @@ import os
 import re
 import sys
 
-# ---- metric layout (index within each 7-div cell) --------------------------
-# We surface all six numeric metrics, matching the NetSuite legend order.
-METRICS = [
-    ("forecast", "Forecast", 1),
-    ("demand", "Demand", 2),
-    ("planned_demand", "Planned Demand", 3),
-    ("supply", "Supply", 4),
-    ("planned_supply", "Planned Supply", 5),
-    ("ending", "Ending", 6),
-]
-# Metrics that get color continuity with the NetSuite grid.
+# ---- legend-driven layout --------------------------------------------------
+# The planning search stores its per-item row labels in the single-space
+# column (" "). Different search variants use different label SETS and ORDER
+# (e.g. the 7-field "Ending" layout vs the 9-field layout that adds Supply,
+# a separator, and a "System Balance" line). So we read the legend and map
+# each cell's stacked values to it BY POSITION — never a hardcoded index.
+# Date is always the first row; a blank/separator label (the "-----" divider)
+# is skipped.
 METRIC_COLOR = {"planned_demand": "0F9ED5", "planned_supply": "28A745"}
+# Friendly display names when the normalized key is known; otherwise the
+# legend label is title-cased.
+_DISPLAY = {
+    "forecast": "Forecast", "demand": "Demand", "supply": "Supply",
+    "ending": "Ending", "planned_demand": "Planned Demand",
+    "planned_supply": "Planned Supply", "system_balance": "System Balance",
+}
+# Balance-style rows to visually emphasize (the projected on-hand lines).
+EMPHASIS = {"ending", "system_balance"}
+# Fallback legend if a run has no " " column (classic 7-field layout).
+_FALLBACK_KEYS = ["date", "forecast", "demand", "planned_demand", "supply",
+                  "planned_supply", "ending"]
 
 RESERVED_KEYS = {"Item", "Description", " ", "Current QTY"}
 
 _DIV_RE = re.compile(r"<div[^>]*>(.*?)</div>", re.S | re.I)
+_BR_RE = re.compile(r"<br\s*/?>", re.I)
 _TAG_RE = re.compile(r"<[^>]+>")
 
 
@@ -61,6 +71,8 @@ _TAG_RE = re.compile(r"<[^>]+>")
 # ---------------------------------------------------------------------------
 def _clean(text):
     """Strip tags, unescape entities, collapse whitespace. '' -> None."""
+    if text is None:
+        return None
     text = _TAG_RE.sub("", text)
     text = html.unescape(text).replace("\xa0", " ").strip()
     return text or None
@@ -71,7 +83,7 @@ def _to_number(text):
     if text is None:
         return None
     t = text.strip()
-    if t in ("", "-", "—"):
+    if t in ("", "-", "—") or set(t) == {"-"}:  # '-' or a '-----' separator
         return None
     neg = False
     if t.startswith("(") and t.endswith(")"):
@@ -86,19 +98,64 @@ def _to_number(text):
     return -val if neg else val
 
 
-def parse_cell(cell_html):
-    """A weekly cell -> {'date': str|None, metric_key: float|None, ...}."""
+def _norm_key(label):
+    """'Planned_Demand' -> 'planned_demand'; 'System Balance' -> 'system_balance'."""
+    if not label:
+        return None
+    k = re.sub(r"[^a-z0-9]+", "_", label.strip().lower()).strip("_")
+    return k or None
+
+
+def _segments(cell_html):
+    """Split a cell into its stacked lines regardless of layout: multiple
+    <div> children (one per line), OR a single <div> / plain string with <br>
+    separators. Returns cleaned strings (entries may be None)."""
     if cell_html is None:
-        return {"date": None, **{k: None for k, _, _ in METRICS}}
-    divs = [_clean(d) for d in _DIV_RE.findall(cell_html)]
-    # Fallback: some cells (rarely) may not be wrapped in <div>; split on <br>.
-    if not divs:
-        divs = [_clean(p) for p in re.split(r"<br\s*/?>", cell_html, flags=re.I)]
-    out = {}
-    label0 = divs[0] if len(divs) > 0 else None
-    out["date"] = None if (label0 is None or label0.lower() == "overdue") else label0
-    for key, _, idx in METRICS:
-        out[key] = _to_number(divs[idx]) if len(divs) > idx else None
+        return []
+    divs = _DIV_RE.findall(cell_html)
+    if len(divs) > 1:
+        raw = divs
+    elif len(divs) == 1:
+        raw = _BR_RE.split(divs[0])
+    else:
+        raw = _BR_RE.split(cell_html)
+    return [_clean(s) for s in raw]
+
+
+def legend_keys(mrp_rows):
+    """Ordered normalized keys from the row-label legend (the ' ' column).
+    keys[i] aligns with segment i of every cell; 'date' marks the date row;
+    None marks a blank/separator row (skipped)."""
+    legend = None
+    for r in mrp_rows:
+        if r.get(" "):
+            legend = r[" "]
+            break
+    if not legend:
+        return list(_FALLBACK_KEYS)
+    return [_norm_key(_clean(s)) for s in _BR_RE.split(legend)]
+
+
+def metrics_from_keys(keys):
+    """[(key, display)] for each non-date, non-blank legend row, in order."""
+    out = []
+    for k in keys:
+        if not k or k == "date":
+            continue
+        out.append((k, _DISPLAY.get(k, k.replace("_", " ").title())))
+    return out
+
+
+def parse_cell(cell_html, keys):
+    """Map a cell's stacked values to the legend keys -> {'date':..., key:num}."""
+    vals = _segments(cell_html)
+    out = {"date": None}
+    for i, key in enumerate(keys):
+        v = vals[i] if i < len(vals) else None
+        if key == "date":
+            out["date"] = None if (v is None or v.lower() == "overdue") else v
+        elif key:
+            out[key] = _to_number(v)
     return out
 
 
@@ -124,13 +181,13 @@ def week_columns(mrp_rows):
     return sorted(seen, key=_week_sort_key)
 
 
-def week_dates(mrp_rows, cols):
+def week_dates(mrp_rows, cols, keys):
     """Map column-name -> week-ending date string (from the first row having it)."""
     dates = {}
     for col in cols:
         for row in mrp_rows:
             if col in row:
-                d = parse_cell(row[col]).get("date")
+                d = parse_cell(row[col], keys).get("date")
                 if d:
                     dates[col] = d
                     break
@@ -143,7 +200,9 @@ def week_dates(mrp_rows, cols):
 # ---------------------------------------------------------------------------
 def build_model(bom, mrp_rows):
     cols = week_columns(mrp_rows)
-    dates = week_dates(mrp_rows, cols)
+    keys = legend_keys(mrp_rows)
+    metrics = metrics_from_keys(keys)
+    dates = week_dates(mrp_rows, cols, keys)
     # The search keys rows by item INTERNAL ID (its "Item" column), not the
     # displayed itemid. We match on internal_id and display itemid.
     index = {str(r.get("Item")): r for r in mrp_rows}
@@ -181,8 +240,9 @@ def build_model(bom, mrp_rows):
             cm["data_gap"] = False
             desc = (_clean(row.get("Description")) or "").replace("\r\n", " — ").replace("\r", " ").replace("\n", " — ")
             cm["description"] = desc or None
-            cm["current_qty"] = _to_number(str(row.get("Current QTY"))) if row.get("Current QTY") not in (None, "") else None
-            cm["cells"] = {col: parse_cell(row.get(col)) for col in cols}
+            cq_raw = row.get("Current QTY")
+            cm["current_qty"] = _to_number(_clean(str(cq_raw))) if cq_raw not in (None, "") else None
+            cm["cells"] = {col: parse_cell(row.get(col), keys) for col in cols}
         components.append(cm)
 
     return {
@@ -190,9 +250,10 @@ def build_model(bom, mrp_rows):
         "fg_description": bom.get("fg_description"),
         "generated_at": bom.get("generated_at"),
         "location": bom.get("location"),
-        "search_id": bom.get("search_id", "MRP Consolidated Report - Weekly"),
+        "search_id": bom.get("search_id", "MRP Consolidated Report"),
         "weeks": cols,
         "week_dates": dates,
+        "metrics": metrics,
         "components": components,
         "data_gaps": gaps,
         "wip_assemblies": bom.get("wip_assemblies", []),
@@ -251,11 +312,12 @@ def write_xlsx(model, path):
         c.alignment = center
         c.border = border
 
+    metrics = model["metrics"]
     r = header_row + 1
     for comp in model["components"]:
         first = r
         gap = comp["data_gap"]
-        for mi, (mkey, mlabel, _) in enumerate(METRICS):
+        for mi, (mkey, mlabel) in enumerate(metrics):
             # Component label only on the first metric row of the block
             comp_lbl = ""
             if mi == 0:
@@ -267,7 +329,7 @@ def write_xlsx(model, path):
             cc.font = Font(bold=True, color=INK, size=9)
 
             ws.cell(r, 2, mlabel).font = Font(color=METRIC_COLOR.get(mkey, "1E293B"),
-                                              bold=mkey in ("ending",), size=9)
+                                              bold=mkey in EMPHASIS, size=9)
             if mi == 0:
                 cq = ws.cell(r, 3, comp["current_qty"])
                 cq.number_format = num_fmt
@@ -319,6 +381,7 @@ def _fmt(v):
 def write_html(model, path):
     weeks = model["weeks"]
     wd = model["week_dates"]
+    metrics = model["metrics"]
 
     head_cells = "".join(
         f'<th class="wk"><div class="wk-name">{html.escape(w)}</div>'
@@ -330,12 +393,12 @@ def write_html(model, path):
     for comp in model["components"]:
         gap = comp["data_gap"]
         desc = html.escape(comp.get("description") or "") if not gap else ""
-        rowspan = len(METRICS)
+        rowspan = len(metrics)
         cls = "gap" if gap else ""
         cq = "" if comp["current_qty"] is None else f"{comp['current_qty']:,.2f}"
         qf = f"{comp['qty_per_fg']:,.6f}".rstrip("0").rstrip(".") if comp["qty_per_fg"] else ""
         gap_badge = '<span class="badge">DATA GAP</span>' if gap else ""
-        for mi, (mkey, mlabel, _) in enumerate(METRICS):
+        for mi, (mkey, mlabel) in enumerate(metrics):
             cells = []
             if mi == 0:
                 cells.append(
@@ -349,7 +412,7 @@ def write_html(model, path):
             for w in weeks:
                 v = None if gap else comp["cells"].get(w, {}).get(mkey)
                 cells.append(f'<td class="num {mcls}">{_fmt(v)}</td>')
-            rcls = "metric-row" + (" ending" if mkey == "ending" else "") + (f" {cls}" if gap else "")
+            rcls = "metric-row" + (" emph" if mkey in EMPHASIS else "") + (f" {cls}" if gap else "")
             body_rows.append(f'<tr class="{rcls}">' + "".join(cells) + "</tr>")
 
     gaps_note = ""
@@ -374,6 +437,18 @@ def write_html(model, path):
             f'<div class="foot-note">Excluded {len(model["non_stock_lines"])} non-stock / costing BOM line(s) '
             f'(not MRP-planned inventory): {names}.</div>'
         )
+
+    # Legend built from the actual metric set (varies by search variant).
+    legend_items = ['<span><b>Rows per item:</b></span>']
+    for mkey, mlabel in metrics:
+        dot = ""
+        if mkey == "planned_demand":
+            dot = '<span class="dot" style="background:var(--pd)"></span>'
+        elif mkey == "planned_supply":
+            dot = '<span class="dot" style="background:var(--ps)"></span>'
+        label = f"<b>{html.escape(mlabel)}</b>" if mkey in EMPHASIS else html.escape(mlabel)
+        legend_items.append(f"<span>{dot}{label}</span>")
+    legend_html = "\n  ".join(legend_items)
 
     loc = html.escape(model.get("location") or "All locations")
     gen = html.escape(model.get("generated_at") or "")
@@ -423,7 +498,7 @@ td.num {{ text-align:right; font-variant-numeric:tabular-nums; }}
 .nil {{ color:var(--line2); }}
 .m-planned_demand {{ color:var(--pd); }}
 .m-planned_supply {{ color:var(--ps); }}
-tr.ending td.num, tr.ending td.metric {{ font-weight:700; color:var(--ink); background:#fbfbfd; }}
+tr.emph td.num, tr.emph td.metric {{ font-weight:700; color:var(--ink); background:#fbfbfd; }}
 tr.metric-row:hover td.num {{ background:#eef6fb; }}
 tr.gap td, td.comp.gap {{ background:var(--err-bg); }}
 .badge {{ background:var(--err); color:#fff; font-size:9px; font-weight:700; padding:1px 5px;
@@ -436,12 +511,7 @@ tr.gap td, td.comp.gap {{ background:var(--err-bg); }}
 <p class="src">Scope: <b>{len(model["components"])}</b> purchased components · full multi-level BOM explosion · {len(model.get("wip_assemblies") or [])} WIP sub-assembly(ies) traversed (not listed)</p>
 {gaps_note}
 <div class="legend">
-  <span><b>Rows per item:</b></span>
-  <span>Forecast</span><span>Demand</span>
-  <span><span class="dot" style="background:var(--pd)"></span>Planned Demand</span>
-  <span>Supply</span>
-  <span><span class="dot" style="background:var(--ps)"></span>Planned Supply</span>
-  <span><b>Ending</b> (projected balance)</span>
+  {legend_html}
 </div>
 <div class="scroller"><table>
 <thead><tr>

@@ -1,11 +1,11 @@
 ---
 name: mrp-by-fg
-description: "Run the MRP Hack Report: given a CandyCo finished-good item number, explode its multi-level NetSuite BOM and produce a consolidated ~30-week time-phased MRP report for every PURCHASED component (raw materials + packaging) on one page — as both an Excel workbook and an HTML dashboard. Replaces procurement's manual, item-by-item 'MRP Consolidated Report - Weekly Copy & Paste' process (paste each component's number into a saved-search criteria and copy the result). Uses the live NetSuite connector: BOM via SuiteQL, the trusted time-phased numbers (Forecast / Demand / Planned_Demand / Planned_Supply / Ending) from the UNFILTERED planning search 'MRP Consolidated Report - Weekly' (customsearch_st_mrp_consolidated_repor_5), filtered client-side to the BOM component set. Components missing from the planning run are flagged as DATA GAPs, never zeroed. Invoke when the user says 'run MRP Hack Report', 'run the MRP Hack Report for <item>', 'MRP Hack Report <item>', 'run MRP for <item>', 'consolidated MRP for <item>', 'BOM MRP for <item>', or 'what do we need to buy for <item>'."
+description: "Run the MRP Hack Report: given a CandyCo finished-good item number, explode its multi-level NetSuite BOM and produce a consolidated ~30-week time-phased MRP report for every PURCHASED component (raw materials + packaging) on one page — as both an Excel workbook and an HTML dashboard. Replaces procurement's manual, item-by-item 'MRP Consolidated Report - Weekly Copy & Paste' process (paste each component's number into a saved-search criteria and copy the result). Uses the live NetSuite connector: BOM via SuiteQL, the trusted time-phased numbers (Forecast / Demand / Supply / Ending / Planned_Demand / Planned_Supply / System Balance) from the UNFILTERED planning search id 9661 ('MRP Consolidated Report'), filtered client-side to the BOM component set. Components missing from the planning run are flagged as DATA GAPs, never zeroed. Invoke when the user says 'run MRP Hack Report', 'run the MRP Hack Report for <item>', 'MRP Hack Report <item>', 'run MRP for <item>', 'consolidated MRP for <item>', 'BOM MRP for <item>', or 'what do we need to buy for <item>'."
 user-invocable: true
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   argument-hint: "run MRP Hack Report <fg_item_number>"
-  validation-status: "Validated cell-for-cell on FG 21125 (bar) and 30804-Case12 (case-pack), Jul 2026. Procurement: confirm against your manual copy & paste output on your first few real runs."
+  validation-status: "Data source = search 9661. Validated cell-for-cell on FG 21125 against 9661 (Jul 2026); case-pack 30804-Case12 validated on the prior search layout (parser is legend-driven / format-agnostic). Procurement: confirm against your manual copy & paste output on your first few real runs."
 ---
 
 # mrp-by-fg
@@ -32,13 +32,16 @@ recursion method, and the two-tier FG scoping note. SuiteQL is in
 | `fg_item` | yes | — | The finished-good item **number** (the displayed `itemid`, e.g. `21125`). |
 | `weeks` | no | 30 | Informational; the search always returns Overdue + 30 weekly buckets. |
 | `location` | no | (as-returned) | Only for labeling; the search has no runtime filter. |
-
-**Data source (fixed):** `searchId = "customsearch_st_mrp_consolidated_repor_5"`
-("MRP Consolidated Report - Weekly"). This is the UNFILTERED planning search
-(≈800+ items). Do **not** use the "…Copy & Paste", "…in Criteria", or "…MASTER"
-variants (incl. numeric id 9955) — those are pre-filtered to a manually-pasted item
-list and will silently miss your components. See query-notes.md → Data source 1.
 | `out_dir` | no | `~/.claude/runs/mrp-by-fg/` | Where the `.xlsx` + `.html` land. |
+
+**Data source (fixed):** `searchId = "9661"` ("MRP Consolidated Report", the base
+report the Copy & Paste MASTER is built from). This is the UNFILTERED planning search
+(≈1,085 items). Do **not** use the "…Copy & Paste", "…in Criteria", or "…MASTER"
+variants (incl. numeric id 9955, or the older `..._repor_5`) — those are either
+pre-filtered to a manually-pasted item list (they silently miss your components) or a
+different/older layout. See query-notes.md → Data source 1. The renderer is
+**legend-driven** (it reads each row's label legend), so it adapts if the field set
+changes — but 9661 is the confirmed correct source.
 
 ## STEP 0 — Preconditions
 Confirm the NetSuite connector is available (the `ns_*` tools). If not, stop and
@@ -97,13 +100,13 @@ Build the **target internal-id set** = the distinct `components[].internal_id`.
 ## STEP 4 — Pull the MRP grid and filter to the purchased set
 The search has **no runtime item filter**, so the whole (unfiltered) search must be
 paged and filtered client-side. Each row carries ~30 large HTML cells and the
-universe is 800+ items, so **do NOT page the search in your own (the orchestrator's)
+universe is ~1,085 items, so **do NOT page the search in your own (the orchestrator's)
 context — delegate it to a subagent.** The rows would otherwise flood context; the
 subagent absorbs them and returns only a summary.
 
 Spawn a subagent (general-purpose) with these instructions:
 - Load the tool via ToolSearch. Call `ns_runSavedSearch`
-  `searchId="customsearch_st_mrp_consolidated_repor_5"`, `type="PlanningEngineResult"`,
+  `searchId="9661"`, `type="PlanningEngineResult"`,
   paging with `range_start`/`range_end`. **Paging is 0-based — start `range_start=0`.**
   (Starting at 1 silently skips index 0, which is item internal id 105 = "Salt - Pure
   Ocean Small", a very common raw material.)
@@ -158,7 +161,8 @@ two file paths. Keep the **VALIDATION PENDING** note visible. Offer to open the 
 5. Run a second FG on a different line to confirm generality.
 
 ## NOTES FOR FUTURE MAINTENANCE
-- The saved-search cell format is fixed (7 divs); if NetSuite changes the search
+- The renderer is legend-driven (maps cell values to the " " column's row labels),
+  so a changed field set adapts automatically; if NetSuite changes the search
   layout, update `parse_cell` in `build_report.py` and the fixture note in
   `query-notes.md`.
 - The NetSuite tool prefix in `allowed-tools` is Scott's connection's; on another
