@@ -242,6 +242,14 @@ When an SVG chart card has a fixed `viewBox` (e.g. `0 0 620 410`), give the **ca
 
 `align-self: center` (not `start`) keeps the cards visually anchored in the row instead of pinned to the top — the leftover slide-level space splits evenly above and below, which reads as breathing room rather than abandonment.
 
+### Image cards — pack-shots and thumbnails
+
+Product pack-shots and launch thumbnails always sit **inside a card** — never as a bare image with a caption floating beneath it. One consistent treatment everywhere:
+
+- **Card:** white fill, rounded corners, soft shadow. **Image on top, caption inside along the bottom** (uppercase tracked eyebrow, `--shadow-700`). A row of cards is uniform size (`align-items: stretch`); the image lives in a fixed-height area with `object-fit: contain`, the caption pinned below it.
+- **Trim the source image first.** A pack-shot with baked-in white margins renders *small* inside a `contain` box — the whole canvas scales down, so the product looks shrunken next to tighter-cropped neighbors. Crop each PNG to the product's bounding box so every product fills its frame at the same visual size. Never compensate with per-image scaling hacks.
+- **No print-flipping hairline borders.** `--shadow-100` is light grey on screen but inverts to near-black under `@media print`, so a `1px solid var(--shadow-100)` border prints as a hard black outline. Define cards with fill + shadow, or use a media-stable color — never `--shadow-100` for a visible border.
+
 ### Paired bars — when one period needs two values
 
 Some periods carry two related values (e.g., 2026 Budget vs Forecast). Render both as **full-width** bars, not half-width — the period should read with the same visual weight as every other:
