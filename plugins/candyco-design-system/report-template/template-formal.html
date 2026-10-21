@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>[Report title] — CandyCo</title>
+<!-- FORMAL style — board reports, board pre-reads, and formal reports
+     (dark Shadow Grey band). For daily / internal reports use template.html. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Frank+Ruhl+Libre:wght@400;500;700&family=Yeseva+One&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="report.css">
+</head>
+<body class="style-formal">
+<div class="doc-frame">
+
+<!-- ============================================================
+     SHEET 1 — COVER: dark band with headline KPIs, summary, top table
+     ============================================================ -->
+<section class="sheet">
+  <header class="masthead band">
+    <div class="top">
+      <img src="../assets/logo/candyco-logo-white.png" alt="CandyCo">
+      <div class="meta">[Board of directors · audience]<br>[Month D, YYYY]</div>
+    </div>
+    <h1>[Report title]</h1>
+    <div class="sub">[Period or scope · in three or four words]</div>
+    <!-- The four headline numbers live in the band on formal reports. -->
+    <div class="kpis">
+      <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]</div><div class="s">[vs plan · vs prior]</div></div>
+      <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]</div><div class="s">[vs plan · vs prior]</div></div>
+      <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]</div><div class="s">[vs plan · vs prior]</div></div>
+      <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]</div><div class="s">[vs plan · vs prior]</div></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <section class="sec">
+      <div class="rail"><div class="n">01</div><div class="t">Summary</div></div>
+      <div class="main">
+        <!-- Bullets, not sentences. One idea each, number first, under ~15 words.
+             The first bullet (.lead) is the one finding that matters most. -->
+        <ul class="points lead">
+          <li>[The headline finding with <strong>the key number</strong>.]</li>
+          <li>[Second point. <strong>Number</strong> + what drove it.]</li>
+          <li>[Third point.]</li>
+          <li>[What we are asking the board, or what we do next.]</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="rail"><div class="n">02</div><div class="t">[Table title]</div><div class="h">[What is ranked, and how]</div></div>
+      <div class="main">
+        <!-- Bar meter vs goal: --v is the value, --g the goal (0–100 scale).
+             Grey bars; .hot on the <i> and .flag on the <tr> for the ONE row that matters. -->
+        <table>
+          <colgroup><col style="width:1.3in"><col><col style="width:0.7in"><col style="width:0.7in"><col style="width:0.9in"></colgroup>
+          <thead><tr><th>[Area]</th><th>vs plan</th><th class="r">[Actual]</th><th class="r">[Plan]</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>[Row]</td><td><div class="meter" style="--v:96;--g:95"><i></i><u></u></div></td><td class="r">[96%]</td><td class="r">[95%]</td><td><span class="cap success">On plan</span></td></tr>
+            <tr><td>[Row]</td><td><div class="meter" style="--v:88;--g:90"><i></i><u></u></div></td><td class="r">[88%]</td><td class="r">[90%]</td><td><span class="cap warning">Watch</span></td></tr>
+            <tr class="flag"><td>[Row]</td><td><div class="meter" style="--v:71;--g:85"><i class="hot"></i><u></u></div></td><td class="r">[71%]</td><td class="r">[85%]</td><td><span class="cap error">Off plan</span></td></tr>
+          </tbody>
+        </table>
+        <div class="caption">[How to read the table. Tick = plan.]</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="sheet-footer"><span>[Report short title] · Confidential</span><span class="page-no">Page 1 of N</span></div>
+</section>
+
+<!-- ============================================================
+     SHEET 2 — DETAIL: running head, chart, decisions / actions
+     Section numbers continue across sheets (03, 04 …).
+     ============================================================ -->
+<section class="sheet">
+  <div class="runhead band"><img src="../assets/logo/candyco-logo-white.png" alt="CandyCo"><span class="t">[Report short title] · [Month YYYY]</span></div>
+  <div class="body">
+
+    <section class="sec">
+      <div class="rail"><div class="n">03</div><div class="t">[Detail title]</div><div class="h">[Scope]</div></div>
+      <div class="main">
+        <ul class="points">
+          <li>[What changed, with the number.]</li>
+          <li>[Why it changed.]</li>
+          <li>[What it means for the next quarter.]</li>
+        </ul>
+        <div class="kpis three">
+          <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]</div><div class="s">[Context]</div></div>
+          <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]</div><div class="s">[Context]</div></div>
+          <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]</div><div class="s">[Context]</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="rail"><div class="n">04</div><div class="t">[Chart title]</div></div>
+      <div class="main chart">
+        <div style="height: 190px;"><canvas id="chart_1"></canvas></div>
+        <div class="caption">[Plain-English read of the chart.]</div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="rail"><div class="n">05</div><div class="t">Decisions and next steps</div></div>
+      <div class="main">
+        <table class="actions">
+          <colgroup><col style="width:0.3in"><col><col style="width:1.3in"><col style="width:0.8in"></colgroup>
+          <thead><tr><th>#</th><th>Decision or action</th><th>Owner</th><th>By</th></tr></thead>
+          <tbody>
+            <tr><td class="no">1</td><td class="wrap">[Decision requested or action committed.]</td><td class="owner">[Role · person]</td><td>[Date]</td></tr>
+            <tr><td class="no">2</td><td class="wrap">[Action.]</td><td class="owner">[Role]</td><td>[Date]</td></tr>
+          </tbody>
+        </table>
+        <p class="sources" style="margin-top:10pt"><strong>Sources.</strong> [Source 1; source 2.] [Method in one line. Confidence: high / medium / low and why.]</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="sheet-footer"><span>[Report short title] · Confidential</span><span class="page-no">Page N of N</span></div>
+</section>
+
+</div><!-- /doc-frame -->
+
+<script>
+  Chart.defaults.font.family = "Assistant, -apple-system, BlinkMacSystemFont, sans-serif";
+  Chart.defaults.font.size = 9;
+  Chart.defaults.color = '#4E5268';
+  Chart.defaults.animation = false;
+  Chart.defaults.responsive = true;
+  Chart.defaults.maintainAspectRatio = false;
+
+  // Token colors — keep in sync with colors_and_type.css.
+  // Grey for the series, racing red only for the one thing that matters.
+  const T = { primary: '#272838', grey: '#83879A', grid: '#E0E1E6', hot: '#FF0022' };
+
+  // Example chart — replace with your own
+  // new Chart(document.getElementById('chart_1'), { ... });
+</script>
+</body>
+</html>

@@ -20,7 +20,7 @@ This skill is the always-on default for artifacts. When invoked (explicitly or b
 - `assets/logo/` — `candyco-logo-black.png` (dark on light), `candyco-logo-white.png` (light on Shadow Grey), `candyco-mark.jpg` (wordless mark for tight spaces). **Place the logo in the cover header of every report — never substitute with a text wordmark.**
 - `assets/icons/` — Lucide iconography reference. Lucide icons are CDN-linked, 1.5px stroke, `currentColor` only.
 - `preview/` — specimen cards for every token group. Useful as cookbook examples.
-- `report-template/` — **default layout for every HTML report.** Paged 8.5×11 sheets with logo header, page-numbered footers, ready-to-use components. Always start here for reports, briefings, analyses, and long-form documents.
+- `report-template/` — **default layout for every HTML report.** Paged 8.5×11 sheets, numbered left-rail sections, Yeseva KPI numbers, bar-meter tables, concise bullets. Two styles: `template.html` (internal — daily/internal reports, black-rule masthead) and `template-formal.html` (formal — board and formal reports, dark band). Always start here for reports, briefings, analyses, and long-form documents.
 - `complaint-response-template/` — **standard written response to a retail or brand customer about a consumer complaint investigation.** 4-page customer-facing report (identification + traceability, containment, investigation evidence, root cause, CAPA) plus two internal guidance pages that are deleted before sending. Start from its `template.html` whenever the quality team responds to a customer complaint.
 - `ui_kits/marketing-site/` — JSX components and a working `index.html` showing the system in production layout.
 - `board-deck/` — board deck reference materials and reusable deck-stage scaffolding.
@@ -29,7 +29,7 @@ This skill is the always-on default for artifacts. When invoked (explicitly or b
 
 1. If the user has asked for a visual artifact (HTML page, dashboard, slide, mock, doc), apply this design system by default.
 2. Read `README.md` first for the content and visual rules.
-3. **For HTML reports, briefings, or analyses, default to `report-template/`** — paged 8.5×11 sheets with the logo lockup, page-numbered footers, and the standard component library. Read `report-template/README.md` and copy `report-template/template.html` as the starting point. Skip only if the user signals "raw," "single page," "one-pager," "no branding," or asks for a non-paged format.
+3. **For HTML reports, briefings, or analyses, default to `report-template/`** — paged 8.5×11 sheets with the logo lockup, page-numbered footers, and the standard component library. Read `report-template/README.md` and copy `report-template/template.html` (daily and internal reports) or `report-template/template-formal.html` (board and formal reports) as the starting point. Write points and explanations as short bullets, not long sentences. Skip only if the user signals "raw," "single page," "one-pager," "no branding," or asks for a non-paged format.
 4. Pull tokens from `colors_and_type.css` rather than redefining colors, type, spacing, radii, or shadows ad hoc.
 5. Use logos and fonts from this plugin. **Place `candyco-logo-black.png` in the cover header of every report** (or `candyco-logo-white.png` on inverse Shadow Grey backgrounds). Copy the logo file and any referenced fonts into the artifact output folder so the relative path resolves when the file is shared or printed.
 6. Apply the voice rules from `README.md` to all copy: sentence case, "we/you," concrete numbers, no emoji.
@@ -39,16 +39,19 @@ This skill is the always-on default for artifacts. When invoked (explicitly or b
 
 If the user says "raw output," "no styling," "quick sketch," "unbranded," or similar — skip the design system and produce something fast and unstyled.
 
-## Report components — operations / finance pattern library
+## Report components — v2 pattern library
 
-The `report-template/report.css` includes ready-to-use components for analytical / operational reports. Use them by class name; styles handle print color preservation automatically.
+`report-template/report.css` (v2) covers both report styles. Set `<body class="style-internal">` or `<body class="style-formal">`. Full table in `report-template/README.md`.
 
-- **`.hero`** — light-cream callout for the executive headline. Print-safe (the legacy dark-bg version was getting stripped by browser print color economy and rendering white-on-white). Use `.hero.dark` only for digital-only artifacts.
-- **`.sheet.landscape`** — wide-content sheet (14" wide on screen for comfortable browsing) that prints as Letter portrait with the content rotated 90° CCW so wide tables fit on portrait paper. **Required pattern**: wrap ALL inner content (h2, intro, meta-strip, table, goal-box, caption, footer) inside `<div class="print-rotated-region"><div class="print-rotated-inner">...</div></div>`. Set inline `style="--print-scale: 0.82;"` (or whatever scale fits) on the section to shrink all fonts/padding together based on row count. See `report-template/README.md` for the full pattern and the row-count → scale formula.
-- **`.run-meta-strip`** — light-cream context band with metadata (e.g., produced units, revenue, period). Pairs above appendix tables.
-- **`table.appendix-wide`** — dense numeric reporting table (15+ columns) matched to the cycle-count team's report format. Light-blue header band with grouped column heads. Use inside `.sheet.landscape`. Includes a `.totals` row class.
-- **`.goal-box`** — bold-bordered KPI callout that frames a result against an operational target. Three cells: two context numbers + one headline % with color band. Color modifiers: `.goal-good` (green, beating target), `.goal-warn` (amber), `.goal-bad` (red).
-- **Variance tinting** — apply `.pos` (green, favorable), `.neg` (amber, small unfavorable), or `.neg-strong` (red bold, large unfavorable) to `<td>` cells in comparison tables.
+- **Masthead** — `.masthead.rule` (internal: black rule, black logo) or `.masthead.band` (formal: Shadow Grey band, white logo, KPI row inside the band). Inner sheets use `.runhead.rule` / `.runhead.band`.
+- **Numbered section** — `.sec` with `.rail` (`.n` number, `.t` title, `.h` hint) and `.main`. Numbers run continuously across the document.
+- **Summary bullets** — `ul.points.lead`: one idea per bullet, number first, under ~15 words; the first bullet is the headline finding.
+- **KPI row** — `.kpis > .kpi` with `.l` / `.v` / `.s`. Yeseva numbers between hairlines.
+- **Bar meters** — `.meter` (fill vs goal tick, `--v` / `--g`) and `.meter.div` (diverging around zero, `--v` / `--max`, `.neg`, `.over`). Grey bars; `.hot` + `tr.flag` on the one row that matters.
+- **Capsules, key, status line, actions table, sources** — `.cap.*`, `.key`, `.status-line`, `table.actions`, `p.sources`.
+- **Wide tables** — `.sheet.landscape` with the `print-rotated-region` / `print-rotated-inner` wrappers and `table.appendix-wide`; set `--print-scale` from row count. See `report-template/README.md`.
+- **Variance tinting** — `.pos`, `.neg`, `td.neg-strong` on comparison cells.
+- **Retired in v2:** `.hero`, `.stats`, `.goal-box`, `.audience-grid`, `.run-meta-strip`, `.card`, `.cover-head`, `.meta-strip`.
 
 ## Number formatting conventions for reports
 
@@ -58,7 +61,7 @@ Every operational/finance report should follow these conventions so the output r
 - **Zero or no data** as em-dash: `—` (never `0`, `N/A`, or blank cells in numeric columns)
 - **Currency** with $-prefix: positive `$1,234`, negative `$(1,234)`
 - **Percentages** always signed on variance columns: `+0.1%`, `-12.4%`
-- **Column alignment** uses tabular numerals: `font-variant-numeric: tabular-nums` (already on `.num`, `.stat .num`, `.goal-value`)
+- **Column alignment** uses tabular numerals: `font-variant-numeric: tabular-nums` (on by default for every table and `.num`)
 - **Lead with lbs (or units), follow with dollars** in operational reports — pounds is the operational metric; dollars is the financial expression of the same data
 
 These conventions live in code (formatting helpers, not CSS), but are documented here and at the bottom of `report-template/report.css` so every future report uses the same helpers.

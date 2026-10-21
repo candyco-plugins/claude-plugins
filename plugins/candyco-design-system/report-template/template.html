@@ -3,250 +3,157 @@
 <head>
 <meta charset="utf-8">
 <title>[Report title] — CandyCo</title>
+<!-- INTERNAL style — daily, weekly, and internal reports (black-rule masthead).
+     For board and formal reports start from template-formal.html instead. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Frank+Ruhl+Libre:wght@400;500;700&family=Yeseva+One&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <link rel="stylesheet" href="../colors_and_type.css">
 <link rel="stylesheet" href="report.css">
 </head>
-<body>
+<body class="style-internal">
 <div class="doc-frame">
 
 <!-- ============================================================
-     SHEET 1 — COVER + EXECUTIVE SUMMARY
+     SHEET 1 — COVER: masthead, status, summary, key numbers, top table
      ============================================================ -->
 <section class="sheet">
-
-  <div class="cover-head">
-    <div class="brand">
+  <header class="masthead rule">
+    <div class="top">
       <img src="../assets/logo/candyco-logo-black.png" alt="CandyCo">
+      <div class="meta">[Department] · [Plants or scope]<br>[Weekday, Month D, YYYY]</div>
     </div>
-    <div class="doc-meta">
-      <div class="eyebrow" style="font-size: 7pt;">[Department or audience]</div>
-      <div>[Date] &nbsp;·&nbsp; [Plant or scope] &nbsp;·&nbsp; [Line or function]</div>
-    </div>
+    <h1>[Report title]</h1>
+    <div class="sub">[What it covers · in three or four words]</div>
+  </header>
+
+  <div class="body">
+    <!-- Optional. Use for preliminary / draft / final states. -->
+    <div class="status-line"><span class="cap warning">Preliminary</span>[One line: what is missing and when it lands.]</div>
+
+    <section class="sec">
+      <div class="rail"><div class="n">01</div><div class="t">Summary</div></div>
+      <div class="main">
+        <!-- Bullets, not sentences. One idea each, number first, under ~15 words.
+             The first bullet (.lead) is the one finding that matters most. -->
+        <ul class="points lead">
+          <li>[The headline finding with <strong>the key number</strong>.]</li>
+          <li>[Second point. <strong>Number</strong> + what drove it.]</li>
+          <li>[Third point.]</li>
+          <li>[What we do next, or the win to protect.]</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="rail"><div class="n">02</div><div class="t">Key numbers</div></div>
+      <div class="main">
+        <div class="kpis">
+          <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]</div><div class="s">[Goal · trend]</div></div>
+          <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]</div><div class="s">[Goal · trend]</div></div>
+          <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]<small>lbs</small></div><div class="s">[Goal · trend]</div></div>
+          <div class="kpi"><div class="l">[Metric]</div><div class="v">[Value]</div><div class="s">[Goal · trend]</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="rail"><div class="n">03</div><div class="t">[Table title]</div><div class="h">[What is ranked, and how]</div></div>
+      <div class="main">
+        <!-- Bar meter vs goal: --v is the value, --g the goal (0–100 scale).
+             Grey bars; add .hot to the <i> and .flag to the <tr> on the ONE row that matters. -->
+        <table>
+          <colgroup><col style="width:1.2in"><col><col style="width:0.7in"><col style="width:0.7in"><col style="width:0.9in"></colgroup>
+          <thead><tr><th>[Line]</th><th>vs goal</th><th class="r">[Actual]</th><th class="r">[Goal]</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>[Row]</td><td><div class="meter" style="--v:92;--g:94"><i></i><u></u></div></td><td class="r">[92.0%]</td><td class="r">[94%]</td><td><span class="cap success">On track</span></td></tr>
+            <tr><td>[Row]</td><td><div class="meter" style="--v:86;--g:87"><i></i><u></u></div></td><td class="r">[86.0%]</td><td class="r">[87%]</td><td><span class="cap success">On track</span></td></tr>
+            <tr class="flag"><td>[Row]</td><td><div class="meter" style="--v:72;--g:80"><i class="hot"></i><u></u></div></td><td class="r">[72.0%]</td><td class="r">[80%]</td><td><span class="cap error">Off goal</span></td></tr>
+          </tbody>
+        </table>
+        <div class="caption">[How to read the table. Tick = goal.]</div>
+      </div>
+    </section>
   </div>
 
-  <h1>[Report title]</h1>
-  <p class="lead">[One sentence stating what the report reconciles, analyzes, or recommends. Distribution: [Finance, Operations, FSQA, R&amp;D].]</p>
-
-  <div class="meta-strip">
-    <div class="item"><div class="eyebrow">Subject</div><div class="v">[FG / item / line]</div></div>
-    <div class="item"><div class="eyebrow">Line</div><div class="v">[Sollich 2 / Molding 1]</div></div>
-    <div class="item"><div class="eyebrow">Period</div><div class="v">[Date range]</div></div>
-    <div class="item"><div class="eyebrow">Sample</div><div class="v">[N checks / N pouches]</div></div>
-  </div>
-
-  <h2>Executive summary</h2>
-
-  <div class="hero">
-    <div class="eyebrow">The single most important finding</div>
-    <p class="headline">[Lead with the gap. One sentence. Use <span class="accent">accent</span> on the one number that matters most. Bold any other key numbers with <strong>strong</strong>.]</p>
-  </div>
-  <!-- Light-cream hero is print-safe. For digital-only artifacts, add class="hero dark"
-       to use the inverse Shadow Grey + golden-yellow accent look. -->
-
-  <!-- Operational reports often add a goal-box below the appendix table on later sheets:
-       <div class="goal-box goal-warn"> <div class="goal-row">
-         <div class="goal-cell"><div class="goal-label">Net adjustment</div><div class="goal-value">$(163,999)</div></div>
-         <div class="goal-cell"><div class="goal-label">Production revenue</div><div class="goal-value">$3,652,939</div></div>
-         <div class="goal-cell goal-headline"><div class="goal-label">Scrap as % of revenue</div><div class="goal-value">-4.5%</div></div>
-       </div></div>
-  -->
-
-  <!-- For a wide appendix table:
-       1. Use <section class="sheet landscape" style="--print-scale: N;"> where N is computed
-          based on table row count: 1.0 ≤6 rows, 0.82 = 7-8 rows, 0.72 = 9-10 rows, 0.62 = 11+
-       2. Wrap ALL the section's content (h2, intro, meta-strip, table, goal-box, caption, footer)
-          inside <div class="print-rotated-region"><div class="print-rotated-inner">...</div></div>
-          On screen the content flows normally inside the 14"-wide sheet; on print everything
-          rotates -90° together to fit Letter portrait.
-       3. Use <table class="appendix-wide"> with rowspan/colspan thead grouping for grouped headers.
-       See report-template/README.md → "Wide tables on portrait pages" for the full pattern. -->
-
-
-  <div class="stats">
-    <div class="stat">
-      <div class="eyebrow">[Metric 1]</div>
-      <div class="num">[Value]</div>
-      <div class="sub">[Context · trend]</div>
-    </div>
-    <div class="stat">
-      <div class="eyebrow">[Metric 2]</div>
-      <div class="num">[Value]</div>
-      <div class="sub">[Context · trend]</div>
-    </div>
-    <div class="stat">
-      <div class="eyebrow">[Metric 3]</div>
-      <div class="num">[Value]</div>
-      <div class="sub">[Context · trend]</div>
-    </div>
-    <div class="stat">
-      <div class="eyebrow">Win to protect</div>
-      <div class="num">[Value]</div>
-      <div class="sub">[Why it's working · replicate]</div>
-    </div>
-  </div>
-
-  <h3>Top three improvement opportunities</h3>
-  <table>
-    <thead>
-      <tr><th style="width: 26%;">Opportunity</th><th style="width: 22%;">Estimated impact</th><th>Why it matters</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><strong>[Opportunity 1]</strong></td><td><span class="cap error"><span class="dot error"></span>~$[X]</span></td><td>[One-line rationale.]</td></tr>
-      <tr><td><strong>[Opportunity 2]</strong></td><td><span class="cap warning"><span class="dot warning"></span>~$[X]</span></td><td>[One-line rationale.]</td></tr>
-      <tr><td><strong>[Opportunity 3]</strong></td><td><span class="cap warning"><span class="dot warning"></span>~$[X]</span></td><td>[One-line rationale.]</td></tr>
-    </tbody>
-  </table>
-
-  <div class="sheet-footer"><span class="doc">[Report short title]</span><span class="page-no">Page 1 of N</span></div>
+  <div class="sheet-footer"><span>[Report short title] · [YYYY-MM-DD]</span><span class="page-no">Page 1 of N</span></div>
 </section>
 
 <!-- ============================================================
-     SHEET 2 — FULL ANALYSIS (chart + supporting table)
+     SHEET 2 — DETAIL: running head, diverging-bar table, chart, actions
+     Section numbers continue across sheets (04, 05 …).
      ============================================================ -->
 <section class="sheet">
+  <div class="runhead rule"><img src="../assets/logo/candyco-logo-black.png" alt="CandyCo"><span class="t">[Report short title] · [Mon D, YYYY]</span></div>
+  <div class="body">
 
-  <h2>[Full analysis section]</h2>
-  <p>[Lead paragraph. Lead with the gap, name the driver, name the action.]</p>
+    <section class="sec">
+      <div class="rail"><div class="n">04</div><div class="t">[Detail title]</div><div class="h">[Scope of the detail]</div></div>
+      <div class="main">
+        <ul class="points">
+          <li>[What the table shows, one line.]</li>
+          <li>[The outlier and why.]</li>
+        </ul>
+        <!-- Diverging bar around zero: --v is the absolute value, --max the scale.
+             Add .neg for negative values, .over when the value is past the scale. -->
+        <table>
+          <colgroup><col style="width:0.7in"><col><col style="width:0.75in"><col style="width:0.65in"><col style="width:1.0in"></colgroup>
+          <thead><tr><th>Item</th><th>Description</th><th class="r">[$ var]</th><th class="r">%</th><th>vs [target]</th></tr></thead>
+          <tbody>
+            <tr class="flag"><td>[Item]</td><td class="desc">[Description]</td><td class="r">[$9,017]</td><td class="r">[+73.1%]</td><td><div class="meter div over" style="--v:73.1;--max:40"><i class="hot"></i></div></td></tr>
+            <tr><td>[Item]</td><td class="desc">[Description]</td><td class="r">[$3,826]</td><td class="r">[+33.3%]</td><td><div class="meter div" style="--v:33.3;--max:40"><i></i></div></td></tr>
+            <tr><td>[Item]</td><td class="desc">[Description]</td><td class="r">[$(5,103)]</td><td class="r">[-18.0%]</td><td><div class="meter div neg" style="--v:18;--max:40"><i></i></div></td></tr>
+            <tr class="total"><td>Total</td><td></td><td class="r">[$X]</td><td class="r">[+X%]</td><td></td></tr>
+          </tbody>
+        </table>
+        <div class="caption">[Bar centered on target, scaled to ±40%; arrow = off scale.]</div>
+      </div>
+    </section>
 
-  <div class="card">
-    <div class="eyebrow">Chart 1 · [What this view shows]</div>
-    <h4>[Chart title]</h4>
-    <div style="height: 220px;"><canvas id="chart_1"></canvas></div>
-    <div class="caption">[Plain-English read of the chart.]</div>
+    <section class="sec">
+      <div class="rail"><div class="n">05</div><div class="t">[Chart title]</div></div>
+      <div class="main chart">
+        <div style="height: 170px;"><canvas id="chart_1"></canvas></div>
+        <div class="caption">[Plain-English read of the chart.]</div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="rail"><div class="n">06</div><div class="t">Next steps</div></div>
+      <div class="main">
+        <table class="actions">
+          <colgroup><col style="width:0.3in"><col><col style="width:1.3in"><col style="width:0.8in"><col style="width:0.7in"></colgroup>
+          <thead><tr><th>#</th><th>Action</th><th>Owner</th><th>Priority</th><th>Due</th></tr></thead>
+          <tbody>
+            <tr><td class="no">1</td><td class="wrap">[Concrete action, name the deliverable.]</td><td class="owner">[Role · person]</td><td><span class="cap error">High</span></td><td>[Date]</td></tr>
+            <tr><td class="no">2</td><td class="wrap">[Action.]</td><td class="owner">[Role]</td><td><span class="cap warning">Medium</span></td><td>[Date]</td></tr>
+          </tbody>
+        </table>
+        <p class="sources" style="margin-top:10pt"><strong>Sources.</strong> [Source 1; source 2.] [Method in one line. Confidence: high / medium / low and why.]</p>
+      </div>
+    </section>
   </div>
 
-  <table>
-    <thead>
-      <tr><th>[Item]</th><th class="num">[Metric]</th><th class="num">[Metric]</th><th>[Note]</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>[Row]</td><td class="num">[Val]</td><td class="num neg">−$[X]</td><td>[Note]</td></tr>
-      <tr class="totals"><td>[Total]</td><td class="num">[Val]</td><td class="num">[Val]</td><td>[Source]</td></tr>
-    </tbody>
-  </table>
-
-  <div class="sheet-footer"><span class="doc">[Report short title]</span><span class="page-no">Page 2 of N</span></div>
-</section>
-
-<!-- ============================================================
-     SHEET 3 — AUDIENCE CALLOUTS (per team)
-     ============================================================ -->
-<section class="sheet">
-
-  <h2>What this means for each team</h2>
-  <div class="audience-grid">
-    <div class="audience">
-      <div class="head"><i class="icon" data-lucide="dollar-sign"></i><div class="title">Finance</div></div>
-      <ul>
-        <li>[Bullet — concrete number first.]</li>
-        <li>[Bullet.]</li>
-      </ul>
-    </div>
-    <div class="audience">
-      <div class="head"><i class="icon" data-lucide="factory"></i><div class="title">Operations</div></div>
-      <ul>
-        <li>[Bullet.]</li>
-        <li>[Bullet.]</li>
-      </ul>
-    </div>
-    <div class="audience">
-      <div class="head"><i class="icon" data-lucide="shield-check"></i><div class="title">FSQA</div></div>
-      <ul>
-        <li>[Bullet.]</li>
-        <li>[Bullet.]</li>
-      </ul>
-    </div>
-    <div class="audience">
-      <div class="head"><i class="icon" data-lucide="flask-conical"></i><div class="title">R&amp;D</div></div>
-      <ul>
-        <li>[Bullet.]</li>
-        <li>[Bullet.]</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="sheet-footer"><span class="doc">[Report short title]</span><span class="page-no">Page 3 of N</span></div>
-</section>
-
-<!-- ============================================================
-     SHEET 4 — ACTION ASSIGNMENTS + SOURCES
-     ============================================================ -->
-<section class="sheet">
-
-  <h2>Action assignments</h2>
-  <table class="actions">
-    <thead>
-      <tr>
-        <th class="priority">#</th>
-        <th>Action</th>
-        <th style="width: 22%;">Owner</th>
-        <th style="width: 11%;">Priority</th>
-        <th style="width: 13%;">Due</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="priority">1</td>
-        <td>[Action — concrete, name the deliverable.]</td>
-        <td class="owner">[Role + person]</td>
-        <td><span class="cap error"><span class="dot error"></span>High</span></td>
-        <td>[Date]</td>
-      </tr>
-      <tr>
-        <td class="priority">2</td>
-        <td>[Action.]</td>
-        <td class="owner">[Role]</td>
-        <td><span class="cap warning"><span class="dot warning"></span>Medium</span></td>
-        <td>[Date]</td>
-      </tr>
-      <tr>
-        <td class="priority">3</td>
-        <td>[Action.]</td>
-        <td class="owner">[Role]</td>
-        <td><span class="cap success"><span class="dot success"></span>Low</span></td>
-        <td>[Date]</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="footnote">
-    <strong>Sources.</strong> [Source 1; Source 2; Source 3.] [Methodology note. Confidence statement: high / medium / low on which dimensions and why.]
-  </div>
-
-  <div class="sheet-footer"><span class="doc">[Report short title]</span><span class="page-no">Page N of N</span></div>
+  <div class="sheet-footer"><span>[Report short title] · [YYYY-MM-DD]</span><span class="page-no">Page N of N</span></div>
 </section>
 
 </div><!-- /doc-frame -->
 
 <script>
-  if (window.lucide) window.lucide.createIcons();
-
   Chart.defaults.font.family = "Assistant, -apple-system, BlinkMacSystemFont, sans-serif";
   Chart.defaults.font.size = 9;
-  Chart.defaults.color = '#1E293B';
+  Chart.defaults.color = '#4E5268';
   Chart.defaults.animation = false;
   Chart.defaults.responsive = true;
   Chart.defaults.maintainAspectRatio = false;
 
-  // Token colors — keep in sync with colors_and_type.css
-  const T = {
-    primary:    '#272838',
-    steelBlue:  '#1982C4',
-    emerald:    '#23CE6B',
-    yellow:     '#FFCA3A',
-    red:        '#FF0022',
-    grid:       '#E0E1E6',
-    fg2:        '#4E5268'
-  };
+  // Token colors — keep in sync with colors_and_type.css.
+  // Grey for the series, racing red only for the one thing that matters.
+  const T = { primary: '#272838', grey: '#83879A', grid: '#E0E1E6', hot: '#FF0022' };
 
   // Example chart — replace with your own
   // new Chart(document.getElementById('chart_1'), { ... });
 </script>
-
 </body>
 </html>

@@ -1,185 +1,188 @@
-# Report template — paged 8.5×11 layout
+# Report template — paged 8.5×11 layout (v2)
 
-The default layout for every CandyCo HTML report, briefing, analysis, dashboard
-export, or long-form document. This pattern is **the assumption** unless the
-user explicitly asks for something else (a single scrolling page, a one-pager,
+The default layout for every CandyCo HTML report, briefing, analysis, recap,
+or long-form document. This pattern is **the assumption** unless the user
+explicitly asks for something else (a single scrolling page, a one-pager,
 a slide deck, a raw markdown file, etc.).
 
-## What this gives you
+## Two styles — pick by audience
 
-- **Discrete pages.** Each `<section class="sheet">` renders as an 8.5" × 11"
-  page on screen and prints as one page on Letter paper.
-- **Logo lockup.** The cover header places the official `candyco-logo-black.png`
-  at 42px height beside the document meta (both logo PNGs carry a 4%
-  transparent margin, so the artwork renders at the standard 38px).
-  White-background only — switch to `candyco-logo-white.png` if a sheet
-  inverts to Shadow Grey.
-- **Page-numbered footers.** Every sheet ends with `[Doc title] · Page N of M`.
-- **Print-ready by default.** `@page` is set to Letter portrait at 0.5" margins.
-  Browser print produces clean output with no extra setup.
-- **Components ready to use.** Hero callout (light cream, print-safe), stat
-  strip, capsules, audience grid, action-assignment table, chart card,
-  footnote, **landscape sheet** for wide tables, **run-meta-strip** for context
-  bands, **appendix-wide** dense numeric table, **goal-box** for KPI/threshold
-  callouts, and **variance tinting** classes.
+| Style | Use for | Starter | `<body>` class | Masthead |
+|---|---|---|---|---|
+| **Internal** | Daily and weekly reports, ops and quality reports, internal analyses — the default | `template.html` | `style-internal` | Black rule, black logo, bold title. KPIs sit in section 02. |
+| **Formal** | Board reports, board pre-reads, investor and partner reports, anything formal | `template-formal.html` | `style-formal` | Dark Shadow Grey band, white logo, the four headline KPIs inside the band. |
 
-## Files
+Board **slide decks** are a separate format — see `board-deck/`. The formal
+report style is for written, paged board material.
+
+Both styles share one stylesheet (`report.css`) and the same page structure,
+so content moves between them by swapping the masthead, running head and
+body class.
+
+## Page structure
 
 ```
-report-template/
-├── README.md       ← this file
-├── report.css      ← reusable stylesheet (imports colors_and_type.css)
-└── template.html   ← starter HTML — copy and replace placeholders
+<body class="style-internal">            ← or style-formal
+  <div class="doc-frame">
+    <section class="sheet">               ← one 8.5×11 page
+      <header class="masthead rule">…     ← cover only (.rule internal / .band formal)
+      <div class="runhead rule">…         ← inner sheets instead of the masthead
+      <div class="body">
+        <div class="status-line">…        ← optional: Preliminary / Draft / Final
+        <section class="sec">             ← numbered section
+          <div class="rail">01 · title · hint</div>
+          <div class="main">…content…</div>
+        </section>
+      </div>
+      <div class="sheet-footer">[Doc title] · Page N of M</div>
+    </section>
+  </div>
 ```
+
+- **Numbered left rail.** Every section is a `.sec` with a rail (Yeseva
+  number, short title, optional one-line hint) and a main column. Numbers run
+  continuously through the document (01, 02, 03 … across sheets), so anyone
+  can say "look at section 05."
+- **Logo in every cover header.** `candyco-logo-black.png` on the internal
+  masthead, `candyco-logo-white.png` in the formal band. Never a text wordmark.
+  Inner sheets carry the logo small in the running head.
+- **Page-numbered footer on every sheet.** `[Doc title] · Page N of M`.
+  Internal footers sit on a heavy rule in uppercase; formal footers are quiet
+  and say "Confidential."
+
+## Writing rules — concise, bullets, hierarchy
+
+- **Bullets, not long sentences.** Every point or explanation is a short
+  bullet in a `.points` list: one idea, number first, under ~15 words. No
+  paragraphs of prose in the summary. If a bullet needs a second sentence,
+  it is two bullets.
+- **Lead with the one finding.** Use `<ul class="points lead">` for the
+  summary; the first bullet renders larger. It is the single thing the reader
+  should take away.
+- **Bold the number, not the sentence.** `<strong>` goes on the figure and
+  the item it belongs to.
+- **Sentence case** for headings and labels. ALL-CAPS only for eyebrow-size
+  labels (KPI labels, table heads, running head).
+- **Concrete numbers.** Never "lots of" or "many" — always the count.
+- **One accent per page.** Bars are grey; racing red marks the one flagged
+  row (`tr.flag` + `.meter .hot`). Status capsules use semantic colors.
+- **Hierarchy from weight and size**, not color. Body stays `--fg-1`.
+- **No emoji. No cards, shadows, or side stripes** — structure comes from
+  rules and the rail.
+- **Lead with units (lbs, pieces, hours), follow with dollars** in
+  operational reports.
+
+## Components
+
+| Component | Class | Notes |
+|---|---|---|
+| Summary bullets | `ul.points` / `ul.points.lead` | Square ink bullets. `.lead` enlarges the first item. |
+| KPI row | `.kpis > .kpi` (`.l` label, `.v` value, `.s` sub) | Yeseva numbers, hairline columns. `.kpis.three` for three. Units in `<small>` after the value. |
+| Table | `table` + `<colgroup>` widths | Fixed layout, black header rule, hairline rows, long text truncates with an ellipsis. `td.desc` greys descriptions, `td.wrap` allows wrapping, `.r` right-aligns, `tr.flag` bolds the row that matters, `tr.total` for totals. |
+| Bar meter vs goal | `<div class="meter" style="--v:72.5;--g:80"><i></i><u></u></div>` | 0–100 scale. `<u>` is the goal tick. |
+| Diverging bar | `<div class="meter div [neg] [over]" style="--v:73.1;--max:40"><i></i></div>` | Centered on zero/target. `--v` is the absolute value; add `.neg` for negatives and `.over` when past `--max` (draws an arrow). |
+| Flagged bar | `<i class="hot">` | Racing red. One per table. |
+| Status capsule | `span.cap.success / .warning / .error / .info / .neutral` | Short text labels ("On track," "Off goal"). |
+| Key | `.key` | Two-column legend under a table: capsule, then meaning. |
+| Status line | `.status-line` | Capsule + one line, above section 01. |
+| Chart | `.main.chart` with a sized `<div><canvas></div>` + `.caption` | Grey series, red only for the one thing that matters. |
+| Actions | `table.actions` (`td.no`, `td.owner`) | Numbered actions, owner, priority capsule, due date. |
+| Sources | `p.sources` | One line of sources, one of method, one of confidence. |
+| Wide table | `.sheet.landscape` + `table.appendix-wide` | See "Wide tables" below. |
+
+### Retired in v2
+
+`.hero`, `.stats/.stat`, `.goal-box`, `.audience-grid`, `.run-meta-strip`,
+`.card`, `.cover-head`, `.meta-strip`, and `.lead` paragraphs are gone.
+Use instead: the `.points.lead` first bullet (for `.hero`), `.kpis` (for
+`.stats` and `.goal-box`), a meter with a goal tick (for goal framing), the
+masthead meta + status line (for `.meta-strip` / `.run-meta-strip`), and a
+`.sec` per team (for `.audience-grid`). Reports that vendor an older copy of
+`report.css` — for example the ops portal's daily reports — keep rendering
+with their copy until they are migrated.
 
 ## How to start a new report
 
-1. **Copy `template.html` to your working folder** (e.g. the project folder
-   under `/Users/SM/Documents/Claude/Projects/...`). Rename it.
-2. **Copy the logo file(s)** the report uses to the same working folder so the
-   image reference resolves when the file is shared or printed:
-   ```
-   cp "/Users/SM/Documents/CandyCo Design System/assets/logo/candyco-logo-black.png" .
-   ```
-   Update the `<img src>` to the local filename.
-3. **Inline the CSS.** For maximum portability (so the file can be emailed and
-   still render correctly), copy the contents of `colors_and_type.css` and
-   `report.css` into a `<style>` block in the HTML. Otherwise, keep the
-   `<link rel="stylesheet">` references and ship both CSS files alongside.
+1. **Pick the style** from the table above and copy `template.html` or
+   `template-formal.html` to the project folder. Rename it.
+2. **Copy the logo** the style uses into the same folder and point `<img src>`
+   at the local file so it resolves when shared or printed.
+3. **Inline the CSS** for portability (paste `colors_and_type.css` and
+   `report.css` into a `<style>` block), or ship both files alongside.
 4. **Replace placeholders.** Anything in `[brackets]` is a placeholder.
-5. **Add or remove sheets** by duplicating `<section class="sheet">…</section>`.
-   Update the `Page N of M` numbers in every footer.
+5. **Add or remove sheets** by duplicating `<section class="sheet">`. Inner
+   sheets use the running head, not the masthead. Keep section numbers
+   continuous and update every `Page N of M`.
 
-## Authoring rules (from the design system)
+## Avoiding print overflow
 
-- **Sentence case** for all headings and buttons. ALL-CAPS only for eyebrows.
-- **Concrete numbers.** Never "lots of" or "many" — always the count.
-- **One accent per page.** Use a Four Candies color (emerald, steel-blue,
-  golden-yellow, racing-red) sparingly to draw the eye to the one thing that
-  matters. The hero block's racing-red accent on the headline is the typical
-  move (golden-yellow on `.hero.dark` digital-only contexts).
-- **Hierarchy from weight and size**, not color. Body copy stays `--fg-1`.
-- **No emoji.** Status comes from semantic capsules (success / warning / error
-  / info / neutral / dark).
-- **Lucide icons** at 1.5px stroke, `currentColor`. Loaded from CDN in template.
-- **Tables** use `font-variant-numeric: tabular-nums`; numeric columns use
-  `class="num"`.
-- **Lead with units (lbs, pieces, hours), follow with dollars** in operational
-  reports. Pounds is the operational metric; dollars is the financial expression.
+Every sheet is exactly 11in tall and clips anything past that. On screen a
+dashed red line marks the bottom edge. **If content crosses the line, split
+the sheet into two** — do not shrink fonts or padding below these defaults.
 
-## Operational report patterns (added May 2026 from S'mores deep-dive)
+Content budget per sheet (main column, roughly):
 
-Use these for production / scrap / KPI / variance reports:
+| Sheet | Fits comfortably |
+|---|---|
+| Internal cover | Status line + 4-bullet summary + KPI row + one 6–8 row table |
+| Formal cover | 4-bullet summary + one 6–8 row table (KPIs are in the band) |
+| Inner sheet | Three sections: e.g. bullets + KPI row, a 10-row table, and a chart or actions table |
 
-- **`.hero`** is now the print-safe light-cream version by default. Use
-  `class="hero dark"` only when the report is digital-only and the dark look
-  is preferred. The light version forces `print-color-adjust: exact` so the
-  hero renders identically in browser, print preview, and PDF.
-- **`.sheet.landscape`** widens to 14"×8.5" — use when a table has more than
-  ~10 columns or won't fit at 7.5pt portrait. Common pattern: appendix sheets
-  for per-run / per-batch detail.
-- **`.run-meta-strip`** is a context band above wide tables showing produced
-  units, revenue, period, etc. Pairs naturally with `.appendix-wide`.
-- **`table.appendix-wide`** is the dense reporting table format used by the
-  cycle count / finance teams. Light-blue header band with optional grouped
-  column heads (`th.ap-grouphead` over `colspan`-grouped columns), totals
-  row uses `tr.totals`, key cells use `td.ap-input` (item code) and
-  `td.ap-desc` (item description).
-- **`.goal-box`** is the bold-bordered KPI callout that frames a result against
-  an operational target. Three flex cells: two context numbers + one headline
-  percentage with color band (`.goal-good` / `.goal-warn` / `.goal-bad`).
-- **Variance tinting** — `td.pos` (green favorable), `td.neg` (amber small
-  unfavorable), `td.neg-strong` (red bold large unfavorable).
+Pre-flight before delivering:
 
-### Number formatting conventions
+1. Open in Chrome and scroll every sheet — nothing crosses the dashed line,
+   and the last section clears the footer.
+2. Section numbers run 01 → N with no gaps; footers say `Page N of M`
+   with the right M.
+3. Exactly one flagged row (red bar) per table, at most one accent per page.
+4. Print preview: Letter, portrait, 100% scale, **background graphics on**,
+   browser headers and footers off.
 
-- Negative values in parentheses: `(1,234)` not `-1,234`
-- Zero / missing data as em-dash: `—` (never `0`, `N/A`, or blank)
-- Currency: `$1,234` positive, `$(1,234)` negative
-- Percentages: always signed on variance columns (`+0.1%`, `-12.4%`)
-- Tabular numerals via `font-variant-numeric: tabular-nums` (already on `.num`,
-  `.stat .num`, `.goal-value`)
+## Wide tables on portrait pages
 
-## Print & screen behavior
-
-- **On screen**, sheets stack as page-shaped white cards on a Shadow Grey 50
-  background, each with a soft drop shadow. Designed for review and sharing
-  via Cmd+P / "Save as PDF".
-- **In print**, the screen chrome (background, shadows, doc-frame) is stripped
-  via `@media print` rules. Each `<section class="sheet">` becomes one Letter
-  page. Browser-set headers/footers should be turned off in the print dialog
-  so the in-document `.sheet-footer` is the only footer that appears.
-
-### Wide tables on portrait pages
-
-Every page in a CandyCo report prints as Letter portrait. Wide content (e.g.
-15-column appendix tables) is handled by **rotating the content -90°** via CSS
-for print, not by switching the page to landscape. Reasons:
-
-- CSS landscape `@page` rules are inconsistently respected across browsers and
-  print drivers. Some print dialogs override them, others ignore them, and the
-  user-facing experience is unpredictable.
-- Rotating the content guarantees every printed page has the same orientation.
-  The reader rotates the printed page (or tilts their head) 90° clockwise to
-  read the wide table.
-
-**Required HTML pattern.** Wrap **all** the rotatable content (including the
-H2, intro paragraph, run-meta-strip, table, goal-box, caption, and the
-sheet-footer) inside two wrapper divs in a `.sheet.landscape` section.
-Everything inside rotates as one unit; the only thing outside the wrappers is
-the section close. Set an inline `--print-scale` based on table row count so
-all elements scale together when there are extra rows:
+Every page prints as Letter portrait. Tables with more than ~10 columns go on
+a `.sheet.landscape`: 14" wide on screen, and in print the content rotates -90°
+to fit the portrait page (CSS landscape `@page` rules are unreliable across
+browsers and print drivers). Wrap **all** the sheet's content, footer
+included, in the two rotation divs:
 
 ```html
 <section class="sheet landscape" style="--print-scale: 0.82;">
   <div class="print-rotated-region">
     <div class="print-rotated-inner">
-      <h2>Run X — Inventory Adjustments Detail</h2>
-      <p>Window / context paragraph...</p>
-      <div class="run-meta-strip">...</div>
-      <table class="appendix-wide">...</table>
-      <div class="goal-box">...</div>
-      <p class="caption">...</p>
-      <div class="sheet-footer">...</div>
+      <h2>…</h2>
+      <p>…</p>
+      <table class="appendix-wide">…</table>
+      <p class="caption">…</p>
+      <div class="sheet-footer">…</div>
     </div>
   </div>
 </section>
 ```
 
-On screen the wrappers are passthrough — children flow normally inside the
-14"-wide landscape sheet for comfortable left-to-right reading. On print, the
-`@media print` rules collapse the sheet to Letter portrait, the inner rotates
--90° around its top-left corner to fit a 7.5" × 10" rotation frame, and every
-element's font-size + padding is computed via `calc(Npt * var(--print-scale))`
-so all elements shrink together when more rows need to fit.
-
-**Compute `--print-scale` based on table row count** in your build script:
+Set `--print-scale` from the table's row count so everything shrinks together:
 
 ```python
-total_data_rows = ingredient_rows + 1 + pouch_rows  # +1 for totals row
-if total_data_rows <= 6:    print_scale = 1.0
-elif total_data_rows <= 8:  print_scale = 0.82
-elif total_data_rows <= 10: print_scale = 0.72
-else:                       print_scale = 0.62
+if rows <= 6:    print_scale = 1.0
+elif rows <= 8:  print_scale = 0.82
+elif rows <= 10: print_scale = 0.72
+else:            print_scale = 0.62
 ```
 
-Emit it on the section: `style="--print-scale: 0.82;"`. The CSS picks it up
-and scales h2 13pt → 10.7pt, intro 9pt → 7.4pt, table 7pt → 5.7pt, goal-headline
-20pt → 16.4pt, etc. — keeping the visual proportions while ensuring the rotated
-content fits one portrait page.
+`table.appendix-wide` supports grouped column heads (`th.ap-grouphead` over
+`colspan` groups), `td.ap-input` (item code), `td.ap-desc` (description), and
+`tr.totals`.
 
-**Print dialog tips for the user:**
-- Use Chrome / Edge / Safari for best CSS transform support in print.
-- In the print dialog: paper size **Letter**, orientation **Portrait**. Leave
-  scaling at 100% (or "Default"). Every page prints as portrait.
-- Turn **off** browser headers/footers (margins → Headers and footers checkbox)
-  so the in-document `.sheet-footer` is the only footer that appears.
-- "Background graphics" / "Print backgrounds" should be **on** so the hero
-  block, table headers, and goal box render with their shading.
+## Number formatting conventions
+
+- Negative values in parentheses: `(1,234)` not `-1,234`
+- Zero / missing data as em-dash: `—` (never `0`, `N/A`, or blank)
+- Currency: `$1,234` positive, `$(1,234)` negative
+- Percentages: always signed on variance columns (`+0.1%`, `-12.4%`)
+- Tabular numerals are on by default for every table and `.num`
 
 ## When to skip this format
 
 If the user says "raw," "markdown only," "one-pager," "quick draft," "no
-branding," or asks for a non-paged HTML page (a dashboard, a single-screen
-widget, a slide), do not force this template. Pick the right format for the
-ask.
+branding," "dashboard," "slide," or asks for a non-paged HTML page, do not
+force this template. Pick the right format for the ask.

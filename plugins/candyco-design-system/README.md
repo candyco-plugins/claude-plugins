@@ -88,7 +88,7 @@ Hierarchy is established with **weight and size**, not color. Body copy is `--fg
 
 **Press states.** Buttons shift to `--primary-dark` and shrink imperceptibly (`scale(0.98)`). Cards drop their elevation entirely (`--shadow-xs`).
 
-**Borders.** 1px hairlines in `--border-subtle` for divisions inside cards, `--border-default` for card edges, `--border-strong` only when a control needs explicit definition (form inputs at rest). No 2px borders. No colored borders except for active/focus states.
+**Borders.** 1px hairlines in `--border-subtle` for divisions inside cards, `--border-default` for card edges, `--border-strong` only when a control needs explicit definition (form inputs at rest). No 2px borders in UI. No colored borders except for active/focus states. **Paged reports are the exception:** they draw structure with heavier Shadow Grey rules (1.5–6pt) instead of cards — see `report-template/`.
 
 **Shadows.** Six-step elevation system, all derived from a tinted Shadow Grey at low alpha — never pure black. Cards use `--shadow-sm` at rest; menus and dropdowns use `--shadow-lg`; modals use `--shadow-xl`. Inset shadows (`--shadow-inset`) only inside form inputs.
 
@@ -145,20 +145,21 @@ The format is non-negotiable on three points:
    screen and prints as one page on Letter paper. The reader sees the page
    boundaries while drafting and gets a clean PDF on print.
 2. **Logo lockup in every cover header.** The official `candyco-logo-black.png`
-   sits at 42px height beside the document meta (eyebrow + date + scope).
+   sits in the masthead beside the document meta (department, scope, date) —
+   black logo on the internal masthead, white logo in the formal band.
    Both logo PNGs carry a 4% transparent margin so no artwork sits on the
-   image boundary — the 42px box renders the artwork at the standard 38px.
-   Never substitute with a text wordmark. Use the white logo on inverse
-   Shadow Grey blocks.
+   image boundary. Never substitute with a text wordmark.
 3. **Page-numbered footers on every sheet.** `[Doc title] · Page N of M` in
    the bottom strip. Footer-derived page numbers are part of the trust signal —
    the reader knows the document is intentional, not a print accident.
 
-To start a new report, copy `report-template/template.html` and follow the
-instructions in `report-template/README.md`. The component library —
-hero callout, stat strip, capsules, audience grid, action-assignment table,
-chart card, footnote — is already wired up and uses only tokens from
-`colors_and_type.css`.
+Two styles share one stylesheet. **Internal** (`report-template/template.html`,
+black-rule masthead) is the default for daily, weekly, and internal reports.
+**Formal** (`report-template/template-formal.html`, dark Shadow Grey band with
+the headline KPIs) is for board reports and formal documents. Both use
+numbered left-rail sections, Yeseva KPI numbers, bar-meter tables against
+goal, and **concise bullets instead of long sentences**. Follow
+`report-template/README.md`.
 
 **Consumer complaint investigation responses** (the quality team's written
 response to a retail or brand customer) start from
