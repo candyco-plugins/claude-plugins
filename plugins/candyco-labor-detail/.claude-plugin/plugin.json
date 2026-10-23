@@ -1,0 +1,10 @@
+{
+  "name": "candyco-labor-detail",
+  "description": "Amy's daily Labor Detail with Claude: say 'build the labor detail for yesterday'. Claude reads the three plants' shift workbooks and daily schedules from the synced S Drive and NetSuite work-order completions, rebuilds the Daily Report numbers, walks you through the items that need your judgment (off-schedule runs, count gaps, planned time, lunch rotations), then builds the Labor Detail workbook in your layout and your summary email, and publishes both after you approve.",
+  "version": "0.1.0",
+  "author": {
+    "name": "CandyCo",
+    "email": "scott.maxfield@candyco.com"
+  },
+  "keywords": ["candyco", "labor detail", "oee", "daily report", "operations", "netsuite", "shift report"]
+}

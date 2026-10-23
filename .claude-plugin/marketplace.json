@@ -12,12 +12,17 @@
     {
       "name": "candyco-design-system",
       "source": "./plugins/candyco-design-system",
-      "description": "CandyCo's design system — colors, typography, voice, components, fonts, logos, the paged 8.5×11 report template, and board-deck scaffolding. The default visual language for every CandyCo artifact."
+      "description": "CandyCo's design system \u2014 colors, typography, voice, components, fonts, logos, the paged 8.5\u00d711 report template, and board-deck scaffolding. The default visual language for every CandyCo artifact."
     },
     {
       "name": "candyco-mrp",
       "source": "./plugins/candyco-mrp",
       "description": "Procurement MRP: say 'run MRP Hack Report' with a finished-good item number and get a one-page ~30-week MRP report (Excel + HTML) for every purchased component of its multi-level BOM, straight from live NetSuite. Replaces the manual item-by-item Copy & Paste process."
+    },
+    {
+      "name": "candyco-labor-detail",
+      "source": "./plugins/candyco-labor-detail",
+      "description": "Amy's daily Labor Detail with Claude: rebuilds the Daily Report from the shift workbooks, schedules and NetSuite, walks the reviewer through the judgment calls, then builds and publishes the Labor Detail workbook and summary email."
     }
   ]
 }
