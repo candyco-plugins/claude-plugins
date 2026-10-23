@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily Labor Detail (OEE, labor vs standard, misc labor) and the 'Labor Detail - OEE and Summary' email with Amy Hadrich, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds the workbook in her layout with live formulas and her summary email, and publishes both only after she approves. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -29,6 +29,14 @@ better than anyone; you're saving her the typing.
 - Scripts: `automation/kpi-recon/scripts/` · the full method is in each script's header.
 - The S Drive is found automatically under the OneDrive sync. If it isn't, set
   `CANDYCO_SDRIVE` to the folder that holds `Operations` (e.g. `C:\Users\amy\OneDrive - Mrs. Call's Candy Company\Documents\S Drive`).
+
+## Installing (Claude desktop app, Code tab)
+
+`/plugin` commands don't run in the desktop app's Code tab. Install from **+ → Add plugins** (or
+**Plugins → Browse plugins**) in a **Local** session, then start a new session. If the CandyCo marketplace
+isn't listed, run in PowerShell: `claude plugin install candyco-labor-detail@candyco --marketplace candyco-plugins/claude-plugins`.
+Git for Windows must be installed first (quit and reopen the app after installing it). Invoke this skill by name:
+`/candyco-labor-detail:labor-detail set up` or `/candyco-labor-detail:labor-detail yesterday`.
 
 ## Setup (first run on a computer — "set up the labor detail")
 
