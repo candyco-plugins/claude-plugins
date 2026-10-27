@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily Labor Detail (OEE, labor vs standard, misc labor) and the 'Labor Detail - OEE and Summary' email with Amy Hadrich, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds the workbook in her layout with live formulas and her summary email, and publishes both only after she approves. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.1.1"
+  version: "0.2.0"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -29,6 +29,9 @@ better than anyone; you're saving her the typing.
 - Scripts: `automation/kpi-recon/scripts/` · the full method is in each script's header.
 - The S Drive is found automatically under the OneDrive sync. If it isn't, set
   `CANDYCO_SDRIVE` to the folder that holds `Operations` (e.g. `C:\Users\amy\OneDrive - Mrs. Call's Candy Company\Documents\S Drive`).
+  Past weeks' shift workbooks move to Supervisors Toolkit's "Old shift exchange" folder; they're found there too.
+- OneDrive must have the files on the computer, not just in the cloud: if a read stalls or a file is missing, ask
+  Amy to open OneDrive and let it sync (or right-click the S Drive folder → Always keep on this device), then retry.
 
 ## Installing (Claude desktop app, Code tab)
 
@@ -68,14 +71,17 @@ SELECT q.itemid, q.ts, q.qty, RPAD('x',300,'x') AS pad FROM (SELECT i.itemid AS 
 ```
 The `pad` column makes the tool save each page to a file. Then:
 `python automation/kpi-recon/scripts/save_completions.py <page files in order>` — it must print `OK`.
-If a page came back inline instead of as a file, re-run that page; never retype results.
+If a page came back inline instead of as a file, re-run that page; never retype results. On a Saturday the last
+entries come in before midnight; that's enough (prepare no longer waits for Sunday morning).
 
 ### 2. Prepare
 `python automation/kpi-recon/scripts/amy_daily.py prepare --date D`
 
 It reads the three plants' shift workbooks (this week's `L1/L2/L3 <Monday> to <Saturday>.xlsx` in Supervisors
-Toolkit) and the two daily schedules (`Daily Schedule Jobs by Department MM-DD-YYYY.xlsx`), rebuilds the Daily
-Report numbers and prints the **review list**. If it prints `MISSING`, tell Amy which file isn't there yet (a
+Toolkit) and the two daily schedules (`Daily Schedule Jobs by Department MM-DD-YYYY.xlsx`, including the Notes
+column, where the scheduler writes a lower goal like `0.5` or `(50%)` and which Matrix machines run), takes scrap
+pounds from the SafetyChain scrap forms, rebuilds the Daily Report numbers and prints the **review list**
+(answered flags show as answered, so a re-run shows only what's left). If it prints `MISSING`, tell Amy which file isn't there yet (a
 shift tab not filled in, a schedule not posted) and offer to try again in 30 minutes. If it prints
 `NEED NETSUITE`, go back to step 1.
 
@@ -87,13 +93,16 @@ one sentence and ask the one question. Record each answer with:
 
 | Flag | What to ask | Field |
 |---|---|---|
-| **off schedule** — hours or units far from the schedule, or an item run / not run | "Sollich-4 1st made 255,900 against 163,200 on a 4-hour schedule. What hours ran should I use, and should scheduled units change?" | `line_hrs`, `sched_units` (+ `--sku`) |
-| **count gap** — NetSuite and the supervisor differ | "ML2 1st: NetSuite 337,250, supervisor 308,750. Keep NetSuite?" (her rule: NetSuite unless labels/recording had a problem; then move the difference between shifts so the day total still matches NetSuite) | `prod_units` (+ `--sku`) |
-| **planned time** — the schedule planned changeover / cleaning / lunch | "Sollich-4 had 4 h of cleaning/lunch rotation planned. Any downtime to take out?" | `total_dt` |
+| **off schedule** — hours or units far from the schedule, or an item run / not run | "Sollich-4 1st made 255,900 against 163,200 on a 4-hour schedule. What hours ran should I use, and should scheduled units change?" Hours ran drive OEE: when production moved, the schedule's hours leave the rate over 100% until she gives the real hours | `line_hrs`, `sched_units` (+ `--sku`) |
+| **count gap** — NetSuite and the supervisor differ | "ML2 1st: NetSuite 337,250, supervisor 308,750. Keep NetSuite?" (her rule: NetSuite unless labels/recording had a problem; then move the difference between shifts so the day total still matches NetSuite). A shift NetSuite has nothing for counts 0 when NetSuite completed the item that day | `prod_units` (+ `--sku`) |
+| **units at 0 hours** — NetSuite counted units into a shift the line didn't run | "S2 3rd: 584 counted, but the line was cleaning. Late entries from 2nd, or did it run?" | `prod_units` or `line_hrs` |
+| **late start** — the shift started 30+ min late with less downtime logged than the time lost | "TR1 1st started 9:47 with no downtime logged. Count the 197 min lost as downtime?" | `total_dt` or `line_hrs` |
+| **planned time** — the schedule planned changeover / cleaning / lunch | "Sollich-4 had 4 h of cleaning/lunch rotation planned. Any downtime to take out?" (ML2/ML3's first 30 CIL minutes a shift are already taken out) | `total_dt` |
 | **downtime cause** — a reason the map couldn't place | "'Capture test' on ML4 3rd, 20 min — count it as downtime?" | `total_dt` if it changes |
 | **no standard crew** | "No standard crew on file for <item>. What should standard be?" | `std_hc` |
-| **lunch rotations** (always, per plant) | Show the shift notes that mention lunch (they're in the workbook's Lunch Rotations comment) and ask for crew and hours per shift | `lunch_hrs` with `--hc` |
-| **line cleaning** (when she wants to change the estimate) | "ML1 3rd: I have 4 crew × 8 h cleaning. Right?" | `cleaning_hrs` with `--hc` |
+| **training note** — the shift's HC Notes name people in training but its Training HC cell is blank | "L3 3rd notes say '3 Training on WDS', Training HC is blank. Book 3 × 8 h training?" | `training_hrs` with `--hc` (`--line` = the plant, e.g. L3) |
+| **lunch rotations** (always, per plant) | Rows the schedule plans as "LUNCH ROTATION" are booked already (that line's crew × the hours; MFM 2 h a shift). Show them, plus the shift notes that mention lunch, and ask for the rest, especially a mixed "CLEANING/LUNCH ROTATION" block (Sollich-4) | `lunch_hrs` with `--hc` (her answer replaces the schedule's for the plant) |
+| **line cleaning** (when she wants to change the estimate) | A crew on a line that made nothing that shift (a Level 2 clean) is booked as crew × 8 h cleaning, and a short shift as crew × hours it didn't run. "ML4 Sat 3rd: I have 20 crew × 8 h cleaning. Right?" | `cleaning_hrs` with `--hc` |
 
 Rules: one question at a time; accept "keep it" and move on; never fill an answer she didn't give. When
 the list is done, run `prepare` again so her answers apply, and tell her how many items are left (should be 0
@@ -102,9 +111,10 @@ or only ones she chose to leave).
 ### 4. Build
 `python automation/kpi-recon/scripts/amy_daily.py build --date D`
 
-Show Amy, in a few lines: company Labor % actual vs standard, OEE, LBS attainment, and each plant's Labor %;
-then the workbook path and the email text (`automation/kpi-recon/out/amy/D/email.txt`). Point out anything
-unusual (a Labor % far from the week's others, an unpriced item, OEE over 110%). Let her edit the email's
+Show Amy, in a few lines: company Labor % actual vs standard, OEE against the day's goal, LBS attainment, and each
+plant's Labor %; then the workbook path and the email text (`automation/kpi-recon/out/amy/D/email.txt`). Point out
+anything unusual: a Labor % far from the week's others, a run with **no sales value** (a new item whose case isn't
+priced yet; its plant's Labor % is overstated until it is), OEE over 110% (usually hours ran still on the schedule). Let her edit the email's
 downtime reasons — the supervisors' words are a draft; she may want to shorten them as she does today.
 
 ### 5. Publish — only after Amy says "approved", "publish", "send it" or similar
@@ -129,7 +139,32 @@ read her workbook from the S Drive with
 `python automation/kpi-recon/scripts/xlsx_to_text.py "<her file>" > /tmp/amy.txt`, then
 `python automation/kpi-recon/reference/amy-build/parse_amy_values.py /tmp/amy.txt /tmp/amy.json` and
 `KPI_PLANT_CORE=plant-built python automation/kpi-recon/scripts/tieout_amy.py --date D --amy /tmp/amy.json`.
-Walk her through the differences by cause and note any rule she gives you for Scott.
+Walk her through the differences by cause and note any rule she gives you for Scott. Expected differences that
+aren't errors: prices (the build uses NetSuite's current sales-order prices, which Ryan reviewed; where her price table
+is older, e.g. 30703 $2,544.12 vs $2,587, her table needs the update), and Matrix 1 & 2 rates (see below).
+
+## How the numbers work (so you can explain them)
+
+- **OEE** = uptime × rate. Rate = what the line made ÷ (hours ran less downtime × the line's standard rate at 100%).
+  Her rate table is the standard; where she has none, the 2026 schematic's rate with its planned efficiency taken out
+  (the 35g Caramel Heart: 20,400 an hour at 85% → 24,000).
+- **Goals.** Each line's standard goal is fixed for the year (S1 75%, S2 90%, S3 86%, S4 75%, ML2/ML3 85%, FFS 87%,
+  TR1/ML1/MM12 85%, ML4 75%, MFM 87%). When the scheduler sets a run under standard in the schedule's Notes column, that
+  is the line's goal for the day, and the run's labor standard is held to it too (Amy's efficiency haircut). The plant
+  goal is its standard (L1 87%, L2 85%, L3 80%), or on a reduced day the average goal of its lines that ran (L2 Oct 26:
+  50% and 85% → 68%). CandyCo's goal is 80%.
+- **Matrix 1 & 2 (MM12).** One machine's standard from her pouch table: large pouch (10 oz and up) 2,040 an hour
+  (34 a minute, crew 7), small pouch 1,800 (30 a minute); a shift that ran both machines has twice the standard. The
+  shift workbook shows a block per machine. Amy sometimes types 40–60 a minute; that's her call, so expect MM12 OEE to
+  differ from her sheet by a few points.
+- **Sales value.** A finished good at NetSuite's current sales-order price. WIP is valued at what its line packed that
+  day (the schedule's Pack rows): pieces × case price ÷ pieces per case where the case says it ("Display Box
+  32ct/Case2" = 64; ML1/ML4 caddies 144), and on Sollich-2 the cases NetSuite completed (30733-Case6, 30751-Case6,
+  30544-Bulk150) × their price.
+- **Misc labor** (same in standard and actual): CILs (0.25 h a person on S1–S3, TR1, ML1, ML4; 0.5 h on ML2, ML3, FFS)
+  only for crews on lines that produced that shift; training, sanitation and wash/mold washing head counts × 8 h;
+  lunch rotations; line cleaning. **Rework** (actual only) from every shift's rework block, L3 included.
+- **Scrap pounds** from the SafetyChain scrap forms by line.
 
 ## Reference
 - `references/SOP.html` — the standard operating procedure (print it; one copy at Amy's desk).
