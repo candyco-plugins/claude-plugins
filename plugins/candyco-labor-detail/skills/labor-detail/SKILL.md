@@ -1,9 +1,9 @@
 ---
 name: labor-detail
-description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'set up the labor detail', or similar."
+description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.3.1"
+  version: "0.4.0"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -57,6 +57,50 @@ Check each item and fix what you can; tell Amy plainly what she or Scott must do
    available in this session. If not: Settings → Connectors in the Claude app; NetSuite needs her role to read
    transactions.
 5. Run the daily steps once on a recent day and compare with her own file for that day (step 7).
+
+## Morning: the Daily Report ("build the daily report for yesterday")
+
+Amy's first job each morning, before the labor work. Do steps 0 and 1 of the daily run below first (update,
+NetSuite completions), then:
+
+`python automation/kpi-recon/scripts/amy_daily.py morning --date D`
+
+It runs `prepare` (the same review list as the afternoon; answer what she can now, the rest can wait), then:
+- **The workbook** `reports/kpi-recon/daily-report/D/Daily Report M-D-YY.xlsx`: the day before's Daily Report with
+  the day typed over it, as she does: each item's scheduled and produced units per shift on the line pages, crews,
+  line hours and attendance on the shift tabs, the downtime table split by cause from the supervisors' notes
+  (mechanical: repair, belting, adjust, other; operational: late start, cleaning, film/FW, carts, other), the scrap
+  table (TRIM: S'mores pre-enrobed and rice filtering; PACK: the rest), and a drafted comment per line. Her
+  formulas are untouched.
+- **Excel** (hidden) calculates and saves it and prints `Daily Report - 1st/2nd/3rd Shift - M-D-YY.pdf` and
+  `Plant Summary - M-D-YY.pdf` beside it. Amy should save and close any copy of that file she has open first.
+- **The email draft** `morning-email.html` / `morning-email.json`: "Daily Shift Reports and Plant Summary - M-D-YY"
+  to L1/L2/L3DailyShiftReport@candyco.com, a block per plant and line (product, downtime bullets from the notes,
+  OEE, LBS Attainment, DT %) and the totals. Attainment and DT % come from the Summary tab. **OEE isn't on the Daily
+  Report, so it shows `__%`**: ask Amy for each line's and total OEE, or where she reads it, and fill them in.
+
+Then walk her through `review.txt` in the same folder, one item at a time:
+- **ABSENT counts** (G8/M8/S8 on each shift tab) have no source: ask for them, or have her type them in the workbook.
+- **Safety line and managers** are kept from yesterday: ask if they changed.
+- **Downtime split and comments** are drafts from the supervisors' notes: she can change any of them in the
+  workbook. Her changes to the downtime table or comments are hers; numbers (units, crews, hours) change through
+  `override` answers and a re-run of `morning`, as in the afternoon.
+- **Big scrap entries** (1,000+ lbs on a line and shift): ask whether it all counts (a Level 3 clean's chocolate
+  push may not).
+If she edits the workbook, run `python automation/kpi-recon/scripts/excel_export.py "<workbook>" --pdf "1st Shift=Daily Report - 1st Shift - M-D-YY.pdf" --pdf "2nd Shift=..." --pdf "3rd Shift=..." --pdf "Summary=Plant Summary - M-D-YY.pdf"`
+and `python automation/kpi-recon/scripts/draft_morning_email.py --date D --book "<workbook>" --out-dir <same folder>`
+again so the PDFs and email match.
+
+When she approves:
+1. `python automation/kpi-recon/scripts/amy_daily.py morning-publish --date D` saves the workbook and the four PDFs
+   to `S Drive/Operations/Production Analytics/Daily Shift Reports/<YYYY>/<MM-Month>/<Mon-D>/`. It never writes over a
+   file already there: if she already started the day's file by hand, say so and ask which to keep.
+2. Put the email in **Amy's Outlook Drafts** (`outlook_create_draft`, `bodyType: html`, the body from
+   `morning-email.html`, to/subject from `morning-email.json`) and attach the four PDFs from the S Drive folder. She
+   sends it; never send it yourself.
+
+If Excel fails (`EXCEL STEP FAILED`), say so in one sentence: she opens the workbook, saves it, prints the four tabs
+to PDF by hand, and you run `draft_morning_email.py`. Log it for Scott (see "Tell Scott" below).
 
 ## Daily run
 
@@ -142,18 +186,54 @@ each shift's totals from the build.
      (the seven numbers she types per shift). The first working day of a month starts the month's file from last
      month's, split into weeks the way she does it (a week cut by the month end is named for its last day, e.g. 11-30-26);
    - the Labor Detail workbook to `S Drive/Operations/Production Analytics/Labor Detail/<YYYY>/<MM-Month>/`;
+   - the day's row in her **Production Workbooks** (`Total Line Hours and DT Hours - <YYYY>.xlsx`,
+     `Total LBS and Scrap - <YYYY>.xlsx`): hours from her answers, else the Daily Report's; pounds, scrap and
+     downtime from the Daily Report;
+   - Excel calculates the Labor Detail and prints her afternoon PDFs into `Labor Detail/<YYYY>/<MM-Month>/`:
+     `L1-Labor Detail-M-D-YY.pdf`, `L2-...`, `L3-...` (each plant's day sheet) and `Plant Summary - M-D-YY.pdf` (the
+     Weekly Labor Summary). If Excel fails, she saves and prints them by hand; log it for Scott;
+   - the day's item rows in `Production Workbooks/Labor Detail - <YYYY> by Line.xlsx`;
+   - the three plant emails drafted (`automation/kpi-recon/out/amy/D/plant-emails.json`);
    - the day's data to the ops portal repo. If the push fails (no GitHub access), say so; the files are still saved.
 2. Put the email in **Amy's Outlook Drafts** (`outlook_create_draft`, `bodyType: html`) — she reviews and sends it
-   herself: subject from the first line of `email.txt`, body = the rest as HTML paragraphs and bullet lists, plus a
-   link to the workbook:
-   `https://mrscalls.sharepoint.com/sites/CandyCoServer/Shared Documents/S Drive/Operations/Production Analytics/Labor Detail/<YYYY>/<MM-Month>/<file name>`.
-   Address it to her usual Labor Detail list (the same as the Daily Report); confirm the list with her the first time.
-   Never send it yourself.
-3. Tell Amy what was saved and pushed, with the links, and that the email is waiting in her Drafts.
+   herself: subject from the first line of `email.txt`, body = the rest as HTML paragraphs and bullet lists. Attach
+   the four PDFs and the Labor Detail workbook from the S Drive, as she does. Address it to her usual Labor Detail
+   list; confirm the list with her the first time. Never send it yourself.
+3. Put the three **"Lindon N - Labor by Shift - M-D-YY"** emails in her Drafts from `plant-emails.json` (to, cc,
+   subject, body, the plant's monthly Labor by Shift file and the day's Labor Shift Detail attached). Remind her to
+   paste the week's labor summary picture into each before sending. If an attachment is listed as missing, say which.
+4. Tell Amy what was saved and pushed, with the links, and that the four emails are waiting in her Drafts.
 
 ### 6. If something breaks
 Say what failed in one sentence and what you need (a file, a connector, an answer). Don't work around a
-missing source by estimating it. Scott owns the scripts; tell Amy to forward the error to him.
+missing source by estimating it. Scott owns the scripts: log it for him (below) so he sees it the same day.
+
+### Tell Scott (every session)
+Scott is alerted from a log in the repo. Whenever any of these happens, record it before the session ends:
+`python automation/kpi-recon/scripts/amy_daily.py feedback --date D --kind <error|change|question|note> --text "<what happened, in Amy's words where you can>"`
+- **error**: a step failed or printed something wrong (paste the message).
+- **change**: Amy corrected the build in a way a rule should learn: a downtime cause or comment she rewrote, a
+  number she changed in the workbook, a file she wants different, a step she does differently.
+- **question**: something only Scott can decide (a new standard, a rate, a price, a file she no longer uses).
+- **note**: anything else worth knowing ("PDFs came out on two pages").
+It commits and pushes just that log. Tell Amy it was sent to Scott. Don't change any script yourself.
+
+### Monday: Performance Trend ("build the weekly performance")
+After Saturday's Labor Detail is published:
+`python automation/kpi-recon/scripts/amy_daily.py weekly --week-ending <Saturday>` previews the week's tab in
+`Performance Trend/<YYYY>/Performance Trend - <YYYY>.xlsx`: her last tab copied, the 16 weeks shifted one column, and
+the new week typed in from the Labor Detail's Weekly Labor Summary (production sales, std/act labor $, OEE by line and
+plant) and Total LBS and Scrap (pounds and scrap by line; Molding-3 scrap = ML3 + FFS, Truffle-1 = Truffle + MFM).
+Month Total covers the weeks whose Monday is in the month. **Ask Amy for CC shipped gross sales and shipped pounds**
+(her NetSuite numbers with her adjustments; she can give a formula like `=25422932-23898000`). Then, on her OK:
+`python automation/kpi-recon/scripts/amy_daily.py weekly-publish --week-ending <Saturday> --shipped-sales <X> --shipped-lbs <Y>`
+adds the tab to her file and Excel prints `CC-Weekly Performance-WE-M-D-YY.pdf` and each plant's
+`Lindon-N/LN-Weekly Performance-WE-M-D-YY.pdf` (the other plants' rows hidden).
+
+### Monthly: L1 Late Starts
+`python automation/kpi-recon/scripts/amy_daily.py late-starts --month YYYY-MM` drafts the month's Late Start / Major
+DT Events list (events of 90+ minutes and late starts from the shift notes) in a separate workbook for her to trim
+and name; her own workbook isn't touched.
 
 ### 7. Parallel-run check (first two weeks)
 When Amy's own Labor Detail for D exists, compare:
