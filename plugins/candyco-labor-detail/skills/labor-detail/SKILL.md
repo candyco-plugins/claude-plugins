@@ -1,16 +1,17 @@
 ---
 name: labor-detail
-description: "Build CandyCo's daily Labor Detail (OEE, labor vs standard, misc labor) and the 'Labor Detail - OEE and Summary' email with Amy Hadrich, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds the workbook in her layout with live formulas and her summary email, and publishes both only after she approves. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'set up the labor detail', or similar."
+description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
 
 # labor-detail
 
-You are building Amy's daily **Labor Detail** with her. The numbers come from code in the
+You are building Amy's daily labor reports with her: each plant's **Labor Shift Detail**, the day's rows in her
+**monthly Labor by Shift** files, and the **Labor Detail - OEE** workbook with its email. The numbers come from code in the
 `candyco-ops-reports` repo; your job is to run it, put every judgment call in front of Amy in plain
 words, record her answers, and publish only when she says so. **Never invent a number.** Every figure
 comes from the shift workbooks, the schedule, NetSuite or Amy's own answer.
@@ -94,6 +95,8 @@ one sentence and ask the one question. Record each answer with:
 | Flag | What to ask | Field |
 |---|---|---|
 | **off schedule** — hours or units far from the schedule, or an item run / not run | "Sollich-4 1st made 255,900 against 163,200 on a 4-hour schedule. What hours ran should I use, and should scheduled units change?" Hours ran drive OEE: when production moved, the schedule's hours leave the rate over 100% until she gives the real hours | `line_hrs`, `sched_units` (+ `--sku`) |
+| **made … but the schedule didn't have it** — an unscheduled product ran beside scheduled ones | The flag quotes the shift notes. "S2 1st made 2,728 of 30521, not on the schedule. Notes say 'ran 30521 until 9:00'. How many hours did it run?" Until she answers, its hours are estimated at its standard rate | `run_hrs` with `--sku` |
+| **made on another day** — labels or completions entered today for another day's production (she'll usually say so) | "The 1,920 jars of 30521 were made 10/26 and labeled 10/27: take them out of today's hours and OEE?" (they keep units and sales; standard = actual) | `oee_exclude` `--value 1` with `--sku` |
 | **count gap** — NetSuite and the supervisor differ | "ML2 1st: NetSuite 337,250, supervisor 308,750. Keep NetSuite?" (her rule: NetSuite unless labels/recording had a problem; then move the difference between shifts so the day total still matches NetSuite). A shift NetSuite has nothing for counts 0 when NetSuite completed the item that day | `prod_units` (+ `--sku`) |
 | **units at 0 hours** — NetSuite counted units into a shift the line didn't run | "S2 3rd: 584 counted, but the line was cleaning. Late entries from 2nd, or did it run?" | `prod_units` or `line_hrs` |
 | **late start** — the shift started 30+ min late with less downtime logged than the time lost | "TR1 1st started 9:47 with no downtime logged. Count the 197 min lost as downtime?" | `total_dt` or `line_hrs` |
@@ -111,23 +114,42 @@ or only ones she chose to leave).
 ### 4. Build
 `python automation/kpi-recon/scripts/amy_daily.py build --date D`
 
+It makes, in her own layouts:
+- **Labor Shift Detail** for each plant (`reports/kpi-recon/labor-shift/D/LN - Labor Shift Detail - M-D-YY.xlsx`):
+  1st/2nd/3rd Shift tabs (each shift's units, pounds, scrap, hours and crew; the day's products in the same rows on
+  every tab) and Total Plant (the three added up). Each shift tab's **Summary** box is drafted per line: "Sol-2:
+  Scrap achieved - HC miss - Labor achieved" (met in green, missed in red) plus the shift's downtime ("- Chiller
+  fault (-45 mins)").
+- A preview of the day's rows in her **monthly Labor by Shift** files (same folder). Nothing on the S Drive changes yet.
+- The **Labor Detail - OEE** workbook: each day is the plant's Total Plant, as she pastes it.
+- The email text (`automation/kpi-recon/out/amy/D/email.txt`).
+
 Show Amy, in a few lines: company Labor % actual vs standard, OEE against the day's goal, LBS attainment, and each
-plant's Labor %; then the workbook path and the email text (`automation/kpi-recon/out/amy/D/email.txt`). Point out
-anything unusual: a Labor % far from the week's others, a run with **no sales value** (a new item whose case isn't
-priced yet; its plant's Labor % is overstated until it is), OEE over 110% (usually hours ran still on the schedule). Let her edit the email's
-downtime reasons — the supervisors' words are a draft; she may want to shorten them as she does today.
+plant's Labor %, then the file paths. Point out anything unusual: a Labor % far from the week's others, a run with
+**no sales value** (a new item whose case isn't priced yet; its plant's Labor % is overstated until it is), a rate
+cell with a "Rate from the 2026 line schematics" note (no rate of hers on file: ask her for it and tell Scott),
+OEE over 110% (usually hours ran still on the schedule).
+
+**Her words are hers to change:** she can edit any shift's Summary wording in the Labor Shift Detail files and the
+email's downtime reasons (the supervisors' words are a draft). **Numbers change only through her answers:** record
+the answer (step 3), run `prepare` and `build` again. Don't type numbers into the built files: the monthly file gets
+each shift's totals from the build.
 
 ### 5. Publish — only after Amy says "approved", "publish", "send it" or similar
-1. `python automation/kpi-recon/scripts/amy_daily.py publish --date D` — saves the workbook to
-   `S Drive/Operations/Production Analytics/Labor Detail/<YYYY>/<MM-Month>/` and pushes the day's data to
-   the ops portal repo. If the push fails (no GitHub access), say so; the workbook is still saved.
-2. Send the email with the Outlook tool (`outlook_send_mail`, `bodyType: html`): subject from the first line
-   of `email.txt`, body = the rest as HTML paragraphs and bullet lists, plus a link to the workbook:
+1. `python automation/kpi-recon/scripts/amy_daily.py publish --date D` — saves:
+   - each plant's Labor Shift Detail to `S Drive/Operations/Production Analytics/Labor by shift/<YYYY>/<MM-Month>/Lindon-N/`;
+   - the day's shift totals typed into her live monthly `LN - Labor by Shift Detail - <Month> - <YYYY>.xlsx` there
+     (the seven numbers she types per shift). The first working day of a month starts the month's file from last
+     month's, split into weeks the way she does it (a week cut by the month end is named for its last day, e.g. 11-30-26);
+   - the Labor Detail workbook to `S Drive/Operations/Production Analytics/Labor Detail/<YYYY>/<MM-Month>/`;
+   - the day's data to the ops portal repo. If the push fails (no GitHub access), say so; the files are still saved.
+2. Put the email in **Amy's Outlook Drafts** (`outlook_create_draft`, `bodyType: html`) — she reviews and sends it
+   herself: subject from the first line of `email.txt`, body = the rest as HTML paragraphs and bullet lists, plus a
+   link to the workbook:
    `https://mrscalls.sharepoint.com/sites/CandyCoServer/Shared Documents/S Drive/Operations/Production Analytics/Labor Detail/<YYYY>/<MM-Month>/<file name>`.
-   **Recipients:** during the parallel run (until Scott says to switch) send only to Amy and
-   scott.maxfield@candyco.com. After the switch, use Amy's usual distribution — confirm the list with her
-   before the first full send.
-3. Tell Amy what was saved, pushed and sent, with the links.
+   Address it to her usual Labor Detail list (the same as the Daily Report); confirm the list with her the first time.
+   Never send it yourself.
+3. Tell Amy what was saved and pushed, with the links, and that the email is waiting in her Drafts.
 
 ### 6. If something breaks
 Say what failed in one sentence and what you need (a file, a connector, an answer). Don't work around a
@@ -139,6 +161,7 @@ read her workbook from the S Drive with
 `python automation/kpi-recon/scripts/xlsx_to_text.py "<her file>" > /tmp/amy.txt`, then
 `python automation/kpi-recon/reference/amy-build/parse_amy_values.py /tmp/amy.txt /tmp/amy.json` and
 `KPI_PLANT_CORE=plant-built python automation/kpi-recon/scripts/tieout_amy.py --date D --amy /tmp/amy.json`.
+Do the same with her own Labor Shift Detail files for D (each shift tab's row 32 against the build's shift totals).
 Walk her through the differences by cause and note any rule she gives you for Scott. Expected differences that
 aren't errors: prices (the build uses NetSuite's current sales-order prices, which Ryan reviewed; where her price table
 is older, e.g. 30703 $2,544.12 vs $2,587, her table needs the update), and Matrix 1 & 2 rates (see below).
@@ -148,6 +171,9 @@ is older, e.g. 30703 $2,544.12 vs $2,587, her table needs the update), and Matri
 - **OEE** = uptime × rate. Rate = what the line made ÷ (hours ran less downtime × the line's standard rate at 100%).
   Her rate table is the standard; where she has none, the 2026 schematic's rate with its planned efficiency taken out
   (the 35g Caramel Heart: 20,400 an hour at 85% → 24,000).
+- **Standards.** Her rate table (rate, haircut, crew), from her own workbooks. Scott's approved exceptions are in
+  `reference/rate-decisions.csv`: Sollich-4 wrapped pieces at a 75% haircut for 2026 (a new line); the FEA Heart 35g
+  crew at 16 (2 more per shift for the packaging change). A new standard goes to Scott, not into the files.
 - **Goals.** Each line's standard goal is fixed for the year (S1 75%, S2 90%, S3 86%, S4 75%, ML2/ML3 85%, FFS 87%,
   TR1/ML1/MM12 85%, ML4 75%, MFM 87%). When the scheduler sets a run under standard in the schedule's Notes column, that
   is the line's goal for the day, and the run's labor standard is held to it too (Amy's efficiency haircut). The plant
@@ -164,8 +190,17 @@ is older, e.g. 30703 $2,544.12 vs $2,587, her table needs the update), and Matri
 - **Misc labor** (same in standard and actual): CILs (0.25 h a person on S1–S3, TR1, ML1, ML4; 0.5 h on ML2, ML3, FFS)
   only for crews on lines that produced that shift; training, sanitation and wash/mold washing head counts × 8 h;
   lunch rotations; line cleaning. **Rework** (actual only) from every shift's rework block, L3 included.
-- **Scrap pounds** from the SafetyChain scrap forms by line.
+- **Scrap pounds** from the SafetyChain scrap forms by line and shift; each shift's scrap goes to the products that
+  ran that shift.
+- **Shift Summary goals:** scrap achieved at or under 3% of pounds made; HC achieved when the shift's crew is at or
+  under standard; labor achieved when actual labor is at or under standard.
+- **Colors** follow her rules automatically (they're conditional formats, not typed): Act Labor red over standard /
+  green at or under; scrap % red above 3%; crew red above standard; in the monthly files Act Labor % red above Std
+  Labor % and Scrap % red above the goal.
 
 ## Reference
 - `references/SOP.html` — the standard operating procedure (print it; one copy at Amy's desk).
-- Method details: headers of `build_daily_report.py`, `review_flags.py`, `sku_runs.py`, `build_labor_detail.py`.
+- Method details: headers of `build_daily_report.py`, `review_flags.py`, `sku_runs.py`, `build_labor_shift.py`,
+  `build_labor_detail.py`.
+- Her layouts: `reference/labor-shift-template-L1/L2/L3.xlsx` and `reference/labor-detail-template.xlsx`, made from
+  her own files by `make_lsd_template.py` / `make_ld_template.py`. If she changes her sheet design, Scott re-runs them.
