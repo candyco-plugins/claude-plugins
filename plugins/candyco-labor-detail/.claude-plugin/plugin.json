@@ -1,7 +1,7 @@
 {
   "name": "candyco-labor-detail",
   "description": "Amy's daily labor reports with Claude: say 'build the labor detail for yesterday'. Claude reads the three plants' shift workbooks and daily schedules from the synced S Drive and NetSuite work-order completions, rebuilds the Daily Report numbers, walks you through the items that need your judgment (off-schedule and unscheduled runs, count gaps, planned time, lunch rotations), then builds each plant's Labor Shift Detail (with your shift summaries drafted), the day's rows in your monthly Labor by Shift files and the Labor Detail workbook in your layouts, and after you approve saves them to the S Drive and puts your summary email in your Outlook Drafts.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": {
     "name": "CandyCo",
     "email": "scott.maxfield@candyco.com"
