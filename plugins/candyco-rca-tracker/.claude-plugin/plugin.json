@@ -1,0 +1,10 @@
+{
+  "name": "candyco-rca-tracker",
+  "description": "RCA rigor review for CandyCo: say 'run the RCA tracker' (or let the weekday schedule run it). Claude reads new RCAs from the Supervisors Toolkit line workbooks, grades each against the RCA rubric (6W2H, brainstorm, Gemba, verified root cause, durable long-term actions, repeat failures), flags the issue types CI managers should coach on, updates the RCA Master Database in Continuous Improvement, and emails the new reviews to Chad and Shawn. CI grade overrides in the spreadsheet carry forward.",
+  "version": "0.1.0",
+  "author": {
+    "name": "CandyCo",
+    "email": "scott.maxfield@candyco.com"
+  },
+  "keywords": ["candyco", "rca", "root cause analysis", "continuous improvement", "gemba", "6w2h", "operations", "quality"]
+}
