@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.4.1"
+  version: "0.4.2"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -207,6 +207,14 @@ each shift's totals from the build.
 ### 6. If something breaks
 Say what failed in one sentence and what you need (a file, a connector, an answer). Don't work around a
 missing source by estimating it. Scott owns the scripts: log it for him (below) so he sees it the same day.
+
+If publish prints **STOPPED ... scripts are changed on this computer**: those are edits made in this checkout outside
+review (they're already logged for Scott). Set them aside with `git -C "~/CandyCo KPI/candyco-ops-reports" stash push
+-m "set aside <date>" -- automation/kpi-recon/scripts automation/kpi-recon/reference`, run `git pull`, and publish again.
+If it prints **NOT PUBLISHED TO THE REPO**, the S Drive files are saved; say so to Amy and leave it for Scott.
+**Re-running a past day's publish** ("re-run the publish for 10-28-26"): first ask whether she changed the Labor Detail
+on the S Drive since; if she did, copy her S Drive file over the build's copy in `reports/kpi-recon/labor-detail/`
+before running, so her edits are kept. The emails for that day were already sent: tell her to delete the new drafts.
 
 ### Tell Scott (every session)
 Scott is alerted from a log in the repo. Whenever any of these happens, record it before the session ends:
