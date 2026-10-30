@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.5.0"
+  version: "0.5.1"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -58,6 +58,28 @@ Check each item and fix what you can; tell Amy plainly what she or Scott must do
    transactions.
 5. Run the daily steps once on a recent day and compare with her own file for that day (step 7).
 
+## Files Amy downloads (start of every day)
+
+Two files never come by themselves; say so at the start of the morning if they aren't there yet:
+
+| File | How Amy gets it | Where it goes |
+|---|---|---|
+| **SafetyChain export** (scrap forms) | SafetyChain LINK > Data Export & Visualizer > Saved Exports > **CEO-CFO KPI Daily Export** > Export, Records Per File 5000 > File 1, after 7:15 AM | `Downloads` |
+| **NetSuite "Production Work Order Completions For Amy"** (day results, Excel) | Her NetSuite saved search, exported | the day's `Daily Shift Reports/<YYYY>/<MM-Month>/<Mon-D>/` folder |
+| Monday only: shipped sales and pounds | NetSuite, her usual adjustments | typed into the chat |
+
+Everything else is on the S Drive (shift workbooks in Supervisors Toolkit, daily schedules in Planning, yesterday's
+Daily Report) or comes through the NetSuite connector. The SOP's page 2 lists every location.
+
+**When `prepare` or `morning` stops with `NEED SAFETYCHAIN`**, stop there. Tell Amy in one sentence to download the
+export (the steps above), then run `python automation/kpi-recon/scripts/amy_daily.py safetychain --date D`. It waits up
+to 9 minutes for the file to land in Downloads, loads it, pushes it, and says whether the day is covered:
+- `SafetyChain now covers D` → run `morning` (or `prepare`) again and carry on.
+- `STILL WAITING` → ask her whether it downloaded; when she says yes, run the `safetychain` step again.
+- `STILL SHORT` → the export doesn't reach the end of 3rd shift yet (forms not all submitted): ask her to export
+  again in a few minutes, then run the step again.
+Never build, and never type 0 for scrap, while it says NEED SAFETYCHAIN.
+
 ## Morning: the Daily Report ("build the daily report for yesterday")
 
 Amy's first job each morning, before the labor work. Do steps 0 and 1 of the daily run below first (update,
@@ -66,8 +88,7 @@ NetSuite completions), then:
 `python automation/kpi-recon/scripts/amy_daily.py morning --date D`
 
 It runs `prepare` (the same review list as the afternoon; answer what she can now, the rest can wait), then:
-- **SCRAP NOT IN YET**: when the SafetyChain export saved so far doesn't reach the day's last shift (it lands about
-  9:15), the scrap cells are left blank, not 0. Tell Amy, and run `morning` again once it's in.
+- **NEED SAFETYCHAIN**: see "Files Amy downloads" below. Nothing is built until the export covers the day.
 - **The workbook** `reports/kpi-recon/daily-report/D/Daily Report M-D-YY.xlsx`: the day before's Daily Report with
   the day typed over it, as she does: each item's scheduled and produced units per shift on the line pages, crews,
   line hours and attendance on the shift tabs, the downtime table split by cause from the supervisors' notes
