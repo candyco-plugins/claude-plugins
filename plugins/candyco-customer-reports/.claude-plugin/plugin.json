@@ -1,0 +1,18 @@
+{
+  "name": "candyco-customer-reports",
+  "description": "Amy's Hershey customer reports with Claude: builds the Hershey Production Report and Hersheys Daily Summary from NetSuite and the Daily Report, fills the shipping columns from NetSuite, drafts the Hershey email for Amy to send, and saves only after Amy approves. Feastables and Mondelez come next.",
+  "version": "0.1.0",
+  "author": {
+    "name": "CandyCo",
+    "email": "scott.maxfield@candyco.com"
+  },
+  "keywords": [
+    "candyco",
+    "hershey",
+    "feastables",
+    "mondelez",
+    "customer reports",
+    "production report",
+    "netsuite"
+  ]
+}

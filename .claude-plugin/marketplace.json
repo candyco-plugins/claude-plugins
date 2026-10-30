@@ -25,6 +25,11 @@
       "description": "Amy's daily Labor Detail with Claude: rebuilds the Daily Report from the shift workbooks, schedules and NetSuite, walks the reviewer through the judgment calls, then builds and publishes the Labor Detail workbook and summary email."
     },
     {
+      "name": "candyco-customer-reports",
+      "source": "./plugins/candyco-customer-reports",
+      "description": "Amy's Hershey customer reports with Claude: builds the Hershey Production Report and Hersheys Daily Summary from NetSuite and the Daily Report, fills the shipping columns from NetSuite, drafts the Hershey email for Amy to send, and saves only after Amy approves. Feastables and Mondelez come next."
+    },
+    {
       "name": "candyco-rca-tracker",
       "source": "./plugins/candyco-rca-tracker",
       "description": "RCA rigor review: grades every new RCA from the Supervisors Toolkit line workbooks (6W2H, brainstorm, Gemba, root cause, actions, repeat failures), flags issue types for coaching, keeps the RCA Master Database in Continuous Improvement, and emails new reviews to Chad and Shawn. Owner: Shawn Jewkes."
