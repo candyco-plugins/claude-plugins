@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.5.1"
+  version: "0.5.2"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -64,21 +64,25 @@ Two files never come by themselves; say so at the start of the morning if they a
 
 | File | How Amy gets it | Where it goes |
 |---|---|---|
-| **SafetyChain export** (scrap forms) | SafetyChain LINK > Data Export & Visualizer > Saved Exports > **CEO-CFO KPI Daily Export** > Export, Records Per File 5000 > File 1, after 7:15 AM | `Downloads` |
+| **SafetyChain scrap exports**, one per plant | Her own way, after 7:15 AM | the day's `Daily Shift Reports/<YYYY>/<MM-Month>/<Mon-D>/` folder as `L1-Scrap-M-D-YY.csv`, `L2-...`, `L3-...` |
 | **NetSuite "Production Work Order Completions For Amy"** (day results, Excel) | Her NetSuite saved search, exported | the day's `Daily Shift Reports/<YYYY>/<MM-Month>/<Mon-D>/` folder |
 | Monday only: shipped sales and pounds | NetSuite, her usual adjustments | typed into the chat |
 
 Everything else is on the S Drive (shift workbooks in Supervisors Toolkit, daily schedules in Planning, yesterday's
 Daily Report) or comes through the NetSuite connector. The SOP's page 2 lists every location.
 
-**When `prepare` or `morning` stops with `NEED SAFETYCHAIN`**, stop there. Tell Amy in one sentence to download the
-export (the steps above), then run `python automation/kpi-recon/scripts/amy_daily.py safetychain --date D`. It waits up
-to 9 minutes for the file to land in Downloads, loads it, pushes it, and says whether the day is covered:
-- `SafetyChain now covers D` → run `morning` (or `prepare`) again and carry on.
-- `STILL WAITING` → ask her whether it downloaded; when she says yes, run the `safetychain` step again.
-- `STILL SHORT` → the export doesn't reach the end of 3rd shift yet (forms not all submitted): ask her to export
-  again in a few minutes, then run the step again.
+**When `prepare` or `morning` stops with `NEED SAFETYCHAIN`**, stop there. Tell Amy in one sentence which plant's
+scrap export isn't in the day's folder, then run `python automation/kpi-recon/scripts/amy_daily.py safetychain --date D`.
+It waits up to 9 minutes for all three to be there:
+- `scrap exports in` → run `morning` (or `prepare`) again and carry on.
+- `STILL WAITING` → ask her whether she saved it (and where); when she says yes, run the `safetychain` step again.
 Never build, and never type 0 for scrap, while it says NEED SAFETYCHAIN.
+
+**Scrap never counts packaging** (Scott, 2026-10-30). Amy's exports hold every scrap form the plants entered,
+packaging included, and she saves them as exported; the tool does the filtering, never her. Left out: pouches,
+flow wrap and film, PET jars, lids, labels, boxes, cases, trays, bags, any 4xxxx part, and the film inside a
+wrapped product's pounds. Only product and ingredient pounds count. Never ask her to remove packaging rows, and
+ignore any "Counted on Daily Report" column in a copy: the tool applies this rule itself. `python automation/kpi-recon/scripts/scrap_exports.py --date D` lists what was left out, if she asks.
 
 ## Morning: the Daily Report ("build the daily report for yesterday")
 

@@ -1,7 +1,7 @@
 {
   "name": "candyco-labor-detail",
   "description": "Amy's daily reports with Claude. Morning: 'build the daily report for yesterday' types the day into the Daily Report workbook, has Excel print the three shift PDFs and the Plant Summary, and drafts her 'Daily Shift Reports and Plant Summary' email. Afternoon: 'build the labor detail for yesterday' rebuilds the numbers from the shift workbooks, schedules and NetSuite, walks her through the judgment calls, then builds each plant's Labor Shift Detail, her monthly Labor by Shift rows, the Labor Detail workbook and the Production Workbooks rows. Everything is saved to the S Drive only after she approves; emails go to her Outlook Drafts; anything that needs Scott is logged for him.",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": {
     "name": "CandyCo",
     "email": "scott.maxfield@candyco.com"
