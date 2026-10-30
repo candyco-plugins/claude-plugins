@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.4.2"
+  version: "0.5.0"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -66,12 +66,23 @@ NetSuite completions), then:
 `python automation/kpi-recon/scripts/amy_daily.py morning --date D`
 
 It runs `prepare` (the same review list as the afternoon; answer what she can now, the rest can wait), then:
+- **SCRAP NOT IN YET**: when the SafetyChain export saved so far doesn't reach the day's last shift (it lands about
+  9:15), the scrap cells are left blank, not 0. Tell Amy, and run `morning` again once it's in.
 - **The workbook** `reports/kpi-recon/daily-report/D/Daily Report M-D-YY.xlsx`: the day before's Daily Report with
   the day typed over it, as she does: each item's scheduled and produced units per shift on the line pages, crews,
   line hours and attendance on the shift tabs, the downtime table split by cause from the supervisors' notes
   (mechanical: repair, belting, adjust, other; operational: late start, cleaning, film/FW, carts, other), the scrap
   table (TRIM: S'mores pre-enrobed and rice filtering; PACK: the rest), and a drafted comment per line. Her
-  formulas are untouched.
+  formulas, descriptions and weights are untouched: an item new to a line goes on her row that already describes
+  it (Molding-4 "Affogato 13.3g") or an empty row, with NetSuite's weight; her "20055-S" row is item 20055.
+  **Sol-2 Pack** (30750 pouches, 30543-Bulk150 boxes, 30732...) is its own line: the schedule's "Sollich 2 Pack"
+  rows, counted from NetSuite, crew from the Sollich-2 item rows, standard 16 people for pouches, 10 for Bulk150.
+- **Comments** follow Amy's rules: 100%+ attainment "Attain. Met", 95-99.9% "Near Attain.", under 95% no label;
+  then every downtime cause of 10+ minutes in the order it happened, in her words (Changeover, Cleaning, Late start,
+  Film, Lot change, Date change, Printer, Trays, Carts, Accumulation, Belting, Repair, Adjust, Lunch rotation); a
+  line that only cleaned says "Cleaning". "DT" means the cause wasn't clear: ask her for the word.
+- **Re-runs keep her work**: running `morning` again for the same day keeps what she typed in the day's earlier
+  copy (managers, safety line, absences, comments) and says so in `review.txt`.
 - **Excel** (hidden) calculates and saves it and prints `Daily Report - 1st/2nd/3rd Shift - M-D-YY.pdf` and
   `Plant Summary - M-D-YY.pdf` beside it. Amy should save and close any copy of that file she has open first.
 - **The email draft** `morning-email.html` / `morning-email.json`: "Daily Shift Reports and Plant Summary - M-D-YY"
@@ -79,7 +90,7 @@ It runs `prepare` (the same review list as the afternoon; answer what she can no
   OEE, LBS Attainment, DT %) and the totals. Attainment and DT % come from the Summary tab. **OEE isn't on the Daily
   Report, so it shows `__%`**: ask Amy for each line's and total OEE, or where she reads it, and fill them in.
 
-Then walk her through `review.txt` in the same folder, one item at a time:
+Then walk her through `review.txt` in the same folder, one item at a time, **in her order** (see "Question order"):
 - **ABSENT counts** (G8/M8/S8 on each shift tab) have no source: ask for them, or have her type them in the workbook.
 - **Safety line and managers** are kept from yesterday: ask if they changed.
 - **Downtime split and comments** are drafts from the supervisors' notes: she can change any of them in the
@@ -105,6 +116,10 @@ to PDF by hand, and you run `draft_morning_email.py`. Log it for Scott (see "Tel
 ## Daily run
 
 ### 0. Update
+`git -C "~/CandyCo KPI/candyco-ops-reports" branch --show-current` must say `main`. If it names anything else
+(10-30: Amy's checkout was on `fix/labor-detail-markups-10-27`), switch back without losing anything:
+`git -C <repo> stash push -u -m "before switching to main <date>"`, then `git -C <repo> switch main`. Never delete a
+branch or a stash; tell Scott what was there (feedback, kind note). Then:
 `git -C "~/CandyCo KPI/candyco-ops-reports" pull --rebase --autostash origin main`
 
 ### 1. NetSuite completions
@@ -130,9 +145,20 @@ pounds from the SafetyChain scrap forms, rebuilds the Daily Report numbers and p
 shift tab not filled in, a schedule not posted) and offer to try again in 30 minutes. If it prints
 `NEED NETSUITE`, go back to step 1.
 
+### Question order (Amy, 2026-10-30; morning and afternoon)
+Ask in the order she fills in the Daily Report, and never jump around:
+1. **Lindon 2**: Molding-2, Molding-3, FFS, L2 Ingredient Prep
+2. **Lindon 1**: Sollich-1, Sollich-2, Sollich-3, Sollich-4, Kitchen, Sol-2 Pack, L1 Ingredient Prep
+3. **Lindon 3**: Truffle-1, Molding-1, Molding-4, MFM, Truffle Pack
+
+Within each line, 1st shift, then 2nd, then 3rd, and every question about that line and shift before moving on.
+A plant-wide question (absences, a training note) comes at the start of its plant. The managers and safety line
+come first, before Lindon 2. `review_flags.py` and `review.txt` already list items in this order: keep it. If a
+question comes up out of order (she asks about something else), answer it, then go back to where you were.
+
 ### 3. Review with Amy (the important part)
-Go through the review list **one line at a time** (L1, then L2, then L3). For each flag, say what you found in
-one sentence and ask the one question. Record each answer with:
+Go through the review list **one line at a time, in her order** (Question order above). For each flag, say what you
+found in one sentence and ask the one question. Record each answer with:
 
 `python automation/kpi-recon/scripts/amy_daily.py override --date D --line <LINE> --shift <1|2|3> --field <field> [--sku <item>] --value <number> [--hc <crew>] --note "<her words>"`
 
