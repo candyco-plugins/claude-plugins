@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.5.4"
+  version: "0.5.5"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -91,6 +91,11 @@ NetSuite completions), then:
 
 `python automation/kpi-recon/scripts/amy_daily.py morning --date D`
 
+**First, the preflight:** `python automation/kpi-recon/scripts/amy_daily.py check --date D`. It lists every input the
+day still needs (shift workbooks, schedules, scrap exports, NetSuite completions, files OneDrive hasn't downloaded) and,
+near a month's end, what next month needs (its sheet in both Production Workbooks). Tell her the MISSING lines in one
+short list so she can fetch them all at once; mention COMING UP lines once, they don't stop today.
+
 It runs `prepare` (the same review list as the afternoon; answer what she can now, the rest can wait), then:
 - **NEED SAFETYCHAIN**: see "Files Amy downloads" below. Nothing is built until the export covers the day.
 - **NEED SHIFT WORKBOOK**: a plant's workbook for the week isn't in Supervisors Toolkit (names with or without
@@ -101,6 +106,11 @@ It runs `prepare` (the same review list as the afternoon; answer what she can no
   `amy_daily.py standard --date D --line LINE --sku SKU --rate R [--haircut H] [--hc N] --note "<her words>"`, or
   `--use-schematic` when she says the schematic's number (shown) is right. It's saved for every later day. Then run
   the same step again. Never type a rate she didn't give.
+  NEED STANDARDS also lists rows missing the item's weight or name on a pounds line: save her answer with
+  `--weight-oz` / `--description` on the same `standard` command.
+- **"NetSuite completed N of X and it's on no row"** (a review question): ask which line made it (add it with
+  `override`), or whether it isn't line output (kitchen caramel, rework): `amy_daily.py not-a-row --date D --sku X
+  --note "<her words>"`, and it's never asked again.
 - **A scrap entry that shouldn't count** (the same entry twice, or not production scrap, like a purge she names):
   `amy_daily.py scrap-exclude --date D --record <SafetyChain record number> --note "<her words>"`, then build again.
   Never edit her export file.
@@ -151,6 +161,15 @@ When she approves:
 
 If Excel fails (`EXCEL STEP FAILED`), say so in one sentence: she opens the workbook, saves it, prints the four tabs
 to PDF by hand, and you run `draft_morning_email.py`. Log it for Scott (see "Tell Scott" below).
+
+## Line rules review (once, when she has 20 minutes; Scott, 2026-11-03)
+
+The rules the tool assumes for each line (CIL minutes, hours, crews, which lines have no pounds...) are in
+`reference/line-rules.csv`. When she agrees to do it, or a quiet afternoon allows, walk her through them in her question
+order: `amy_daily.py line-rules` (or `--line FFS` for one line) shows each rule and what the tool does now. Ask one rule
+at a time; save each answer with `amy_daily.py rule-answer --line <line> --rule "<rule>" --answer "right"` or her
+correction in her words (a correction is logged for Scott automatically). Rules she's answered show her answer, so the
+review can stop and pick up later. Never change a rule's number on her say-so in the scripts; Scott does.
 
 ## Daily run
 
