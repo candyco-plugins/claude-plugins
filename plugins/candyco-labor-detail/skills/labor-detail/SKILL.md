@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.5.3"
+  version: "0.5.4"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -93,6 +93,17 @@ NetSuite completions), then:
 
 It runs `prepare` (the same review list as the afternoon; answer what she can now, the rest can wait), then:
 - **NEED SAFETYCHAIN**: see "Files Amy downloads" below. Nothing is built until the export covers the day.
+- **NEED SHIFT WORKBOOK**: a plant's workbook for the week isn't in Supervisors Toolkit (names with or without
+  leading zeros both work). Tell her which plant; she finds out where the plant saved it. Never build without it.
+- **NEED STANDARDS** (asked first, before any other question): rows with no standard of hers, so labor and OEE would
+  rest on a guess. Ask her for each one, one at a time: the rate per hour in the row's units (pieces per minute x 60 /
+  pieces per unit, as she gives it), and the haircut and crew if they differ from the line's. Save each answer with
+  `amy_daily.py standard --date D --line LINE --sku SKU --rate R [--haircut H] [--hc N] --note "<her words>"`, or
+  `--use-schematic` when she says the schematic's number (shown) is right. It's saved for every later day. Then run
+  the same step again. Never type a rate she didn't give.
+- **A scrap entry that shouldn't count** (the same entry twice, or not production scrap, like a purge she names):
+  `amy_daily.py scrap-exclude --date D --record <SafetyChain record number> --note "<her words>"`, then build again.
+  Never edit her export file.
 - **NEED ONEDRIVE**: a shift workbook, schedule or scrap export is in OneDrive but won't download to her PC. Tell
   her which files (the message lists them): right-click > Always keep on this device, and fix any OneDrive sync error
   first. Then run the same step again. Never copy the file from somewhere else or build without it.
