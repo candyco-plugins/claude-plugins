@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.5.5"
+  version: "0.5.7"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -100,6 +100,11 @@ It runs `prepare` (the same review list as the afternoon; answer what she can no
 - **NEED SAFETYCHAIN**: see "Files Amy downloads" below. Nothing is built until the export covers the day.
 - **NEED SHIFT WORKBOOK**: a plant's workbook for the week isn't in Supervisors Toolkit (names with or without
   leading zeros both work). Tell her which plant; she finds out where the plant saved it. Never build without it.
+- **CONFIRM STANDARDS** (once a day, before any question; Scott, 11-3): `prepare` prints the day's standards table,
+  one row per item on the report: standard rate an hour, haircut, crew, weight and where each came from (her rate
+  table, her saved answer, the schematic, or Scott's decision). Show it to her as a table. Rows marked NEEDS YOUR ...
+  must get her number first (see NEED STANDARDS). She can change any other row the same way. When she says the
+  table is right: `amy_daily.py standards --date D --confirm`, then run the same step again. Never confirm for her.
 - **NEED STANDARDS** (asked first, before any other question): rows with no standard of hers, so labor and OEE would
   rest on a guess. Ask her for each one, one at a time: the rate per hour in the row's units (pieces per minute x 60 /
   pieces per unit, as she gives it), and the haircut and crew if they differ from the line's. Save each answer with
@@ -154,13 +159,21 @@ again so the PDFs and email match.
 When she approves:
 1. `python automation/kpi-recon/scripts/amy_daily.py morning-publish --date D` saves the workbook and the four PDFs
    to `S Drive/Operations/Production Analytics/Daily Shift Reports/<YYYY>/<MM-Month>/<Mon-D>/`. It never writes over a
-   file already there: if she already started the day's file by hand, say so and ask which to keep.
-2. Put the email in **Amy's Outlook Drafts** (`outlook_create_draft`, `bodyType: html`, the body from
-   `morning-email.html`, to/subject from `morning-email.json`) and attach the four PDFs from the S Drive folder. She
-   sends it; never send it yourself.
+   finished file already there (say so and ask which to keep); a blank Daily Report she'd only started is moved aside
+   as "(blank start copy)" so the finished one lands.
+2. Put the email in **Amy's Outlook Drafts** with the four PDFs attached:
+   `python automation/kpi-recon/scripts/outlook_draft.py <out-dir>/morning-email.json` (desktop Outlook on her PC;
+   it prints "saved to Drafts ... (4 attachments)"). If it exits 3 (no classic Outlook), fall back to
+   `outlook_create_draft` (`bodyType: html`, body from `morning-email.html`, to/subject from the json) and tell her to
+   attach the four PDFs by hand. She sends it; never send it yourself.
 
 If Excel fails (`EXCEL STEP FAILED`), say so in one sentence: she opens the workbook, saves it, prints the four tabs
 to PDF by hand, and you run `draft_morning_email.py`. Log it for Scott (see "Tell Scott" below).
+
+**Before every publish, the OEE review** (Amy, 11-3): `publish` first prints the day's OEE table (hours, downtime,
+uptime, rate vs standard, attainment, OEE, goal, and a Check column: over 100%, far under goal, a schematic rate, no
+OEE) and stops with CONFIRM OEE. Show her the table. Fix anything she corrects with `override` and build again; when
+she says it's right: `amy_daily.py oee --date D --confirm`, then publish. Never confirm for her.
 
 ## Line rules review (once, when she has 20 minutes; Scott, 2026-11-03)
 
