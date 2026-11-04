@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.5.7"
+  version: "0.5.8"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -169,6 +169,16 @@ When she approves:
 
 If Excel fails (`EXCEL STEP FAILED`), say so in one sentence: she opens the workbook, saves it, prints the four tabs
 to PDF by hand, and you run `draft_morning_email.py`. Log it for Scott (see "Tell Scott" below).
+
+**Before the afternoon build, her sent morning email** (Amy, 11-3: the Labor Detail day sheets' notes must match the
+downtime notes she sent, in her cleaned wording): find the email she sent this morning, subject "Daily Shift Reports
+and Plant Summary - M-D-YY" (`outlook_email_search` with her address as sender), read it with `read_resource`, and save
+its HTML body exactly as returned to `automation/kpi-recon/out/amy/D/morning-email-sent.html`. If it isn't sent yet,
+say so; the build then drafts the notes from the shift workbooks.
+
+**Excel open:** an Excel step that prints `EXCEL OPEN` stopped because she has Excel windows open (the tool never
+drives her Excel; it used to leave hidden copies holding her files). Ask her to save and close Excel, then run the
+same step again.
 
 **Before every publish, the OEE review** (Amy, 11-3): `publish` first prints the day's OEE table (hours, downtime,
 uptime, rate vs standard, attainment, OEE, goal, and a Check column: over 100%, far under goal, a schematic rate, no
