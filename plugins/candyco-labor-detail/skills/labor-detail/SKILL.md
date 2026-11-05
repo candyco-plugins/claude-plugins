@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.5.9"
+  version: "0.6.0"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -162,8 +162,12 @@ When she approves:
    finished file already there (say so and ask which to keep); a blank Daily Report she'd only started is moved aside
    as "(blank start copy)" so the finished one lands.
 2. Put the email in **Amy's Outlook Drafts** with the four PDFs attached:
-   `python automation/kpi-recon/scripts/outlook_draft.py <out-dir>/morning-email.json` (desktop Outlook on her PC;
-   it prints "saved to Drafts ... (4 attachments)"). If it exits 3 (no classic Outlook), fall back to
+   `python automation/kpi-recon/scripts/outlook_draft.py <out-dir>/morning-email.json` — straight into her mailbox
+   through Microsoft Graph as Amy herself, so it shows in the new Outlook she uses (Amy, 11-5: never the classic one).
+   It prints "saved to Drafts ... (4 attachments)". **NOT SIGNED IN** (first time on a computer, or the sign-in ran
+   out): run `outlook_draft.py --sign-in`, give Amy the link and code it prints, and once she says she's signed in run
+   `outlook_draft.py --sign-in --finish`, then draft again. If the sign-in says the company has to approve it, log it
+   for Scott. Only if it still exits 3, fall back to
    `outlook_create_draft` (`bodyType: html`, body from `morning-email.html`, to/subject from the json) and tell her to
    attach the four PDFs by hand. She sends it; never send it yourself.
 
@@ -306,13 +310,15 @@ each shift's totals from the build.
    - the day's item rows in `Production Workbooks/Labor Detail - <YYYY> by Line.xlsx`;
    - the three plant emails drafted (`automation/kpi-recon/out/amy/D/plant-emails.json`);
    - the day's data to the ops portal repo. If the push fails (no GitHub access), say so; the files are still saved.
-2. Put the email in **Amy's Outlook Drafts** (`outlook_create_draft`, `bodyType: html`) — she reviews and sends it
-   herself: subject from the first line of `email.txt`, body = the rest as HTML paragraphs and bullet lists. Attach
-   the four PDFs and the Labor Detail workbook from the S Drive, as she does. Address it to her usual Labor Detail
-   list; confirm the list with her the first time. Never send it yourself.
-3. Put the three **"Lindon N - Labor by Shift - M-D-YY"** emails in her Drafts from `plant-emails.json` (to, cc,
-   subject, body, the plant's monthly Labor by Shift file and the day's Labor Shift Detail attached). Remind her to
-   paste the week's labor summary picture into each before sending. If an attachment is listed as missing, say which.
+2. Put the email in **Amy's Outlook Drafts**: `python automation/kpi-recon/scripts/outlook_draft.py
+   automation/kpi-recon/out/amy/D/labor-detail-email.json` — her Labor Detail list, the subject and body from
+   `email.txt`, the four PDFs and the Labor Detail workbook attached (publish writes the file). She reviews and sends
+   it herself; never send it. Not signed in: the sign-in under Morning step 2. Fallback only if it still exits 3:
+   `outlook_create_draft` with the json's to/subject/body, and she attaches the files by hand.
+3. Put the three **"Lindon N - Labor by Shift - M-D-YY"** emails in her Drafts:
+   `python automation/kpi-recon/scripts/outlook_draft.py automation/kpi-recon/out/amy/D/plant-emails.json` (each with
+   the plant's monthly Labor by Shift file and the day's Labor Shift Detail attached). Remind her to paste the week's
+   labor summary picture into each before sending. If it says MISSING ATTACHMENTS, say which and draft nothing.
 4. Tell Amy what was saved and pushed, with the links, and that the four emails are waiting in her Drafts.
 
 ### 6. If something breaks
@@ -350,6 +356,14 @@ Month Total covers the weeks whose Monday is in the month. **Ask Amy for CC ship
 `python automation/kpi-recon/scripts/amy_daily.py weekly-publish --week-ending <Saturday> --shipped-sales <X> --shipped-lbs <Y>`
 adds the tab to her file and Excel prints `CC-Weekly Performance-WE-M-D-YY.pdf` and each plant's
 `Lindon-N/LN-Weekly Performance-WE-M-D-YY.pdf` (the other plants' rows hidden).
+
+### Monthly: CC Total Labor by Shift (after the month's last Labor Detail is published)
+`python automation/kpi-recon/scripts/amy_daily.py cc-total --month YYYY-MM` builds "CC Total Labor by Shift-<Month>.xlsx"
+from the three plants' monthly Labor by Shift files and the month's daily L2 files, and prints each plant's and
+CandyCo's sales, labor %, scrap and the L2 scrap note (Ingred. Prep vs production, Ground Brookie vs 24%, Grahams vs
+15%). Show Amy the preview and the totals; when she approves, run it again with `--confirm` to save it in
+`Labor by shift/<YYYY>/<MM-Month>/`. It never writes over a copy she already saved there (it saves "(Claude)" beside
+it). If it says to open a monthly file in Excel and save it, she does, then run it again.
 
 ### Monthly: L1 Late Starts
 `python automation/kpi-recon/scripts/amy_daily.py late-starts --month YYYY-MM` drafts the month's Late Start / Major
