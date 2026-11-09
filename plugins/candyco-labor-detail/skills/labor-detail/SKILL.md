@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.6.0"
+  version: "0.6.1"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -115,7 +115,9 @@ It runs `prepare` (the same review list as the afternoon; answer what she can no
   `--weight-oz` / `--description` on the same `standard` command.
 - **"NetSuite completed N of X and it's on no row"** (a review question): ask which line made it (add it with
   `override`), or whether it isn't line output (kitchen caramel, rework): `amy_daily.py not-a-row --date D --sku X
-  --note "<her words>"`, and it's never asked again.
+  --note "<her words>"`, and it's never asked again. If it's only that day (Amy, 11-9: 30715-Box12 MRC Bulk boxes are
+  usually scrap labels, but she wants to be asked every time), add `--day-only`: it's left off that day only and asked
+  again the next time it shows up.
 - **A scrap entry that shouldn't count** (the same entry twice, or not production scrap, like a purge she names):
   `amy_daily.py scrap-exclude --date D --record <SafetyChain record number> --note "<her words>"`, then build again.
   Never edit her export file.
@@ -165,8 +167,10 @@ When she approves:
    `python automation/kpi-recon/scripts/outlook_draft.py <out-dir>/morning-email.json` — straight into her mailbox
    through Microsoft Graph as Amy herself, so it shows in the new Outlook she uses (Amy, 11-5: never the classic one).
    It prints "saved to Drafts ... (4 attachments)". **NOT SIGNED IN** (first time on a computer, or the sign-in ran
-   out): run `outlook_draft.py --sign-in`, give Amy the link and code it prints, and once she says she's signed in run
-   `outlook_draft.py --sign-in --finish`, then draft again. If the sign-in says the company has to approve it, log it
+   out): run `outlook_draft.py --sign-in`. It opens Microsoft's sign-in page in her browser (and prints the link in case
+   it doesn't open); she signs in as herself, the page says she can close it, and the script saves the sign-in. It
+   waits 5 minutes. (CandyCo blocks the code sign-in, `--sign-in --device`; don't use it.) Then draft again. If the
+   sign-in says the company has to approve it or a policy blocked it, log it
    for Scott. Only if it still exits 3, fall back to
    `outlook_create_draft` (`bodyType: html`, body from `morning-email.html`, to/subject from the json) and tell her to
    attach the four PDFs by hand. She sends it; never send it yourself.
@@ -206,6 +210,10 @@ review can stop and pick up later. Never change a rule's number on her say-so in
 `git -C <repo> stash push -u -m "before switching to main <date>"`, then `git -C <repo> switch main`. Never delete a
 branch or a stash; tell Scott what was there (feedback, kind note). Then:
 `git -C "~/CandyCo KPI/candyco-ops-reports" pull --rebase --autostash origin main`
+If `git -C <repo> stash list` shows any stashes (11-9: five "autostash" ones were left from earlier publishes), run
+`python automation/kpi-recon/scripts/amy_daily.py tidy-git` once: it saves each stash's files under
+`automation/kpi-recon/out/amy/stash-aside/` and only then drops it. Tell Scott what it saved (feedback, kind note).
+Publish and feedback no longer leave stashes behind (11-9).
 If the pull stops with **untracked working tree files would be overwritten by merge** (11-5: the S Drive sync pushed
 the day's `data/plant/...` files while her run had written its own copies), move just the files it lists into
 `automation/kpi-recon/out/amy/pull-aside/<date>/` (same relative paths; never delete them) and pull again. Publish
