@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.6.1"
+  version: "0.6.2"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -39,7 +39,15 @@ better than anyone; you're saving her the typing.
 `/plugin` commands don't run in the desktop app's Code tab. Install from **+ → Add plugins** (or
 **Plugins → Browse plugins**) in a **Local** session, then start a new session. If the CandyCo marketplace
 isn't listed, run in PowerShell: `claude plugin install candyco-labor-detail@candyco --marketplace candyco-plugins/claude-plugins`.
-Git for Windows must be installed first (quit and reopen the app after installing it). Invoke this skill by name:
+Git for Windows must be installed first (quit and reopen the app after installing it).
+
+**Updates:** CandyCo's plugins reach Amy through the claude.ai organization catalog, which syncs from the GitHub repo
+when Scott publishes. Her app downloads the new version the next time it starts: quit and reopen the Claude app (or,
+in a running session, `/reload-plugins` when it says plugins changed). `/plugin marketplace update candyco` doesn't
+apply to her setup ("Marketplace 'candyco' not found", 11-10); don't run it. The scripts themselves update through
+git at step 0, not through the plugin.
+
+Invoke this skill by name:
 `/candyco-labor-detail:labor-detail set up` or `/candyco-labor-detail:labor-detail yesterday`.
 
 ## Setup (first run on a computer — "set up the labor detail")
@@ -218,6 +226,12 @@ If the pull stops with **untracked working tree files would be overwritten by me
 the day's `data/plant/...` files while her run had written its own copies), move just the files it lists into
 `automation/kpi-recon/out/amy/pull-aside/<date>/` (same relative paths; never delete them) and pull again. Publish
 and feedback do this themselves from 11-5 on; this is only for a checkout that doesn't have that yet.
+
+### 0b. Connectors (before anything else)
+Check that the **NetSuite** and **Microsoft 365** connectors are available in this session (their tools are listed:
+`ns_runCustomSuiteQL`, `outlook_email_search`). If either is missing (11-9: NetSuite wasn't there for the morning
+report), stop and tell Amy in one sentence to turn it on for this session (the connectors menu in the chat box, or
+Settings -> Connectors to reconnect), then start a new session. Don't build without NetSuite's completions.
 
 ### 1. NetSuite completions
 Run this SuiteQL with the NetSuite connector for D (replace the dates: from D 05:00 to D+1 08:00), with
