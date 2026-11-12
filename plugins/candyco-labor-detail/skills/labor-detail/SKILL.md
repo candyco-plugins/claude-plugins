@@ -3,7 +3,7 @@ name: labor-detail
 description: "Build CandyCo's daily labor reports with Amy Hadrich: each plant's Labor Shift Detail (1st/2nd/3rd Shift + Total Plant, with her per-shift Summary drafted), the day's rows in her monthly Labor by Shift files, the Labor Detail - OEE workbook and the 'Labor Detail - OEE and Summary' email, from the plants' shift workbooks and daily schedules on the synced S Drive plus NetSuite work-order completions. Claude rebuilds the Daily Report numbers, walks Amy through every item that needs her judgment (runs off schedule, unscheduled runs, NetSuite vs supervisor count gaps, planned changeover / cleaning / lunch time, lunch rotations, unmapped downtime, missing standards), records her answers, builds everything in her own layouts with live formulas, and after she approves saves it to the S Drive and puts the email in her Outlook Drafts. Also builds her morning Daily Report (workbook, three shift PDFs, Plant Summary PDF and the 'Daily Shift Reports and Plant Summary' email draft) and types the day into her Production Workbooks. Invoke when the user says 'build the labor detail', 'labor detail for yesterday', 'run the labor detail for <date>', 'make the daily labor report', 'build the daily report', 'morning report', 'set up the labor detail', or similar."
 user-invocable: true
 metadata:
-  version: "0.6.2"
+  version: "0.6.3"
   argument-hint: "build the labor detail for <date | yesterday>"
   owner: "Scott Maxfield (scorecard) · Amy Hadrich (daily run)"
 ---
@@ -128,7 +128,12 @@ It runs `prepare` (the same review list as the afternoon; answer what she can no
   again the next time it shows up.
 - **A scrap entry that shouldn't count** (the same entry twice, or not production scrap, like a purge she names):
   `amy_daily.py scrap-exclude --date D --record <SafetyChain record number> --note "<her words>"`, then build again.
-  Never edit her export file.
+  Never edit her export file. A form that has the same pounds in both "Trim Scrapped" and "Scrapped" is already
+  counted once and shows on the review list; no answer is needed.
+- **Scrap that never went into SafetyChain** (she gives the pounds by hand, like L2 Ingredient Prep 3 lbs on 1st):
+  `amy_daily.py scrap-add --date D --line <the build's line name, e.g. L2-INGREDIENT PREP> --shift <1|2|3> --lbs N
+  [--kind choco|trim|pack] --note "<her words>"`, then build again. It counts on the Daily Report and in the Labor
+  Detail. One answer per line and shift: a new one replaces it, and `--lbs 0` removes it. Only pounds she gave.
 - **NEED ONEDRIVE**: a shift workbook, schedule or scrap export is in OneDrive but won't download to her PC. Tell
   her which files (the message lists them): right-click > Always keep on this device, and fix any OneDrive sync error
   first. Then run the same step again. Never copy the file from somewhere else or build without it.
@@ -287,6 +292,11 @@ found in one sentence and ask the one question. Record each answer with:
 | **training note** — the shift's HC Notes name people in training but its Training HC cell is blank | "L3 3rd notes say '3 Training on WDS', Training HC is blank. Book 3 × 8 h training?" | `training_hrs` with `--hc` (`--line` = the plant, e.g. L3) |
 | **lunch rotations** (always, per plant) | Rows the schedule plans as "LUNCH ROTATION" are booked already (that line's crew × the hours; MFM 2 h a shift). Show them, plus the shift notes that mention lunch, and ask for the rest, especially a mixed "CLEANING/LUNCH ROTATION" block (Sollich-4) | `lunch_hrs` with `--hc` (her answer replaces the schedule's for the plant) |
 | **line cleaning** (when she wants to change the estimate) | A crew on a line that made nothing that shift (a Level 2 clean) is booked as crew × 8 h cleaning, and a short shift as crew × hours it didn't run. "ML4 Sat 3rd: I have 20 crew × 8 h cleaning. Right?" | `cleaning_hrs` with `--hc` |
+
+**A run's OEE goal for one day** (the schedule's Notes set a reduced goal, but she says it ran at standard, or the
+other way round): `amy_daily.py day-goal --date D --line <LINE> --sku <item> --goal std|<fraction like 0.75> --note
+"<her words>"`, then build again. Only that day changes; other days keep the schedule's goal. The note prints under
+the line in her Labor Detail email, so word it as she would.
 
 Rules: one question at a time; accept "keep it" and move on; never fill an answer she didn't give. When
 the list is done, run `prepare` again so her answers apply, and tell her how many items are left (should be 0
